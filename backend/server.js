@@ -1,10 +1,12 @@
-const express= require("express");
-const mongoose= require("mongoose");
-const dotenv=require("dotenv");
-const cors= require("cors");
-const bodyParser= require("body-parser");
+import express from "express";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import cors from "cors";
+import bodyParser from "body-parser";
+
 const app= express();
-require("dotenv").config();
+dotenv.config();
+
 
 const PORT=process.env.PORT||8070;
 
@@ -25,6 +27,10 @@ connection.once("open",()=>{
     console.log("Mongodb connection success!");
 })
 
+import product from "./routes/product_route.js";
+
+
+app.use("/products",product)
 
 app.listen(PORT,()=>{
     console.log(`Server is up and running on port ${PORT}`)
