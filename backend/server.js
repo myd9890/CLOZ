@@ -25,6 +25,9 @@ connection.once("open",()=>{
     console.log("Mongodb connection success!");
 })
 
+const studentRouter = require("./routes/Assets.js");
+app.use("/assets",studentRouter);
+
 
 app.listen(PORT,()=>{
     console.log(`Server is up and running on port ${PORT}`)
