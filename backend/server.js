@@ -25,8 +25,8 @@ connection.once("open",()=>{
     console.log("Mongodb connection success!");
 })
 
-const studentRouter = require("./routes/Assets.js");
-app.use("/assets",studentRouter);
+const assetRouter = require("./routes/Assets.js");
+app.use("/assets",assetRouter);
 
 
 app.listen(PORT,()=>{
