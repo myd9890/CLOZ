@@ -21,7 +21,7 @@ const assetSchema = new Schema({
         required : true
     },
     assetValue : {
-        type : float,
+        type : Number,
         required : true
     }
 
