@@ -6,7 +6,7 @@ router.route("/add").post((req,res)=>{
     const ID = req.body.ID;
     const assetName = req.body.assetName;
     const assetType = req.body.assetType;
-    const purchaseDate = req.body.purchaseDate;
+    const purchaseDate = Date.parse(req.body.purchaseDate);
     const assetValue = req.body.assetValue;
 
     const newAsset = new Asset({
