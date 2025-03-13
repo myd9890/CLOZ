@@ -70,7 +70,7 @@ router.route("/delete/:id").delete(async(req,res) =>{
 router.route("/get/:id").get(async(req,res) =>{
     let assetID = req.params.id;
     const asset = await Asset.findById(assetID).then(() => {
-        res.status(200).send({status : "Asset fetched!"})
+        res.status(200).send({status : "Asset fetched!", asset});
     }).catch((err) => {
         console.log(err.message);
         res.status(500).send({status : "Error with fetching data!", error : err.message});
