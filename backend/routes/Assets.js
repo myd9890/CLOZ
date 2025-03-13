@@ -25,4 +25,12 @@ router.route("/add").post((req,res)=>{
 
 })
 
+router.route("/").get((req,res)=>{
+    Asset.find().then((asset)=>{
+        res.json(asset);
+    }).catch((err)=>{
+        console.log(err);
+    })
+})
+
 module.exports = router;
