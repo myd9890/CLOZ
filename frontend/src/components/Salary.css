@@ -1,0 +1,20 @@
+.salary-container {
+  padding: 1rem;
+}
+
+.salary-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.salary-table th,
+.salary-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.salary-table th {
+  background-color: #f2f2f2;
+}
