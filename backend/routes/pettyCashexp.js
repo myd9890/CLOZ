@@ -1,25 +1,24 @@
 const router = require('express').Router();
-let Expense = require('../models/Expense');
-
+let Petty = require('../models/pettyCash');
 
 
 router.route("/add").post((req,res)=>{
     const ID = req.body.ID;
     const expense = req.body.expense;
-    const expenseType = req.body.expenseType;
+    const Type = req.body.Type;
     const Date = Date.parse(req.body.Date);
     const Amount = req.body.Amount;
 
-    const newExpense = new Expense({
+    const newPetty = new pettyCash({
         ID,
         expense,
-        expenseType,
+        Type,
         Date,
         Amount
     })
 
-    newExpense.save().then(()=>{
-        res.json("Expense added!");
+    newPetty.save().then(()=>{
+        res.json("Petty cash expense added!");
     }).catch((err)=>{
         console.log(err);
     })
@@ -27,28 +26,28 @@ router.route("/add").post((req,res)=>{
 })
 
 router.route("/").get((req,res)=>{
-    Expense.find().then((asset)=>{
-        res.json(expense);
+    Petty.find().then((petty)=>{
+        res.json(petty);
     }).catch((err)=>{
         console.log(err);
     })
 })
 
 router.route("/update/:id").put(async(req,res) =>{
-    let expenseID = req.params.id;
-    const {ID,expense,expenseType,Date,Amount} = req.body;
+    let pettycashID = req.params.id;
+    const {ID,expense,Type,Date,Amount} = req.body;
 
-    const updateExpense = {
+    const updatePetty = {
         ID,
         expense,
-        expenseType,
+        Type,
         Date,
         Amount
     }
 
-    const update = await Expense.findByIdAndUpdate(expenseID,updateExpense).then(() =>{
+    const update = await Petty.findByIdAndUpdate(pettycashID,updatePetty).then(() =>{
         
-    res.status(200).send({status : "Expense updated!"})
+    res.status(200).send({status : "Petty cash expense updated!"})
     }).catch((err)=>{
         console.log(err);
         res.status(500).send({status : "Error with updating data!"})
@@ -58,10 +57,10 @@ router.route("/update/:id").put(async(req,res) =>{
 
 
 router.route("/delete/:id").delete(async(req,res) =>{
-    let expenseID = req.params.id;
+    let pettycashID = req.params.id;
 
-    await Expense.findByIdAndDelete(expenseID).then(() => {
-        res.status(200).send({status : "Expense deleted!"});
+    await Petty.findByIdAndDelete(pettycashID).then(() => {
+        res.status(200).send({status : "Petty cash expense deleted!"});
     }).catch((err) => {
         console.log(err);
         res.status(500).send({status : "Error with deleting data!"});
@@ -69,9 +68,9 @@ router.route("/delete/:id").delete(async(req,res) =>{
 })
 
 router.route("/get/:id").get(async(req,res) =>{
-    let expenseID = req.params.id;
-    const expense = await Expense.findById(expenseID).then((expense) => {
-        res.status(200).send({status : "Expense fetched!", expense});
+    let pettycashID = req.params.id;
+    const petty = await Petty.findById(pettycashID).then((petty) => {
+        res.status(200).send({status : "Petty cash expense fetched!", petty});
     }).catch((err) => {
         console.log(err.message);
         res.status(500).send({status : "Error with fetching data!", error : err.message});
