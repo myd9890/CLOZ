@@ -7,14 +7,14 @@ router.route("/add").post((req,res)=>{
     const ID = req.body.ID;
     const expense = req.body.expense;
     const expenseType = req.body.expenseType;
-    const Date = Date.parse(req.body.Date);
+    const expDate = Date.parse(req.body.expDate);
     const Amount = req.body.Amount;
 
     const newExpense = new Expense({
         ID,
         expense,
         expenseType,
-        Date,
+        expDate,
         Amount
     })
 
@@ -27,7 +27,7 @@ router.route("/add").post((req,res)=>{
 })
 
 router.route("/").get((req,res)=>{
-    Expense.find().then((asset)=>{
+    Expense.find().then((expense)=>{
         res.json(expense);
     }).catch((err)=>{
         console.log(err);
@@ -36,13 +36,13 @@ router.route("/").get((req,res)=>{
 
 router.route("/update/:id").put(async(req,res) =>{
     let expenseID = req.params.id;
-    const {ID,expense,expenseType,Date,Amount} = req.body;
+    const {ID,expense,expenseType,expDate,Amount} = req.body;
 
     const updateExpense = {
         ID,
         expense,
         expenseType,
-        Date,
+        expDate,
         Amount
     }
 

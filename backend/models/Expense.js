@@ -16,7 +16,7 @@ const expenseSchema = new Schema({
         enum : ['Distribution', 'Administrative', 'Financial', 'Other'],
         required : true
     },
-    Date : {
+    expDate : {
         type : Date,
         required : true
     },

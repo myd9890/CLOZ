@@ -16,7 +16,7 @@ const pettycashSchema = new Schema({
         enum : ['Debit', 'Credit'],
         required : true
     },
-    Date : {
+    expDate : {
         type : Date,
         required : true
     },

@@ -16,7 +16,7 @@ const liabilitySchema = new Schema({
         enum : ['Non-current', 'Current'],
         required : true
     },
-    Date : {
+    liabDate : {
         type : Date,
         required : true
     },

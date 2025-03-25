@@ -6,14 +6,14 @@ router.route("/add").post((req,res)=>{
     const ID = req.body.ID;
     const expense = req.body.expense;
     const Type = req.body.Type;
-    const Date = Date.parse(req.body.Date);
+    const expDate = Date.parse(req.body.expDate);
     const Amount = req.body.Amount;
 
-    const newPetty = new pettyCash({
+    const newPetty = new Petty({
         ID,
         expense,
         Type,
-        Date,
+        expDate,
         Amount
     })
 
@@ -35,13 +35,13 @@ router.route("/").get((req,res)=>{
 
 router.route("/update/:id").put(async(req,res) =>{
     let pettycashID = req.params.id;
-    const {ID,expense,Type,Date,Amount} = req.body;
+    const {ID,expense,Type,expDate,Amount} = req.body;
 
     const updatePetty = {
         ID,
         expense,
         Type,
-        Date,
+        expDate,
         Amount
     }
 

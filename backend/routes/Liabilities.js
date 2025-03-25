@@ -6,14 +6,14 @@ router.route("/add").post((req,res)=>{
     const ID = req.body.ID;
     const liabilityName = req.body.liabilityName;
     const liabilityType = req.body.liabilityType;
-    const Date = Date.parse(req.body.Date);
+    const liabDate = Date.parse(req.body.liabDate);
     const liabilityAmount = req.body.liabilityAmount;
 
     const newLiability = new Liability({
         ID,
         liabilityName,
         liabilityType,
-        Date,
+        liabDate,
         liabilityAmount
     })
 
@@ -35,13 +35,13 @@ router.route("/").get((req,res)=>{
 
 router.route("/update/:id").put(async(req,res) =>{
     let liabilityID = req.params.id;
-    const {ID,liabilityName,liabilityType,Date,liabilityAmount} = req.body;
+    const {ID,liabilityName,liabilityType,liabDate,liabilityAmount} = req.body;
 
     const updateLiability = {
         ID,
         liabilityName,
         liabilityType,
-        Date,
+        liabDate,
         liabilityAmount
     }
 

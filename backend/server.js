@@ -28,6 +28,15 @@ connection.once("open",()=>{
 const assetRouter = require("./routes/Assets.js");
 app.use("/assets",assetRouter);
 
+const liabilityRouter = require("./routes/Liabilities.js");
+app.use("/liabilities",liabilityRouter);
+
+const expenseRouter = require("./routes/Expenses.js");
+app.use("/expenses",expenseRouter);
+
+const pettyRouter = require("./routes/pettyCashexp.js");
+app.use("/pettycash",pettyRouter);
+
 
 app.listen(PORT,()=>{
     console.log(`Server is up and running on port ${PORT}`)
