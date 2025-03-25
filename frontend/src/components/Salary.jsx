@@ -15,8 +15,11 @@ function Salary() {
         console.error('Month and year must be selected');
         return;
       }
+      console.log('Fetching salary records for:', month, year);
       const response = await axios.get(`http://localhost:8070/api/salary?month=${month}&year=${year}`);
+      console.log('Response:', response.data);
       setSalaryRecords(response.data);
+      console.log('Salary Records:', response.data.salaryRecords);
       setFetched(true);
     } catch (error) {
       console.error('Error fetching salary records:', error);
@@ -56,36 +59,38 @@ function Salary() {
         <button onClick={fetchSalaryRecords}>Fetch Salary Records</button>
       </div>
       {fetched && (
-        <table className="salary-table">
-          <thead>
-            <tr>
-              <th>EmpID</th>
-              <th>Name</th>
-              <th>Department</th>
-              <th>Role</th>
-              <th>Basic Salary</th>
-              <th>OT Hours (Weekday)</th>
-              <th>OT Hours (Weekend/Holiday)</th>
-              <th>OT Pay</th>
-              <th>Total Salary</th>
-            </tr>
-          </thead>
-          <tbody>
-            {salaryRecords.map((record) => (
-              <tr key={record.empID}>
-                <td>{record.empID}</td>
-                <td>{record.name}</td>
-                <td>{record.department}</td>
-                <td>{record.role}</td>
-                <td>{record.basicSalary}</td>
-                <td>{record.otHoursWeekday}</td>
-                <td>{record.otHoursWeekendHoliday}</td>
-                <td>{record.otPay}</td>
-                <td>{record.totalSalary}</td>
+        <>
+          <table className="salary-table">
+            <thead>
+              <tr>
+                <th>EmpID</th>
+                <th>Name</th>
+                <th>Department</th>
+                <th>Role</th>
+                <th>Basic Salary</th>
+                <th>OT Hours (Weekday)</th>
+                <th>OT Hours (Weekend/Holiday)</th>
+                <th>OT Pay</th>
+                <th>Total Salary</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {salaryRecords.map((record) => (
+                <tr key={record.empID}>
+                  <td>{record.empID}</td>
+                  <td>{record.name}</td>
+                  <td>{record.department}</td>
+                  <td>{record.role}</td>
+                  <td>{record.basicSalary}</td>
+                  <td>{record.otHoursWeekday}</td>
+                  <td>{record.otHoursWeekendHoliday}</td>
+                  <td>{record.otPay}</td>
+                  <td>{record.totalSalary}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
       )}
     </div>
   );

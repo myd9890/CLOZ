@@ -15,7 +15,7 @@ function Attendance() {
 
   const [formData, setFormData] = useState({
     date: getCurrentDate(),
-    dayType: 'Weekday',
+    // dayType: 'Weekday',
     employeeId: '',
     arrivalTime: '09:00',
     status: 'Present',
@@ -86,15 +86,17 @@ function Attendance() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      console.log('Form Data:', formData);
       await axios.post('http://localhost:8070/api/attendance', formData);
       alert('Attendance record added successfully!');
       setFormData({
         date: getCurrentDate(),
-        dayType: 'Weekday',
+        // dayType: 'Weekday',
         employeeId: '',
         arrivalTime: '09:00',
         status: 'Present',
       });
+      
       fetchAttendanceRecords();
     } catch (error) {
       console.error('Error adding attendance record:', error);
@@ -140,7 +142,7 @@ function Attendance() {
             <label htmlFor="date">Date</label>
             <input type="date" id="date" name="date" value={formData.date} onChange={handleChange} required />
           </div>
-          <div className="form-group">
+          {/* <div className="form-group">
             <label>Day Type</label>
             <div className="toggle-radio">
               <input type="radio" name="dayType" id="weekday" value="Weekday" checked={formData.dayType === 'Weekday'} onChange={handleChange} />
@@ -150,7 +152,7 @@ function Attendance() {
               <input type="radio" name="dayType" id="specialHoliday" value="Special Holiday" checked={formData.dayType === 'Special Holiday'} onChange={handleChange} />
               <label htmlFor="specialHoliday">Special Holiday</label>
             </div>
-          </div>
+          </div> */}
           <div className="form-group">
             <label htmlFor="employeeId">Employee ID</label>
             <Select

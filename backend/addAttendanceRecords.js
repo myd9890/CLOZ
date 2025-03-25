@@ -30,6 +30,15 @@ const getPreviousMonthDates = () => {
   return dates;
 };
 
+// Function to calculate OT hours
+const calculateOvertimeHours = (departureTime) => {
+  const normalEndTime = new Date(`1970-01-01T17:00:00Z`);
+  const actualEndTime = new Date(`1970-01-01T${departureTime}Z`);
+
+  const overtimeHours = (actualEndTime - normalEndTime) / (1000 * 60 * 60);
+  return overtimeHours > 0 ? overtimeHours : 0;
+};
+
 // Function to add attendance records
 const addAttendanceRecords = async () => {
   try {
@@ -59,6 +68,8 @@ const addAttendanceRecords = async () => {
           departureTime = '20:00'; // Overtime on both weekdays and weekends
         }
 
+        const otHours = calculateOvertimeHours(departureTime);
+
         const attendance = new Attendance({
           date,
           dayType,
@@ -66,6 +77,7 @@ const addAttendanceRecords = async () => {
           arrivalTime,
           status,
           departureTime,
+          otHours,
         });
 
         await attendance.save();

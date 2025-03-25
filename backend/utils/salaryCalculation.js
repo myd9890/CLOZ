@@ -12,6 +12,15 @@ const calculateTotalSalary = (basicSalary, otPay) => {
   return basicSalary + otPay;
 };
 
+const customFormatNumber = (number) => {
+  let [integerPart, decimalPart] = number.toFixed(2).split('.');
+  if (parseInt(decimalPart) > 59) {
+    integerPart = (parseInt(integerPart) + 1).toString();
+    decimalPart = '00';
+  }
+  return `${parseInt(integerPart).toLocaleString('en-US')}.${decimalPart}`;
+};
+
 const calculateSalary = (basicSalary, otHoursWeekday, otHoursWeekendHoliday) => {
   const hourlyRate = calculateHourlyRate(basicSalary);
   const weekdayOtRate = 1.5;
@@ -23,7 +32,14 @@ const calculateSalary = (basicSalary, otHoursWeekday, otHoursWeekendHoliday) => 
   const totalOtPay = weekdayOtPay + weekendOtPay;
   const totalSalary = calculateTotalSalary(basicSalary, totalOtPay);
 
-  return { basicSalary, hourlyRate, weekdayOtPay, weekendOtPay, totalOtPay, totalSalary };
+  return {
+    basicSalary: customFormatNumber(basicSalary),
+    hourlyRate: customFormatNumber(hourlyRate),
+    weekdayOtPay: customFormatNumber(weekdayOtPay),
+    weekendOtPay: customFormatNumber(weekendOtPay),
+    totalOtPay: customFormatNumber(totalOtPay),
+    totalSalary: customFormatNumber(totalSalary)
+  };
 };
 
 module.exports = {

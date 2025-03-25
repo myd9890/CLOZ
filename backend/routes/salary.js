@@ -12,8 +12,10 @@ const calculateOvertimeHours = (arrivalTime, departureTime) => {
   return overtimeHours > 0 ? overtimeHours : 0;
 };
 
+// API Salary Calc
 router.get('/', async (req, res) => {
   try {
+    console.log('Query:', req.query);
     const { month, year } = req.query;
     const employees = await Employee.find();
     const salaryRecords = [];
@@ -22,9 +24,11 @@ router.get('/', async (req, res) => {
       const basicSalary = employee.role === 'Manager' ? 50000 : 30000;
       const attendanceRecords = await Attendance.find({
         employee: employee._id,
-        date: {
-          $gte: new Date(`${year}-${month}-01`),
-          $lt: new Date(`${year}-${parseInt(month) + 1}-01`)
+        $expr: {
+          $and: [
+            { $gte: [{ $toDate: "$date" }, new Date(`${year}-${month}-01`)] },
+            { $lt: [{ $toDate: "$date" }, new Date(`${year}-${parseInt(month) + 1}-01`)] }
+          ]
         }
       });
 
@@ -41,7 +45,8 @@ router.get('/', async (req, res) => {
       });
 
       const salaryDetails = calculateSalary(basicSalary, otHoursWeekday, otHoursWeekendHoliday);
-
+      console.log(`Salary Details:`, salaryDetails);
+      console.log('Salary Records:', salaryRecords);
       salaryRecords.push({
         empID: employee.empID,
         name: employee.name,
@@ -53,6 +58,7 @@ router.get('/', async (req, res) => {
         otPay: salaryDetails.totalOtPay,
         totalSalary: salaryDetails.totalSalary,
       });
+  
     }
 
     res.json(salaryRecords);
