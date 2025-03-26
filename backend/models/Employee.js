@@ -1,6 +1,17 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
+// const employeeSchema = new mongoose.Schema({
+//   empID: { type: String, unique: true }, // Change this to String
+//   name: { type: String, required: true },
+//   workMobile: { type: String, required: true },
+//   workEmail: { type: String, required: true },
+//   department: { type: String, required: true },
+//   role: { type: String, required: true },
+//   basicSalary: { type: Number, required: true }, // Add basicSalary field
+//   password: { type: String, required: true },
+// });
+
 const employeeSchema = new mongoose.Schema({
   empID: { type: String, unique: true }, // Change this to String
   name: { type: String, required: true },

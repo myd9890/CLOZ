@@ -7,7 +7,9 @@ function Salary() {
   const [month, setMonth] = useState('');
   const [year, setYear] = useState(currentYear.toString());
   const [salaryRecords, setSalaryRecords] = useState([]);
-  const [fetched, setFetched] = useState(false);
+  const [ETFRecords, setETFRecords] = useState([]);
+  const [fetchedSalary, setFetchedSalary] = useState(false);
+  const [fetchedETF, setFetchedETF] = useState(false);
 
   const fetchSalaryRecords = async () => {
     try {
@@ -15,19 +17,30 @@ function Salary() {
         console.error('Month and year must be selected');
         return;
       }
-      console.log('Fetching salary records for:', month, year);
+      setFetchedETF(false);
+      setFetchedSalary(false);
       const response = await axios.get(`http://localhost:8070/api/salary?month=${month}&year=${year}`);
-      console.log('Response:', response.data);
       setSalaryRecords(response.data);
-      console.log('Salary Records:', response.data.salaryRecords);
-      setFetched(true);
+      setFetchedSalary(true);
     } catch (error) {
       console.error('Error fetching salary records:', error);
     }
   };
 
+  const fetchETFRecords = async () => {
+    try {
+      setFetchedSalary(false);
+      setFetchedETF(false);
+      const response = await axios.get(`http://localhost:8070/api/salary/etf`);
+      setETFRecords(response.data);
+      setFetchedETF(true);
+    } catch (error) {
+      console.error('Error fetching ETF records:', error);
+    }
+  };
+
   useEffect(() => {
-    setFetched(false);
+    setFetchedSalary(false);
   }, [month, year]);
 
   return (
@@ -56,9 +69,12 @@ function Salary() {
           Year:
           <input type="number" value={year} readOnly />
         </label>
-        <button onClick={fetchSalaryRecords}>Fetch Salary Records</button>
+        <div>
+          <button onClick={fetchSalaryRecords}>Fetch Salary Records</button>
+          <button onClick={fetchETFRecords}>Fetch ETF Records</button>
+        </div>
       </div>
-      {fetched && (
+      {fetchedSalary && (
         <>
           <table className="salary-table">
             <thead>
@@ -71,7 +87,9 @@ function Salary() {
                 <th>OT Hours (Weekday)</th>
                 <th>OT Hours (Weekend/Holiday)</th>
                 <th>OT Pay</th>
-                <th>Total Salary</th>
+                <th>Gross Salary</th>
+                <th>EPF 8%</th>
+                <th>Net Salary</th>
               </tr>
             </thead>
             <tbody>
@@ -85,7 +103,40 @@ function Salary() {
                   <td>{record.otHoursWeekday}</td>
                   <td>{record.otHoursWeekendHoliday}</td>
                   <td>{record.otPay}</td>
-                  <td>{record.totalSalary}</td>
+                  <td>{record.grossSalary}</td>
+                  <td>{record.epf}</td>
+                  <td>{record.netSalary}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
+      )}
+      {fetchedETF && (
+        <>
+          <h1>ETF Details</h1>
+          <table className="salary-table">
+            <thead>
+              <tr>
+                <th>EmpID</th>
+                <th>Name</th>
+                <th>Department</th>
+                <th>Role</th>
+                <th>Hired Date</th>
+                <th>Accumulated EPF (12%)</th>
+                <th>Accumulated ETF (3%)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ETFRecords.map((record) => (
+                <tr key={record.empID}>
+                  <td>{record.empID}</td>
+                  <td>{record.name}</td>
+                  <td>{record.department}</td>
+                  <td>{record.role}</td>
+                  <td>{record.hiredDate}</td>
+                  <td>{record.epf}</td>
+                  <td>{record.etf}</td>
                 </tr>
               ))}
             </tbody>
