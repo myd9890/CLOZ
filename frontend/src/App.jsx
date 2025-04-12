@@ -22,6 +22,7 @@ import CustomerList from "./components/CustomerList";
 import CustomerProfile from "./components/CustomerProfile";
 import SingleSale from "./components/SingleSale";
 import AddSaleFormWithoutCustomer from "./components/AddSaleFormWithoutCustomer";
+import ReturnForm from "./components/ReturnForm";
 //import SupplierLogin from './components/SupplierLogin';
 
 import SalesList from "./components/SalesList";
@@ -126,6 +127,7 @@ const App = () => {
             <Route path="/registercustomer" element={<RegisterCustomer />} />
             <Route path="/customers" element={<CustomerList />} />
             <Route path="/customerprofile/:phone" element={<CustomerProfile/>} />
+            <Route path="/sale/return/:id" element={<ReturnForm />} />
           </Routes>
         </div>
       </div>

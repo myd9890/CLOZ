@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 const SalesList = () => {
   const [sales, setSales] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [expandedSale, setExpandedSale] = useState(null);
 
   useEffect(() => {
     fetchSales();
@@ -16,6 +17,7 @@ const SalesList = () => {
     try {
       const response = await axios.get("http://localhost:8070/sale/");
       setSales(response.data);
+      console.log(response.data);
     } catch (error) {
       console.error("Error fetching sales:", error);
       toast.error("Failed to load sales");
@@ -24,32 +26,17 @@ const SalesList = () => {
     }
   };
 
-  const handleReturn = async (saleId) => {
-    if (window.confirm("Are you sure you want to process this return?")) {
+  const toggleSaleDetails = (saleId) => {
+    setExpandedSale(expandedSale === saleId ? null : saleId);
+  };
+
+  const handleReturn = async (saleId, productId) => {
+    if (window.confirm("Are you sure you want to initiate a return for this product?")) {
       try {
-        // First get the sale details
-        const saleResponse = await axios.get(`http://localhost:8070/sale/${saleId}`);
-        const sale = saleResponse.data;
-
-        // Prepare return data (you might want to modify this based on your requirements)
-        const returnData = {
-          saleId: sale._id,
-          products: sale.products.map(product => ({
-            productId: product.product._id,
-            quantity: product.quantity,
-            priceAtSale: product.priceAtSale
-          })),
-          reason: "Customer return" // You might want to make this configurable
-        };
-
-        // Call your backend API to process the return
-        await axios.post("http://localhost:8070/sale/return", returnData);
-        
-        toast.success("Return processed successfully!");
-        fetchSales(); // Refresh the sales list
+        window.location.href = `/sale/return/${saleId}?product=${productId}`;
       } catch (error) {
-        console.error("Error processing return:", error);
-        toast.error("Failed to process return");
+        toast.error("Failed to initiate return");
+        console.error("Return error:", error);
       }
     }
   };
@@ -63,6 +50,16 @@ const SalesList = () => {
       style: 'currency',
       currency: 'USD'
     }).format(amount);
+  };
+
+  const getProductStatus = (product) => {
+    if (product.returnedQuantity >= product.quantity) {
+      return { text: 'Fully Returned', class: 'bg-danger', canReturn: false };
+    }
+    if (product.returnedQuantity > 0) {
+      return { text: 'Partially Returned', class: 'bg-warning', canReturn: true };
+    }
+    return { text: 'Sold', class: 'bg-success', canReturn: true };
   };
 
   return (
@@ -89,36 +86,84 @@ const SalesList = () => {
           </thead>
           <tbody>
             {sales.map((sale) => (
-              <tr key={sale._id}>
-                <td>{formatDate(sale.saleDate)}</td>
-                <td>{sale.customer?.name || 'Walk-in Customer'}</td>
-                <td>{sale.products.length}</td>
-                <td>{formatCurrency(sale.totalAmount)}</td>
-                <td>{sale.paymentMethod}</td>
-                <td>
-                  <span className={`badge ${
-                    sale.status === 'completed' ? 'bg-success' : 
-                    sale.status === 'pending' ? 'bg-warning' : 'bg-danger'
-                  }`}>
-                    {sale.status}
-                  </span>
-                </td>
-                <td>
-                  <Link 
-                    to={`/sale/details/${sale._id}`} 
-                    className="btn btn-info btn-sm me-2"
-                  >
-                    Details
-                  </Link>
-                  <button
-                    className="btn btn-warning btn-sm"
-                    onClick={() => handleReturn(sale._id)}
-                    disabled={sale.status === 'returned'}
-                  >
-                    {sale.status === 'returned' ? 'Returned' : 'Return'}
-                  </button>
-                </td>
-              </tr>
+              <React.Fragment key={sale._id}>
+                <tr>
+                  <td>{formatDate(sale.saleDate)}</td>
+                  <td>{sale.customer?.name || 'Walk-in Customer'}</td>
+                  <td>{sale.products.reduce((sum, p) => sum + p.quantity, 0)}</td>
+                  <td>{formatCurrency(sale.totalAmount)}</td>
+                  <td>{sale.paymentMethod}</td>
+                  <td>
+                    <span className={`badge ${
+                      sale.status === 'completed' ? 'bg-success' : 
+                      sale.status === 'pending' ? 'bg-warning' : 
+                      sale.status === 'returned' ? 'bg-secondary' : 'bg-danger'
+                    }`}>
+                      {sale.status}
+                    </span>
+                  </td>
+                  <td>
+                    <button 
+                      className="btn btn-info btn-sm"
+                      onClick={() => toggleSaleDetails(sale._id)}
+                    >
+                      {expandedSale === sale._id ? 'Hide' : 'Show'} Details
+                    </button>
+                  </td>
+                </tr>
+                {expandedSale === sale._id && (
+                  <tr>
+                    <td colSpan="7">
+                      <div className="p-3 bg-light">
+                        <h5>Products Sold</h5>
+                        <table className="table table-sm">
+                          <thead>
+                            <tr>
+                              <th>Product</th>
+                              <th>Quantity</th>
+                              <th>Price</th>
+                              <th>Returned</th>
+                              <th>Status</th>
+                              <th>Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {sale.products.map((product, index) => {
+                              const status = getProductStatus(product);
+                              const remainingQty = product.quantity - (product.returnedQuantity || 0);
+                              
+                              return (
+                                <tr key={index}>
+                                  <td>{product.product?.name || 'Unknown Product'}</td>
+                                  <td>{product.quantity}</td>
+                                  <td>{formatCurrency(product.quantity * product.product.price)}</td>
+                                  <td>{product.returnedQuantity || 0}</td>
+                                  <td>
+                                    <span className={`badge ${status.class}`}>
+                                      {status.text}
+                                    </span>
+                                  </td>
+                                  <td>
+                                    {status.canReturn && remainingQty > 0 && sale.status === 'completed' && (
+                                      <button
+                                        className="btn btn-warning btn-sm"
+                                        onClick={() => handleReturn(sale._id, product.product._id)}
+                                        title={`Return up to ${remainingQty} items`}
+                                      >
+                                        Return
+                                      </button>
+                                    )}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </React.Fragment>
             ))}
           </tbody>
         </table>
