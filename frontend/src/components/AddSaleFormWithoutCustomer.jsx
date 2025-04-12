@@ -214,7 +214,7 @@ const SaleForm = () => {
           </div>
         )}
 
-        <div className="row mb-3">
+       {/*  <div className="row mb-3">
           <div className="col-md-3">
             <label className="form-label">Discount ($)</label>
             <input
@@ -239,7 +239,7 @@ const SaleForm = () => {
               onChange={(e) => setFormData({ ...formData, tax: parseFloat(e.target.value) || 0 })}
             />
           </div>
-        </div>
+        </div> */}
 
         <div className="mb-3">
           <label className="form-label">Notes</label>
