@@ -20,6 +20,18 @@ const saleSchema = new mongoose.Schema({
       type: Number,
       required: true,
       min: 0
+    },
+    returnedQuantity: {
+      type: Number,
+      default: 0,
+      min: 0
+    },
+    returnReason: {
+      type: String,
+      default: ""
+    },
+    returnDate: {
+      type: Date
     }
   }],
   paymentMethod: {
@@ -30,7 +42,7 @@ const saleSchema = new mongoose.Schema({
   status: {
     type: String,
     required: true,
-    enum: ["completed", "pending", "cancelled"],
+    enum: ["completed", "pending", "cancelled", "returned", "partial_return"],
     default: "completed"
   },
   discount: {
@@ -49,7 +61,16 @@ const saleSchema = new mongoose.Schema({
     required: true,
     min: 0
   },
+  refundAmount: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
   notes: {
+    type: String,
+    default: ""
+  },
+  returnNotes: {
     type: String,
     default: ""
   },

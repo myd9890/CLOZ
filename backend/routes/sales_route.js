@@ -17,6 +17,10 @@ router.patch('update/:id', salesController.updateSale);
 // Delete sale
 router.delete('delete/:id', salesController.deleteSale);
 
+router.get('/return/:id', salesController.initiateReturn);
+
+router.post('/return/:id', salesController.processReturn);
+
 // Get sales statistics
 //router.get('/stats/summary', salesController.getSalesStats);
 

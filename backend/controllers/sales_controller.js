@@ -238,3 +238,54 @@ export const deleteSale = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const initiateReturn = async (req, res) => {
+  try {
+    const sale = await Sale.findById(req.params.id).populate('products.product').populate('customer');
+    if (!sale) {
+      return res.status(404).send('Sale not found');
+    }
+    res.json(sale); 
+  } catch (err) {
+    res.status(500).send('Server error');
+  }
+};
+
+// Process return
+export const processReturn = async (req, res) => {
+  try {
+    const { returnedItems } = req.body; // Array of {productId, quantity, reason}
+    console.log("Returned items:", returnedItems);
+    const sale = await Sale.findById(req.params.id);
+
+    if (!sale) {
+      return res.status(404).json({ error: 'Sale not found' });
+    }
+
+    // Update product quantities
+    for (const item of returnedItems) {
+      const product = await Product.findById(item.productId);
+      if (product) {
+        product.quantityInStock += item.quantity;
+        await product.save();
+      }
+
+      // Update sale items - mark as returned
+      const saleItem = sale.products.find(p => p.product.toString() === item.productId);
+      if (saleItem) {
+        saleItem.returnedQuantity = (saleItem.returnedQuantity || 0) + item.quantity;
+        saleItem.returnReason = item.reason;
+      }
+    }
+
+    // Check if all items are returned
+    const allReturned = sale.products.every(p => p.quantity === (p.returnedQuantity || 0));
+    sale.status = allReturned ? 'returned' : 'partial_return';
+
+    await sale.save();
+    res.json({ message: 'Return processed successfully', sale });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
