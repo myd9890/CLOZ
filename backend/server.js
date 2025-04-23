@@ -4,6 +4,7 @@ const mongoose= require("mongoose");
 const dotenv=require("dotenv");
 const cors= require("cors");
 const bodyParser= require("body-parser");
+
 const http = require("http"); 
 const { Server } = require("socket.io");
 const app= express();
@@ -14,8 +15,10 @@ const customerRoutes = require("./routes/customerRoutes");
 
 const PORT = process.env.PORT || 8070;
 
+
 app.use(cors());
 app.use(bodyParser.json());
+
 
 const URL = process.env.MONGODB_URL;
 
@@ -72,6 +75,20 @@ app.use('/sale', salesRoutes);
 
 app.use("/customers", customerRoutes);
 //app.use("/api/loyalty", loyaltyRoutes);
+const assetRouter = require("./routes/Assets.js");
+app.use("/assets",assetRouter);
+
+const liabilityRouter = require("./routes/Liabilities.js");
+app.use("/liabilities",liabilityRouter);
+
+const expenseRouter = require("./routes/Expenses.js");
+app.use("/expenses",expenseRouter);
+
+const pettyRouter = require("./routes/pettyCashexp.js");
+app.use("/pettycash",pettyRouter);
+
+const incomeRouter = require("./routes/Incomes.js");
+app.use("/incomes",incomeRouter);
 
 
 
@@ -80,3 +97,5 @@ server.listen(PORT, () => {
     console.log(`Server is up and running on port ${PORT}`);
 
 });
+
+

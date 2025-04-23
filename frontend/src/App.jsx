@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { io } from "socket.io-client";
@@ -23,6 +24,13 @@ import AddSaleFormWithoutCustomer from "./components/AddSaleFormWithoutCustomer"
 import ReturnForm from "./components/ReturnForm";
 import SalesList from "./components/SalesList";
 import AddSaleForm from "./components/AddSaleForm";
+import Nav from "./components/NavComponent"; // Nav component for finance pages
+import Asset from "./components/AssetComponent";
+import Liab from "./components/LiabilityComponent";
+import Exp from "./components/ExpenseComponent";
+import PettyCash from "./components/PettyComponent";
+import Income from "./components/IncomeComponent";
+import FinanceLayout from "./components/FinanceLayout";
 import "./App.css"; // 🟢 Make sure to import your CSS file
 
 const App = () => {
@@ -102,11 +110,20 @@ const App = () => {
             <Route path="/customers" element={<CustomerList />} />
             <Route path="/customerprofile/:phone" element={<CustomerProfile />} />
             <Route path="/sale/return/:id" element={<ReturnForm />} />
+            <Route path="/finance" element={<FinanceLayout />}>
+              <Route path="assets" element={<Asset />} />
+              <Route path="liabilities" element={<Liab />} />
+              <Route path="expenses" element={<Exp />} />
+              <Route path="pettycash" element={<PettyCash />} />
+              <Route path="incomes" element={<Income />} />
+            </Route>
+            
           </Routes>
         </div>
       </div>
     </Router>
   );
 };
+
 
 export default App;
