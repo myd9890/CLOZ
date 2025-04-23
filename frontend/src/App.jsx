@@ -12,7 +12,10 @@ import Asset from './components/AssetComponent';
 import Exp from './components/ExpenseComponent';
 import Liab from './components/LiabilityComponent'; 
 import PettyCash from './components/PettyComponent';
-import Income from './components/IncomeComponent'
+import Income from './components/IncomeComponent';
+import FinStatement from "./components/FinStatementComponent";
+import FinAccount from "./components/FinAccountComponent";
+
 
 function App() {
 
@@ -29,6 +32,8 @@ function App() {
     <Route path="/expenses" element={<Exp />} />
     <Route path="/pettycash" element={<PettyCash />} />
     <Route path="/incomes" element={<Income />} />
+    <Route path="/statements" element={<FinStatement />} />
+    <Route path="/accounts" element={<FinAccount />} />
     
     
 
