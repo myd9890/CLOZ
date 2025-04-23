@@ -37,6 +37,9 @@ app.use("/expenses",expenseRouter);
 const pettyRouter = require("./routes/pettyCashexp.js");
 app.use("/pettycash",pettyRouter);
 
+const incomeRouter = require("./routes/Incomes.js");
+app.use("/incomes",incomeRouter);
+
 
 app.listen(PORT,()=>{
     console.log(`Server is up and running on port ${PORT}`)
