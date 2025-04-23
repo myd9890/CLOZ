@@ -1,84 +1,25 @@
 const router = require('express').Router();
-let Expense = require('../models/Expense');
+const {
+    addExpense,
+    getExpenses,
+    updateExpense,
+    deleteExpense,
+    getExpenseById
+} = require('../controllers/expenseController');
 
+// Route to add a new expense
+router.post("/add", addExpense);
 
+// Route to get all expenses
+router.get("/", getExpenses);
 
-router.route("/add").post((req,res)=>{
-    const ID = req.body.ID;
-    const expense = req.body.expense;
-    const expenseType = req.body.expenseType;
-    const expDate = Date.parse(req.body.expDate);
-    const Amount = req.body.Amount;
+// Route to update an expense
+router.put("/update/:id", updateExpense);
 
-    const newExpense = new Expense({
-        ID,
-        expense,
-        expenseType,
-        expDate,
-        Amount
-    })
+// Route to delete an expense
+router.delete("/delete/:id", deleteExpense);
 
-    newExpense.save().then(()=>{
-        res.json("Expense added!");
-    }).catch((err)=>{
-        console.log(err);
-    })
-
-})
-
-router.route("/").get((req,res)=>{
-    Expense.find().then((expense)=>{
-        res.json(expense);
-    }).catch((err)=>{
-        console.log(err);
-    })
-})
-
-router.route("/update/:id").put(async(req,res) =>{
-    let expenseID = req.params.id;
-    const {ID,expense,expenseType,expDate,Amount} = req.body;
-
-    const updateExpense = {
-        ID,
-        expense,
-        expenseType,
-        expDate,
-        Amount
-    }
-
-    const update = await Expense.findByIdAndUpdate(expenseID,updateExpense).then(() =>{
-        
-    res.status(200).send({status : "Expense updated!"})
-    }).catch((err)=>{
-        console.log(err);
-        res.status(500).send({status : "Error with updating data!"})
-    })
-})
-
-
-
-router.route("/delete/:id").delete(async(req,res) =>{
-    let expenseID = req.params.id;
-
-    await Expense.findByIdAndDelete(expenseID).then(() => {
-        res.status(200).send({status : "Expense deleted!"});
-    }).catch((err) => {
-        console.log(err);
-        res.status(500).send({status : "Error with deleting data!"});
-    })
-})
-
-router.route("/get/:id").get(async(req,res) =>{
-    let expenseID = req.params.id;
-    const expense = await Expense.findById(expenseID).then((expense) => {
-        res.status(200).send({status : "Expense fetched!", expense});
-    }).catch((err) => {
-        console.log(err.message);
-        res.status(500).send({status : "Error with fetching data!", error : err.message});
-    })
-})
-
-
-
+// Route to get a specific expense by ID
+router.get("/get/:id", getExpenseById);
 
 module.exports = router;
