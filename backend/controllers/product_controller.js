@@ -5,7 +5,6 @@ const {placeOrder}=require("./supplierOrder_controller.js");
 
 
 
-
 // Add a new product
 const addProduct = async (req, res) => {
     console.log("Request Body:", req.body);
@@ -25,6 +24,9 @@ const addProduct = async (req, res) => {
             price,
             discountPrice,
             supplierUnitPrice,
+            taxPercentage ,
+            taxAmount,
+            totalPrice,
             images,
         } = req.body;
 
@@ -53,6 +55,9 @@ const addProduct = async (req, res) => {
             price,
             supplierUnitPrice,
             discountPrice,
+            taxPercentage ,
+            taxAmount,
+            totalPrice,
             images,
         });
         
@@ -119,6 +124,9 @@ const updateProduct = async (req, res) => {
             price,
             discountPrice,
             supplierUnitPrice,
+            taxPercentage ,
+            taxAmount,
+            totalPrice,
             images,
         } = req.body;
 
@@ -136,6 +144,9 @@ const updateProduct = async (req, res) => {
             price,
             discountPrice,
             supplierUnitPrice,
+            taxPercentage ,
+            taxAmount,
+            totalPrice,
             images,
         };
 

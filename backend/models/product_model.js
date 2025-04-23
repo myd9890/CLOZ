@@ -7,8 +7,7 @@ const productSchema = new mongoose.Schema({
     required: true },
 
   name: { 
-    type: String, 
-    required: true },
+    type: String,  },
 
   description: { 
     type: String },
@@ -69,6 +68,20 @@ const productSchema = new mongoose.Schema({
     type: Number, 
     default: 0 },
 
+    taxPercentage:{
+    type: Number,
+    default: 0 
+    },
+
+  taxAmount:{
+    type: Number,
+    default: 0 
+    },
+
+    totalPrice:{
+    type: Number,
+    default: 0 
+    }, 
 
   images: { 
     type: [String], 
