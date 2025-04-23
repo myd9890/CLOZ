@@ -11,28 +11,9 @@ const FinStatement = () => {
     // Add logic to generate P/L statement
   };
 
-  const handleGenerateBalanceSheet = async () => {
+  const handleGenerateBalanceSheet = () => {
     console.log(`Generating Balance Sheet from ${bsStartDate} to ${bsEndDate}...`);
-    try {
-      const response = await fetch('http://localhost:8070/generateBalanceSheet', {
-        method: 'GET',
-      });
-
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'balance_sheet.pdf';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-      } else {
-        console.error('Failed to generate Balance Sheet');
-      }
-    } catch (error) {
-      console.error('Error generating Balance Sheet:', error);
-    }
+    // Add logic to generate Balance Sheet
   };
 
   return (
