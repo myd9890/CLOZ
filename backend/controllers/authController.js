@@ -35,8 +35,10 @@ const loginEmployee = async (req, res) => {
 
     const isMatch = await bcrypt.compare(password, employee.password);
     if (!isMatch) return res.status(400).send({ error: 'Invalid login credentials' });
-
+    console.log('Employee found:', employee);
     const token = jwt.sign({ _id: employee._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    // console log the token
+    console.log('Generated token:', token);
     res.send({ employee, token });
   } catch (error) {
     res.status(500).send(error);

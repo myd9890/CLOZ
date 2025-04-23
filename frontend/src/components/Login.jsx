@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-function Login() {
+function Login({ onLogin }) {
   const [empID, setEmpID] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
@@ -11,8 +11,20 @@ function Login() {
     e.preventDefault();
     try {
       const response = await axios.post('http://localhost:8070/api/auth/login', { empID, password });
-      localStorage.setItem('token', response.data.token);
-      navigate('/HRdashboard');
+      const { token, employee } = response.data;
+      if (!token || !employee || !employee.department || !employee.role) {
+        console.error('Invalid login response: Missing required fields.');
+        alert('Login failed: Invalid server response.');
+        return;
+      }
+      const userData = {
+        token: response.data.token,
+        name: response.data.employee.name,
+        department: response.data.employee.department,
+        role: response.data.employee.role,
+      };
+      onLogin(userData);
+
     } catch (error) {
       console.error('Error logging in:', error);
     }
