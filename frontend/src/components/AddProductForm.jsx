@@ -1,9 +1,8 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "./AddProductForm.css";
-
 
 const AddProductForm = ({ fetchProducts }) => {
   const navigate = useNavigate();
@@ -21,101 +20,139 @@ const AddProductForm = ({ fetchProducts }) => {
     supplier: "",
     supplierUnitPrice: 0,
     price: 0,
+    taxPercentage: 0,
+    taxAmount: 0,
+    totalPrice: 0,
     images: [],
   });
 
   const [suppliers, setSuppliers] = useState([]);
   const [errors, setErrors] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
+  const [sizeType, setSizeType] = useState("letter");
 
-  
- 
+  // Calculate tax and total price whenever price or tax percentage changes
+  useEffect(() => {
+    const taxAmount = (product.price * product.taxPercentage) / 100;
+    const totalPrice = product.price + taxAmount;
+    
+    setProduct(prev => ({
+      ...prev,
+      taxAmount: parseFloat(taxAmount.toFixed(2)),
+      totalPrice: parseFloat(totalPrice.toFixed(2))
+    }));
+  }, [product.price, product.taxPercentage]);
 
-  // Handle form input changes
   const handleChange = (e) => {
-    const { name, value,files } = e.target;
+    const { name, value } = e.target;
 
     let updatedValue = value;
 
-    // Remove numbers from the color field
     if (name === "color") {
-      updatedValue = value.replace(/[0-9]/g, ""); // Remove all numeric characters
+      updatedValue = value.replace(/[0-9]/g, "");
     }
 
-    setProduct((prev) => ({
+    if (['price', 'supplierUnitPrice', 'quantityInStock', 'taxPercentage'].includes(name)) {
+      updatedValue = value === '' ? 0 : parseFloat(value);
+    }
+
+    setProduct(prev => ({
       ...prev,
       [name]: updatedValue,
     }));
 
-    // Clear the error for the field when it changes
-    setErrors((prev) => ({
+    setErrors(prev => ({
       ...prev,
       [name]: "",
     }));
   };
 
+  const handleCategoryChange = (e) => {
+    const category = e.target.value;
+    setProduct(prev => ({
+      ...prev,
+      category: category,
+      size: "",
+    }));
+    
+    if (category.toLowerCase().includes("trouser") || 
+        category.toLowerCase().includes("pant") ||
+        category.toLowerCase().includes("shoe")) {
+      setSizeType("number");
+    } else {
+      setSizeType("letter");
+    }
+  };
+
   useEffect(() => {
     const fetchSuppliers = async () => {
-        try {
-            const response = await fetch('http://localhost:8070/supplier/');
-            const data = await response.json();
-            setSuppliers(data); // Store the list of suppliers
-        } catch (error) {
-            console.error('Error fetching suppliers:', error);
-        }
+      try {
+        const response = await fetch("http://localhost:8070/supplier/");
+        const data = await response.json();
+        setSuppliers(data); 
+      } catch (error) {
+        console.error("Error fetching suppliers:", error);
+      }
     };
 
     fetchSuppliers();
-}, []);
+  }, []);
 
-
-  // Filter suppliers based on search term
-  const filteredSuppliers = suppliers.filter(supplier =>
+  const filteredSuppliers = suppliers.filter((supplier) =>
     supplier.name.toLowerCase().includes(searchTerm.toLowerCase())
-);
+  );
 
-  // Validate form fields
   const validateForm = () => {
     const newErrors = {};
 
     if (!product.productId) newErrors.productId = "Product ID is required";
     if (!product.name) newErrors.name = "Name is required";
     if (!product.category) newErrors.category = "Category is required";
-    //if (!product.brand) newErrors.brand = "Brand is required";
     if (!product.size) newErrors.size = "Size is required";
     if (!product.color) newErrors.color = "Color is required";
     if (!product.material) newErrors.material = "Material is required";
     if (!product.gender) newErrors.gender = "Gender is required";
-    if (Number(product.quantityInStock) <= 0) {
+    if (product.quantityInStock <= 0) {
       newErrors.quantityInStock = "Stock must be greater than 0";
-    } else if (!Number.isInteger(Number(product.quantityInStock))) {
+    } else if (!Number.isInteger(product.quantityInStock)) {
       newErrors.quantityInStock = "Invalid stock quantity";
     }
     if (!product.supplier) newErrors.supplier = "Supplier is required";
-    if (product.price <= 0)
-      newErrors.price = "Price must be greater than 0";
-    if (product.supplierUnitPrice <= 0)
+    if (product.price <= 0) newErrors.price = "Price must be greater than 0";
+    if (product.supplierUnitPrice <= 0) {
       newErrors.supplierUnitPrice = "Price must be greater than 0";
-    if (product.supplierUnitPrice > product.price)
-      newErrors.supplierUnitPrice = "Supplier unit price must be less than or equal to the product price";    setErrors(newErrors);
+    }
+    if (product.supplierUnitPrice > product.price) {
+      newErrors.supplierUnitPrice =
+        "Supplier unit price must be less than or equal to the product price";
+    }
+    if (product.taxPercentage < 0 || product.taxPercentage > 100) {
+      newErrors.taxPercentage = "Tax percentage must be between 0 and 100";
+    }
+    
+    setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
       try {
         await axios.post("http://localhost:8070/products/add", product);
         toast.success("Product added successfully!");
-        fetchProducts(); 
-        navigate("/products/"); 
+        fetchProducts();
+        navigate("/products/");
       } catch (error) {
         console.error("Error adding product:", error);
         toast.error("Failed to add product");
       }
     }
   };
+
+  const numericSizes = [];
+  for (let i = 28; i <= 48; i++) {
+    numericSizes.push(i);
+  }
 
   return (
     <div className="card p-4">
@@ -164,43 +201,56 @@ const AddProductForm = ({ fetchProducts }) => {
             type="text"
             name="category"
             value={product.category}
-            onChange={handleChange}
+            onChange={handleCategoryChange}
             className={`form-control ${errors.category ? "is-invalid" : ""}`}
+            list="categoryOptions"
           />
+          <datalist id="categoryOptions">
+            <option value="T-Shirt" />
+            <option value="Shirt" />
+            <option value="Trouser" />
+            <option value="Jeans" />
+            <option value="Jacket" />
+            <option value="Shoes" />
+            <option value="Accessories" />
+          </datalist>
           {errors.category && (
             <div className="invalid-feedback">{errors.category}</div>
           )}
         </div>
         <div className="mb-3">
-          <label className="form-label">Brand:</label>
-          <input
-            type="text"
-            name="brand"
-            value={product.brand}
-            onChange={handleChange}
-            className={`form-control ${errors.brand ? "is-invalid" : ""}`}
-          />
-          {errors.brand && (
-            <div className="invalid-feedback">{errors.brand}</div>
-          )}
-        </div>
-        <div className="mb-3">
           <label className="form-label">Size:</label>
-          <select
-            name="size"
-            value={product.size}
-            onChange={handleChange}
-            className={`form-control ${errors.size ? "is-invalid" : ""}`}
-          >
-            <option value="">Select Size</option>
-            <option value="XS">XS</option>
-            <option value="S">S</option>
-            <option value="M">M</option>
-            <option value="L">L</option>
-            <option value="XL">XL</option>
-            <option value="XXL">XXL</option>
-            <option value="XXXL">XXXL</option>
-          </select>
+          {sizeType === "letter" ? (
+            <select
+              name="size"
+              value={product.size}
+              onChange={handleChange}
+              className={`form-control ${errors.size ? "is-invalid" : ""}`}
+            >
+              <option value="">Select Size</option>
+              <option value="XS">XS</option>
+              <option value="S">S</option>
+              <option value="M">M</option>
+              <option value="L">L</option>
+              <option value="XL">XL</option>
+              <option value="XXL">XXL</option>
+              <option value="XXXL">XXXL</option>
+            </select>
+          ) : (
+            <select
+              name="size"
+              value={product.size}
+              onChange={handleChange}
+              className={`form-control ${errors.size ? "is-invalid" : ""}`}
+            >
+              <option value="">Select Size</option>
+              {numericSizes.map((size) => (
+                <option key={size} value={size}>
+                  {size}
+                </option>
+              ))}
+            </select>
+          )}
           {errors.size && (
             <div className="invalid-feedback">{errors.size}</div>
           )}
@@ -242,6 +292,7 @@ const AddProductForm = ({ fetchProducts }) => {
             <option value="">Select Gender</option>
             <option value="Men">Men</option>
             <option value="Women">Women</option>
+            <option value="Unisex">Unisex</option>
           </select>
           {errors.gender && (
             <div className="invalid-feedback">{errors.gender}</div>
@@ -254,45 +305,45 @@ const AddProductForm = ({ fetchProducts }) => {
             name="quantityInStock"
             value={product.quantityInStock}
             onChange={handleChange}
-            className={`form-control ${errors.quantityInStock ? "is-invalid" : ""}`}
+            className={`form-control ${
+              errors.quantityInStock ? "is-invalid" : ""
+            }`}
             required
+            min="1"
+            step="1"
           />
           {errors.quantityInStock && (
             <div className="invalid-feedback">{errors.quantityInStock}</div>
           )}
         </div>
         <div className="mb-3">
-            <label className="form-label">Supplier:</label>
-            
-            {/* Search input */}
-            <input
-                type="text"
-                className="form-control mb-2"
-                placeholder="Search supplier..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-            />
-
-            <select
-                name="supplier"
-                value={product.supplier}
-                onChange={handleChange}
-                className={`form-control ${errors.supplier ? "is-invalid" : ""}`}
-            >
-                <option value="">Select Supplier</option>
-                {filteredSuppliers.map(supplier => (
-                    <option key={supplier._id} value={supplier._id}>
-                        {supplier.name} {/* Or any other property of Supplier */}
-                    </option>
-                ))}
-            </select>
-
-            {errors.supplier && <div className="invalid-feedback">{errors.supplier}</div>}
+          <label className="form-label">Supplier:</label>
+          <input
+            type="text"
+            className="form-control mb-2"
+            placeholder="Search supplier..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <select
+            name="supplier"
+            value={product.supplier}
+            onChange={handleChange}
+            className={`form-control ${errors.supplier ? "is-invalid" : ""}`}
+          >
+            <option value="">Select Supplier</option>
+            {filteredSuppliers.map((supplier) => (
+              <option key={supplier._id} value={supplier._id}>
+                {supplier.brand}
+              </option>
+            ))}
+          </select>
+          {errors.supplier && (
+            <div className="invalid-feedback">{errors.supplier}</div>
+          )}
         </div>
-
-
         <div className="mb-3">
-          <label className="form-label">Price:</label>
+          <label className="form-label">Price (before tax):</label>
           <input
             type="number"
             name="price"
@@ -300,12 +351,49 @@ const AddProductForm = ({ fetchProducts }) => {
             onChange={handleChange}
             className={`form-control ${errors.price ? "is-invalid" : ""}`}
             required
+            step="0.01"
+            min="0"
           />
           {errors.price && (
             <div className="invalid-feedback">{errors.price}</div>
           )}
         </div>
-
+        <div className="mb-3">
+          <label className="form-label">Tax Percentage:</label>
+          <input
+            type="number"
+            name="taxPercentage"
+            value={product.taxPercentage}
+            onChange={handleChange}
+            className={`form-control ${errors.taxPercentage ? "is-invalid" : ""}`}
+            step="0.01"
+            min="0"
+            max="100"
+          />
+          {errors.taxPercentage && (
+            <div className="invalid-feedback">{errors.taxPercentage}</div>
+          )}
+        </div>
+        <div className="mb-3">
+          <label className="form-label">Tax Amount:</label>
+          <input
+            type="number"
+            name="taxAmount"
+            value={product.taxAmount}
+            className="form-control"
+            readOnly
+          />
+        </div>
+        <div className="mb-3">
+          <label className="form-label">Total Price (including tax):</label>
+          <input
+            type="number"
+            name="totalPrice"
+            value={product.totalPrice}
+            className="form-control"
+            readOnly
+          />
+        </div>
         <div className="mb-3">
           <label className="form-label">Supplier Unit Price:</label>
           <input
@@ -313,8 +401,12 @@ const AddProductForm = ({ fetchProducts }) => {
             name="supplierUnitPrice"
             value={product.supplierUnitPrice}
             onChange={handleChange}
-            className={`form-control ${errors.supplierUnitPrice ? "is-invalid" : ""}`}
+            className={`form-control ${
+              errors.supplierUnitPrice ? "is-invalid" : ""
+            }`}
             required
+            step="0.01"
+            min="0"
           />
           {errors.supplierUnitPrice && (
             <div className="invalid-feedback">{errors.supplierUnitPrice}</div>

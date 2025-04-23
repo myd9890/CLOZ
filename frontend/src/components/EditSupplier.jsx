@@ -13,8 +13,9 @@ const EditSupplier = () => {
   useEffect(() => {
     const fetchSupplier = async () => {
       try {
+        console.log("supplier ID:", id);
         const response = await axios.get(`http://localhost:8070/supplier/${id}`);
-        //console.log("Fetched supplier:", response.data); // Debugging
+        console.log("Fetched supplier:", response.data); // Debugging
         setSupplier(response.data);
       } catch (error) {
         console.error("Error fetching supplier:", error);
@@ -37,7 +38,7 @@ const EditSupplier = () => {
     try {
       await axios.put(`http://localhost:8070/supplier/update/${id}`, supplier);
       toast.success("Supplier updated successfully!");
-      navigate("/suppliers"); // Redirect to supplier list
+      navigate("/supplier/profiles"); // Redirect to supplier list
     } catch (error) {
       console.error("Error updating supplier:", error);
       toast.error("Failed to update supplier");

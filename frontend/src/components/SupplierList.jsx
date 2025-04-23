@@ -14,6 +14,7 @@ const SupplierList = () => {
     try {
       const response = await axios.get("http://localhost:8070/supplier/");
       setSuppliers(response.data);
+      console.log(response.data);
     } catch (error) {
       console.error("Error fetching suppliers:", error);
     }
@@ -38,7 +39,7 @@ const SupplierList = () => {
       <table className="table table-bordered">
         <thead>
           <tr>
-            <th>Name</th>
+            <th>Supplier Name</th>
             <th>Email</th>
             <th>Phone</th>
             <th>Company</th>

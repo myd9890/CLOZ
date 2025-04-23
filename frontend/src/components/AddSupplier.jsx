@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 import "./AddSupplier.css";
 
 const AddSupplier = () => {
@@ -15,6 +16,7 @@ const AddSupplier = () => {
     password: "",
   });
 
+  const navigate = useNavigate();
   const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
@@ -95,7 +97,7 @@ const AddSupplier = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validate()) return;
+    if (!validate()) {return};
 
     try {
       await axios.post("http://localhost:8070/supplier/add", supplier);
@@ -110,6 +112,7 @@ const AddSupplier = () => {
         brand: "",
         password: "",
       });
+      navigate("/supplier/profiles");
     } catch (error) {
       console.error("Error adding supplier:", error);
       toast.error(error.response?.data?.message || "Failed to add supplier");

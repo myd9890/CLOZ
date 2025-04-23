@@ -1,42 +1,43 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 
 const Sidebar = () => {
   return (
-    <div className="bg-light border-right" style={{ width: '250px', minHeight: '100vh', padding: '20px' }}>
+    <div className="sidebar bg-light border-right">
+
       <h3 className="mb-4">ERP Dashboard</h3>
       <ul className="list-unstyled">
         <li className="mb-2">
-          <Link to="/dashboard" className="text-decoration-none text-dark">Dashboard</Link>
+          <NavLink to="/dashboard"className={({ isActive }) => isActive ? "active" : ""}>Dashboard</NavLink>
         </li>
         <li className="mb-2">
-          <Link to="/products/" className="text-decoration-none text-dark">Inventory</Link>
+          <NavLink to="/products/"className={({ isActive }) => isActive ? "active" : ""}>Inventory</NavLink>
         </li>
         <li className="mb-2">
-          <Link to="/registercustomer" className="text-decoration-none text-dark">CRM</Link>
+          <NavLink to="/registercustomer"className={({ isActive }) => isActive ? "active" : ""}>CRM</NavLink>
         </li>
         <li className="mb-2">
-          <Link to="/sales" className="text-decoration-none text-dark">Sales</Link>
+          <NavLink to="/sales"className={({ isActive }) => isActive ? "active" : ""}>Sales</NavLink>
         </li>
 
-        {/* Supplier Section with Nested Links */}
+        {/* Supplier Section with Nested NavLinks */}
         <li className="mb-2">
           <span className="text-dark fw-bold">Supplier</span>
           <ul className="list-unstyled ps-3">
             <li className="mb-1">
-              <Link to="/supplier/orders" className="text-decoration-none text-dark">Orders</Link>
+              <NavLink to="/supplier/orders"className={({ isActive }) => isActive ? "active" : ""}>Orders</NavLink>
             </li>
             <li className="mb-1">
-              <Link to="/supplier/profiles" className="text-decoration-none text-dark">Supplier Profiles</Link>
+              <NavLink to="/supplier/profiles"className={({ isActive }) => isActive ? "active" : ""}>Supplier Profiles</NavLink>
             </li>
           </ul>
         </li>
 
         <li className="mb-2">
-          <Link to="/finance" className="text-decoration-none text-dark">Finance</Link>
+          <NavLink to="/finance"className={({ isActive }) => isActive ? "active" : ""}>Finance</NavLink>
         </li>
         <li className="mb-2">
-          <Link to="/hr" className="text-decoration-none text-dark">HR</Link>
+          <NavLink to="/hr"className={({ isActive }) => isActive ? "active" : ""}>HR</NavLink>
         </li>
       </ul>
     </div>

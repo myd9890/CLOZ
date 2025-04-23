@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import "../css/ProductFilter.css"; // Import the CSS file
 
 const ProductFilter = () => {
   // State for filter inputs
@@ -19,18 +20,38 @@ const ProductFilter = () => {
   // State to track if filters have been applied
   const [filtersApplied, setFiltersApplied] = useState(false);
 
+  // State to track loading state
+  const [isLoading, setIsLoading] = useState(false);
+
   // Function to handle input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFilters({ ...filters, [name]: value });
   };
 
+  // Function to reset all filters
+  const resetFilters = () => {
+    setFilters({
+      name: "",
+      category: "",
+      brand: "",
+      minPrice: "",
+      maxPrice: "",
+      size: "",
+    });
+    setProducts([]);
+    setFiltersApplied(false);
+  };
+
   // Function to fetch filtered products
   const fetchProducts = async () => {
     try {
+      setIsLoading(true);
+
       // Price validation
       if (filters.minPrice && filters.maxPrice && parseFloat(filters.minPrice) > parseFloat(filters.maxPrice)) {
         toast.error("Minimum price cannot be greater than maximum price.");
+        setIsLoading(false);
         return;
       }
 
@@ -45,15 +66,16 @@ const ProductFilter = () => {
       // Check if any filters are applied
       if (Object.keys(params).length === 0) {
         toast.info("Please apply at least one filter.");
-        setProducts([]); // Clear the products list
-        setFiltersApplied(false); // Reset filtersApplied
+        setProducts([]);
+        setFiltersApplied(false);
+        setIsLoading(false);
         return;
       }
 
       // Mark filters as applied
       setFiltersApplied(true);
 
-      // Make API call only if filters are applied
+      // Make API call
       const response = await axios.get("http://localhost:8070/products/", {
         params,
       });
@@ -62,75 +84,65 @@ const ProductFilter = () => {
     } catch (error) {
       console.error("Failed to fetch products:", error);
       toast.error("Failed to fetch products. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="container mt-5">
-      <h1 className="mb-4">Product Filter</h1>
+    <div className="product-filter-container">
+      <h1>Product Filter</h1>
 
       {/* Filter Form */}
-      <div className="card mb-4">
-        <div className="card-body">
-          <div className="row g-3">
-            <div className="col-md-2">
-              <input
-                type="text"
-                name="name"
-                placeholder="Product Name"
-                value={filters.name}
-                onChange={handleInputChange}
-                className="form-control"
-              />
-            </div>
-            <div className="col-md-2">
-              <input
-                type="text"
-                name="category"
-                placeholder="Category"
-                value={filters.category}
-                onChange={handleInputChange}
-                className="form-control"
-              />
-            </div>
-            <div className="col-md-2">
-              <input
-                type="text"
-                name="brand"
-                placeholder="Brand"
-                value={filters.brand}
-                onChange={handleInputChange}
-                className="form-control"
-              />
-            </div>
-            <div className="col-md-2">
-              <input
-                type="number"
-                name="minPrice"
-                placeholder="Min Price"
-                value={filters.minPrice}
-                onChange={handleInputChange}
-                className="form-control"
-                min="0"
-              />
-            </div>
-            <div className="col-md-2">
-              <input
-                type="number"
-                name="maxPrice"
-                placeholder="Max Price"
-                value={filters.maxPrice}
-                onChange={handleInputChange}
-                className="form-control"
-                min="0"
-              />
-            </div>
-            <div className="col-md-2">
-            <select
+      <div className="filter-form">
+        <div className="filter-row">
+          <input
+            type="text"
+            name="name"
+            placeholder="Product Name"
+            value={filters.name}
+            onChange={handleInputChange}
+            className="filter-input"
+          />
+          <input
+            type="text"
+            name="category"
+            placeholder="Category"
+            value={filters.category}
+            onChange={handleInputChange}
+            className="filter-input"
+          />
+          <input
+            type="text"
+            name="brand"
+            placeholder="Brand"
+            value={filters.brand}
+            onChange={handleInputChange}
+            className="filter-input"
+          />
+          <input
+            type="number"
+            name="minPrice"
+            placeholder="Min Price"
+            value={filters.minPrice}
+            onChange={handleInputChange}
+            className="filter-input"
+            min="0"
+          />
+          <input
+            type="number"
+            name="maxPrice"
+            placeholder="Max Price"
+            value={filters.maxPrice}
+            onChange={handleInputChange}
+            className="filter-input"
+            min="0"
+          />
+          <select
             name="size"
             value={filters.size}
             onChange={handleInputChange}
-            className="form-control"
+            className="filter-select"
           >
             <option value="">Select Size</option>
             <option value="XS">XS</option>
@@ -141,59 +153,45 @@ const ProductFilter = () => {
             <option value="XXL">XXL</option>
             <option value="XXXL">XXXL</option>
           </select>
-            </div>
-            <div className="col-md-12">
-              <button
-                onClick={fetchProducts}
-                className="btn btn-primary w-100"
-              >
-                Apply Filters
-              </button>
-            </div>
-          </div>
+        </div>
+        <div className="filter-actions">
+          <button 
+            onClick={fetchProducts} 
+            className="filter-button apply-button"
+            disabled={isLoading}
+          >
+            {isLoading ? "Loading..." : "Apply Filters"}
+          </button>
+          <button 
+            onClick={resetFilters} 
+            className="filter-button reset-button"
+          >
+            Reset Filters
+          </button>
         </div>
       </div>
 
-
       {/* Display Filtered Products */}
-      
-          {filtersApplied ? (
-            <div className="card">
-            <div className="card-body">
-              <h2 className="mb-4">Filtered Products</h2>
-              {products.length > 0 ? (
-                <div className="row row-cols-1 row-cols-md-3 g-4">
-                  {products.map((product) => (
-                    <div key={product.productId} className="col">
-                      <div className="card h-100">
-                        <div className="card-body">
-                          <h5 className="card-title">{product.name}</h5>
-                          <p className="card-text">
-                            <strong>Category:</strong> {product.category}
-                          </p>
-                          <p className="card-text">
-                            <strong>Brand:</strong> {product.brand}
-                          </p>
-                          <p className="card-text">
-                            <strong>Price:</strong> Rs.{product.price}
-                          </p>
-                          <p className="card-text">
-                            <strong>Size:</strong> {product.size}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+      {filtersApplied && (
+        <div className="filtered-products">
+          <h2>Filtered Products ({products.length})</h2>
+          {products.length > 0 ? (
+            <div className="product-grid">
+              {products.map((product) => (
+                <div key={product.productId} className="product-card">
+                  <h5>{product.name}</h5>
+                  <p><strong>Category:</strong> {product.category}</p>
+                  <p><strong>Brand:</strong> {product.brand}</p>
+                  <p><strong>Price:</strong> Rs.{product.price}</p>
+                  <p><strong>Size:</strong> {product.size}</p>
                 </div>
-              ) : (
-                <p className="text-muted">No products found.</p>
-              )}
-            </div>
+              ))}
             </div>
           ) : (
-            <p></p>
-          )} 
-      
+            <p className="no-products">No products found matching your criteria.</p>
+          )}
+        </div>
+      )}
     </div>
   );
 };

@@ -152,7 +152,7 @@ const SaleForm = () => {
                   .filter(p => p.quantityInStock > 0)
                   .map(product => (
                     <option key={product._id} value={product._id}>
-                      {product.name} (${product.price}, Stock: {product.quantityInStock})
+                      {product.name} (LKR {product.price}, Stock: {product.quantityInStock})
                     </option>
                   ))}
               </select>
@@ -194,9 +194,9 @@ const SaleForm = () => {
                   return (
                     <tr key={item.product}>
                       <td>{product?.name || "Unknown Product"}</td>
-                      <td>${item.priceAtSale?.toFixed(2)}</td>
+                      <td>LKR {item.priceAtSale?.toFixed(2)}</td>
                       <td>{item.quantity}</td>
-                      <td>${(item.priceAtSale * item.quantity).toFixed(2)}</td>
+                      <td>LKR {(item.priceAtSale * item.quantity).toFixed(2)}</td>
                       <td>
                         <button
                           type="button"
@@ -252,7 +252,7 @@ const SaleForm = () => {
 
         <div className="mb-4 p-3 bg-light rounded">
           <h4 className="text-end">
-            Total: ${calculateTotal().toFixed(2)}
+            Total: LKR {calculateTotal().toFixed(2)}
           </h4>
         </div>
 

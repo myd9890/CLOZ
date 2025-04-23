@@ -3,6 +3,7 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
+
 const SalesList = () => {
   const [sales, setSales] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -48,7 +49,7 @@ const SalesList = () => {
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD'
+      currency: 'LKR'
     }).format(amount);
   };
 
