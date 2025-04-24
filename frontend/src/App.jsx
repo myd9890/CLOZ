@@ -140,6 +140,7 @@ const App = () => {
           {/* Public Routes */}
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login onLogin={handleLogin} />} />
+          <Route path="/supplier/:supplierId" element={<SupplierProfile />} />
 
           {/* Protected Routes */}
           <Route path="/change-password" element={isLoggedIn ? <ChangePassword /> : <Navigate to="/login" />} />
@@ -292,6 +293,9 @@ const App = () => {
           <Route path="registercustomer" element={<RegisterCustomer />} />
           <Route path="customers" element={<CustomerList />} />
           <Route path="customerprofile/:phone" element={<CustomerProfile />} />
+          <Route path="sale/add/new" element={<AddSaleForm />} />
+          <Route path="sale/add" element={<AddSaleFormWithoutCustomer />} />
+
         </Routes>
       </div>
     );
