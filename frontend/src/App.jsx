@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { BrowserRouter as Router, Routes, Route, Link, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link,
+  Navigate,
+} from "react-router-dom";
 import { io } from "socket.io-client";
 import axios from "axios";
 import ProductList from "./components/ProductList";
@@ -21,6 +27,8 @@ import CustomerProfile from "./components/CustomerProfile";
 import SingleSale from "./components/SingleSale";
 import AddSaleFormWithoutCustomer from "./components/AddSaleFormWithoutCustomer";
 import ReturnForm from "./components/ReturnForm";
+//import SupplierLogin from './components/SupplierLogin';
+import Email from "./Components/Email";
 import SalesList from "./components/SalesList";
 import AddSaleForm from "./components/AddSaleForm";
 import Nav from "./components/NavComponent";
@@ -30,18 +38,18 @@ import Exp from "./components/ExpenseComponent";
 import PettyCash from "./components/PettyComponent";
 import Income from "./components/IncomeComponent";
 import FinanceLayout from "./components/FinanceLayout";
-import EmployeeList from './components/EmployeeList';
-import AddEmployee from './components/AddEmployee';
-import EditEmployee from './components/EditEmployee';
-import Login from './components/Login';
-import ChangePassword from './components/ChangePassword';
-import Attendance from './components/Attendance';
-import LeaveRequests from './components/LeaveRequests';
-import Reports from './components/Reports';
-import Salary from './components/Salary';
-import Header from './Header';
-import Footer from './Footer';
-import Index from './index';
+import EmployeeList from "./components/EmployeeList";
+import AddEmployee from "./components/AddEmployee";
+import EditEmployee from "./components/EditEmployee";
+import Login from "./components/Login";
+import ChangePassword from "./components/ChangePassword";
+import Attendance from "./components/Attendance";
+import LeaveRequests from "./components/LeaveRequests";
+import Reports from "./components/Reports";
+import Salary from "./components/Salary";
+import Header from "./Header";
+import Footer from "./Footer";
+import Index from "./index";
 
 import "./App.css";
 
@@ -59,7 +67,7 @@ const App = () => {
     try {
       return JSON.parse(storedUser);
     } catch (error) {
-      console.error('Error parsing user from sessionStorage:', error.message);
+      console.error("Error parsing user from sessionStorage:", error.message);
       sessionStorage.removeItem("user");
       return null;
     }
@@ -104,17 +112,20 @@ const App = () => {
   const handleLogin = (userData) => {
     try {
       sessionStorage.setItem("user", JSON.stringify(userData));
-      console.log('Stored User in sessionStorage:', sessionStorage.getItem("user"));
+      console.log(
+        "Stored User in sessionStorage:",
+        sessionStorage.getItem("user")
+      );
       setUser(userData);
     } catch (error) {
-      console.error('Error saving user to sessionStorage:', error.message);
+      console.error("Error saving user to sessionStorage:", error.message);
     }
   };
 
   const handleLogout = () => {
     sessionStorage.removeItem("user");
     setUser(null);
-    window.location.href = '/login';
+    window.location.href = "/login";
   };
 
   useEffect(() => {
@@ -126,7 +137,7 @@ const App = () => {
     try {
       setUser(JSON.parse(storedUser));
     } catch (error) {
-      console.error('Error parsing user from sessionStorage:', error.message);
+      console.error("Error parsing user from sessionStorage:", error.message);
       sessionStorage.removeItem("user");
       setUser(null);
     }
@@ -143,6 +154,7 @@ const App = () => {
           <Route path="/supplier/:supplierId" element={<SupplierProfile />} />
 
           {/* Protected Routes */}
+
           <Route path="/change-password" element={isLoggedIn ? <ChangePassword /> : <Navigate to="/login" />} />
           
           <Route path="/InventoryDashboard/*" element={
@@ -174,6 +186,7 @@ const App = () => {
               <HRDashboard user={user} />
             </AccessControl>
           } />
+
         </Routes>
         <Footer />
       </div>
@@ -181,14 +194,15 @@ const App = () => {
   );
 
   function AccessControl({ children, requiredRole, requiredDept }) {
-    const user = JSON.parse(sessionStorage.getItem('user'));
+    const user = JSON.parse(sessionStorage.getItem("user"));
     if (!user) {
-      console.log('Access denied: User not logged in.');
+      console.log("Access denied: User not logged in.");
       return <Navigate to="/login" />;
     }
   
     // Role check (if needed)
     if (requiredRole && user.role !== requiredRole) {
+
       console.log(`Access denied: Role must be '${requiredRole}'`);
       return <div>Access Denied: Insufficient role permissions.</div>;
     }
@@ -210,29 +224,52 @@ const App = () => {
         <h1>Inventory Dashboard</h1>
         <nav>
           <ul>
-            <li><Link to="/InventoryDashboard/products">Inventory</Link></li>
-            <li><Link to="/InventoryDashboard/supplier/orders">Orders</Link></li>
-            <li><Link to="/InventoryDashboard/supplier/profiles">Supplier Profiles</Link></li>
+            <li>
+              <Link to="/InventoryDashboard/products">Inventory</Link>
+            </li>
+            <li>
+              <Link to="/InventoryDashboard/supplier/orders">Orders</Link>
+            </li>
+            <li>
+              <Link to="/InventoryDashboard/supplier/profiles">
+                Supplier Profiles
+              </Link>
+            </li>
           </ul>
         </nav>
         <Routes>
-          <Route path="products" element={
-            <div className="products-page">
-              <NotificationBell
-                notifications={notifications}
-                markNotificationAsSeen={markNotificationAsSeen}
-              />
-              <ProductFilter />
-              <ProductList products={products} fetchProducts={fetchProducts} />
-            </div>
-          } />
-          <Route path="products/add" element={<AddProductForm fetchProducts={fetchProducts} />} />
-          <Route path="products/update/:productId" element={<UpdateProductForm fetchProducts={fetchProducts} />} />
+          <Route
+            path="products"
+            element={
+              <div className="products-page">
+                <NotificationBell
+                  notifications={notifications}
+                  markNotificationAsSeen={markNotificationAsSeen}
+                />
+                <ProductFilter />
+                <ProductList
+                  products={products}
+                  fetchProducts={fetchProducts}
+                />
+              </div>
+            }
+          />
+          <Route
+            path="products/add"
+            element={<AddProductForm fetchProducts={fetchProducts} />}
+          />
+          <Route
+            path="products/update/:productId"
+            element={<UpdateProductForm fetchProducts={fetchProducts} />}
+          />
           <Route path="supplier/profiles" element={<SupplierList />} />
           <Route path="supplier/add" element={<AddSupplier />} />
           <Route path="supplier/orders" element={<ViewAllOrders />} />
           <Route path="supplier/update/:id" element={<EditSupplier />} />
-          <Route path="products/order/:productId" element={<PlaceOrderForm />} />
+          <Route
+            path="products/order/:productId"
+            element={<PlaceOrderForm />}
+          />
         </Routes>
       </div>
     );
@@ -244,11 +281,21 @@ const App = () => {
         <h1>Finance Dashboard</h1>
         <nav>
           <ul>
-            <li><Link to="/FinanceDashboard/assets">Assets</Link></li>
-            <li><Link to="/FinanceDashboard/liabilities">Liabilities</Link></li>
-            <li><Link to="/FinanceDashboard/expenses">Expenses</Link></li>
-            <li><Link to="/FinanceDashboard/incomes">Incomes</Link></li>
-            <li><Link to="/FinanceDashboard/pettycash">Petty Cash</Link></li>
+            <li>
+              <Link to="/FinanceDashboard/assets">Assets</Link>
+            </li>
+            <li>
+              <Link to="/FinanceDashboard/liabilities">Liabilities</Link>
+            </li>
+            <li>
+              <Link to="/FinanceDashboard/expenses">Expenses</Link>
+            </li>
+            <li>
+              <Link to="/FinanceDashboard/incomes">Incomes</Link>
+            </li>
+            <li>
+              <Link to="/FinanceDashboard/pettycash">Petty Cash</Link>
+            </li>
           </ul>
         </nav>
         <Routes>
@@ -268,7 +315,9 @@ const App = () => {
         <h1>Sales Dashboard</h1>
         <nav>
           <ul>
-            <li><Link to="/SalesDashboard/sales">Sales</Link></li>
+            <li>
+              <Link to="/SalesDashboard/sales">Sales</Link>
+            </li>
           </ul>
         </nav>
         <Routes>
@@ -286,9 +335,20 @@ const App = () => {
         <h1>Customer Dashboard</h1>
         <nav>
           <ul>
-            <li><Link to="/CustomerDashboard/registercustomer">Register Customer</Link></li>
-            <li><Link to="/CustomerDashboard/logincustomer">Login Customer</Link></li>
-            <li><Link to="/CustomerDashboard/customers">Customers</Link></li>
+            <li>
+              <Link to="/CustomerDashboard/registercustomer">
+                Register Customer
+              </Link>
+            </li>
+            <li>
+              <Link to="/CustomerDashboard/logincustomer">Login Customer</Link>
+            </li>
+            <li>
+              <Link to="/CustomerDashboard/customers">Customers</Link>
+            </li>
+            <li>
+              <Link to="/CustomerDashboard/Emails">Customers</Link>
+            </li>
           </ul>
         </nav>
         <Routes>
@@ -297,7 +357,7 @@ const App = () => {
           <Route path="customerprofile/:phone" element={<CustomerProfile />} />
           <Route path="sale/add/new" element={<AddSaleForm />} />
           <Route path="sale/add" element={<AddSaleFormWithoutCustomer />} />
-
+          <Route path="Email" element={<Email />} />
         </Routes>
       </div>
     );
@@ -310,6 +370,7 @@ const App = () => {
         <p> Hi {user?.name}</p>
         <nav>
           <ul>
+
             <li><Link to="/HRdashboard/list">Employee List</Link></li>
             <li><Link to="/HRdashboard/add">Add Employee</Link></li>
             <li><Link to="/HRdashboard/attendance">Attendance</Link></li>
@@ -317,6 +378,7 @@ const App = () => {
             <li><Link to="/HRdashboard/reports">Reports</Link></li>
             <li><Link to="/HRdashboard/salary">Salary</Link></li>
             <li><Link to="/HRdashboard">HR Dashboard</Link></li>
+
           </ul>
         </nav>
         <Routes>

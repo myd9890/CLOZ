@@ -1,84 +1,94 @@
 import mongoose from "mongoose";
 
-const saleSchema = new mongoose.Schema({
-  customer: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Customer"
-  },
-  products: [{
-    product: {
+const saleSchema = new mongoose.Schema(
+  {
+    customer: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Product",
-      required: true
+      ref: "Customer",
     },
-    quantity: {
-      type: Number,
+    products: [
+      {
+        product: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Product",
+          required: true,
+        },
+        quantity: {
+          type: Number,
+          required: true,
+          min: 1,
+        },
+        priceAtSale: {
+          type: Number,
+          required: true,
+          min: 0,
+        },
+        returnedQuantity: {
+          type: Number,
+          default: 0,
+          min: 0,
+        },
+        returnReason: {
+          type: String,
+          default: "",
+        },
+        returnDate: {
+          type: Date,
+        },
+      },
+    ],
+    paymentMethod: {
+      type: String,
       required: true,
-      min: 1
+      enum: ["cash", "credit_card", "debit_card", "mobile_payment"],
     },
-    priceAtSale: {
-      type: Number,
+    status: {
+      type: String,
       required: true,
-      min: 0
+      enum: ["completed", "pending", "cancelled", "returned", "partial_return"],
+      default: "completed",
     },
-    returnedQuantity: {
+    discount: {
       type: Number,
       default: 0,
-      min: 0
+      min: 0,
     },
-    returnReason: {
+    tax: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 100,
+    },
+    pointsRedeemed: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    totalAmount: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    refundAmount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    notes: {
       type: String,
-      default: ""
+      default: "",
     },
-    returnDate: {
-      type: Date
-    }
-  }],
-  paymentMethod: {
-    type: String,
-    required: true,
-    enum: ["cash", "credit_card", "debit_card", "mobile_payment"]
+    returnNotes: {
+      type: String,
+      default: "",
+    },
+    date: {
+      type: Date,
+      default: Date.now,
+    },
   },
-  status: {
-    type: String,
-    required: true,
-    enum: ["completed", "pending", "cancelled", "returned", "partial_return"],
-    default: "completed"
-  },
-  discount: {
-    type: Number,
-    default: 0,
-    min: 0
-  },
-  tax: {
-    type: Number,
-    default: 0,
-    min: 0,
-    max: 100
-  },
-  totalAmount: {
-    type: Number,
-    required: true,
-    min: 0
-  },
-  refundAmount: {
-    type: Number,
-    default: 0,
-    min: 0
-  },
-  notes: {
-    type: String,
-    default: ""
-  },
-  returnNotes: {
-    type: String,
-    default: ""
-  },
-  date: {
-    type: Date,
-    default: Date.now
-  }
-}, { timestamps: true });
+  { timestamps: true }
+);
 
 /* // Update product stock after sale
 saleSchema.post("save", async function(doc) {
@@ -100,5 +110,5 @@ saleSchema.post("remove", async function(doc) {
   }
 }); */
 
-const Sale= mongoose.model("Sale", saleSchema);
+const Sale = mongoose.model("Sale", saleSchema);
 export default Sale;

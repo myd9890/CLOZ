@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useLocation } from "react-router-dom";
 
 const SaleForm = () => {
   const location = useLocation();
@@ -19,17 +18,21 @@ const SaleForm = () => {
     status: "completed",
     discount: 0,
     tax: 0,
-    notes: ""
+    pointsToRedeem: 0,
+    notes: "",
   });
 
   const [selectedProduct, setSelectedProduct] = useState("");
   const [quantity, setQuantity] = useState(1);
-  
+  const [customerData, setCustomerData] = useState(null);
+
   useEffect(() => {
     console.log("Customer from URL:", customer);
     fetchProducts();
-    
-  }, []);
+    if (customer) {
+      fetchCustomerData();
+    }
+  }, [customer]);
 
   const fetchProducts = async () => {
     try {
@@ -40,15 +43,26 @@ const SaleForm = () => {
       toast.error("Failed to load products");
     }
   };
- 
+
+  const fetchCustomerData = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8070/customers/${customer}`
+      );
+      setCustomerData(response.data);
+    } catch (error) {
+      toast.error("Failed to load customer data");
+    }
+  };
+
   const handleAddProduct = () => {
     if (!selectedProduct || quantity < 1) return;
 
-    const product = products.find(p => p._id === selectedProduct);
+    const product = products.find((p) => p._id === selectedProduct);
     if (!product) return;
 
     const existingIndex = formData.products.findIndex(
-      item => item.product === selectedProduct
+      (item) => item.product === selectedProduct
     );
 
     if (existingIndex >= 0) {
@@ -63,9 +77,9 @@ const SaleForm = () => {
           {
             product: selectedProduct,
             quantity,
-            priceAtSale: product.price
-          }
-        ]
+            priceAtSale: product.price,
+          },
+        ],
       });
     }
 
@@ -76,16 +90,22 @@ const SaleForm = () => {
   const handleRemoveProduct = (productId) => {
     setFormData({
       ...formData,
-      products: formData.products.filter(item => item.product !== productId)
+      products: formData.products.filter((item) => item.product !== productId),
     });
   };
 
   const calculateTotal = () => {
     const subtotal = formData.products.reduce(
-      (sum, item) => sum + (item.priceAtSale * item.quantity),
+      (sum, item) => sum + item.priceAtSale * item.quantity,
       0
     );
-    return subtotal - formData.discount + (subtotal * (formData.tax / 100));
+    const pointsDiscount = formData.pointsToRedeem * 0.1; // Assuming 1 point = $0.10
+    return (
+      subtotal -
+      formData.discount -
+      pointsDiscount +
+      subtotal * (formData.tax / 100)
+    );
   };
 
   const handleSubmit = async (e) => {
@@ -93,15 +113,27 @@ const SaleForm = () => {
     setLoading(true);
 
     try {
+      const pointsDiscount = formData.pointsToRedeem * 0.1;
+      const subtotal = formData.products.reduce(
+        (sum, item) => sum + item.priceAtSale * item.quantity,
+        0
+      );
+      const totalAmount = calculateTotal();
+
+      // Calculate amount eligible for loyalty points (excluding points discount)
+      const loyaltyEligibleAmount =
+        subtotal - formData.discount + subtotal * (formData.tax / 100);
+
       const saleData = {
         ...formData,
-        totalAmount: calculateTotal()
+        totalAmount,
+        loyaltyEligibleAmount, // Add this field to track amount eligible for points
       };
       console.log(saleData);
-      
-        await axios.post("http://localhost:8070/sale/add", saleData);
-        toast.success("Sale recorded successfully!");
-      
+
+      await axios.post("http://localhost:8070/sale/add", saleData);
+      toast.success("Sale recorded successfully!");
+
       navigate(-1);
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to save sale");
@@ -112,15 +144,70 @@ const SaleForm = () => {
 
   return (
     <div className="container mt-4">
-      <h2>{/* id ? "Edit Sale" : */ "Add New Sale"}</h2>
+      <h2>Record New Sale</h2>
       <form onSubmit={handleSubmit}>
+        {customerData && (
+          <div className="row mb-3">
+            <div className="col-md-6">
+              <div className="card">
+                <div className="card-body">
+                  <h5 className="card-title">Loyalty Points</h5>
+                  <div className="mb-3">
+                    <p className="card-text">
+                      <strong>Available Points:</strong>{" "}
+                      {customerData.loyaltyPoints}
+                    </p>
+                    <label htmlFor="pointsToRedeem" className="form-label">
+                      Points to Redeem
+                    </label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      id="pointsToRedeem"
+                      min="0"
+                      max={customerData.loyaltyPoints}
+                      value={formData.pointsToRedeem}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          pointsToRedeem: parseInt(e.target.value) || 0,
+                        })
+                      }
+                    />
+
+                    <div className="mt-2">
+                      <p className="text-success">
+                        <strong>Discount from Points: </strong>$
+                        {(formData.pointsToRedeem * 0.1).toFixed(2)}
+                      </p>
+                      <button
+                        type="button"
+                        className="btn btn-secondary btn-sm"
+                        onClick={() =>
+                          setFormData({
+                            ...formData,
+                            pointsToRedeem: 0,
+                          })
+                        }
+                      >
+                        Clear Points
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         <div className="row mb-3">
           <div className="col-md-3">
             <label className="form-label">Payment Method</label>
             <select
               className="form-select"
               value={formData.paymentMethod}
-              onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, paymentMethod: e.target.value })
+              }
               required
             >
               <option value="cash">Cash</option>
@@ -135,7 +222,9 @@ const SaleForm = () => {
             <select
               className="form-select"
               value={formData.status}
-              onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, status: e.target.value })
+              }
               required
             >
               <option value="completed">Completed</option>
@@ -156,10 +245,11 @@ const SaleForm = () => {
               >
                 <option value="">Select Product</option>
                 {products
-                  .filter(p => p.quantityInStock > 0)
-                  .map(product => (
+                  .filter((p) => p.quantityInStock > 0)
+                  .map((product) => (
                     <option key={product._id} value={product._id}>
-                      {product.name} (LKR{product.price}, Stock: {product.quantityInStock})
+                      {product.name} (LKR{product.price}, Stock:{" "}
+                      {product.quantityInStock})
                     </option>
                   ))}
               </select>
@@ -197,13 +287,15 @@ const SaleForm = () => {
               </thead>
               <tbody>
                 {formData.products.map((item) => {
-                  const product = products.find(p => p._id === item.product);
+                  const product = products.find((p) => p._id === item.product);
                   return (
                     <tr key={item.product}>
                       <td>{product?.name || "Unknown Product"}</td>
                       <td>LKR{item.priceAtSale?.toFixed(2)}</td>
                       <td>{item.quantity}</td>
-                      <td>LKR{(item.priceAtSale * item.quantity).toFixed(2)}</td>
+                      <td>
+                        LKR{(item.priceAtSale * item.quantity).toFixed(2)}
+                      </td>
                       <td>
                         <button
                           type="button"
@@ -221,37 +313,8 @@ const SaleForm = () => {
           </div>
         )}
 
-        <div className="row mb-3">
-          {/* <div className="col-md-3">
-            <label className="form-label">Discount ($)</label>
-            <input
-              type="number"
-              className="form-control"
-              min="0"
-              step="0.01"
-              value={formData.discount}
-              onChange={(e) => setFormData({ ...formData, discount: parseFloat(e.target.value) || 0 })}
-            />
-          </div> */}
-
-          {/* <div className="col-md-3">
-            <label className="form-label">Tax (%)</label>
-            <input
-              type="number"
-              className="form-control"
-              min="0"
-              max="100"
-              step="0.01"
-              value={formData.tax}
-              onChange={(e) => setFormData({ ...formData, tax: parseFloat(e.target.value) || 0 })}
-            />
-          </div> */}
-        </div>
-
         <div className="mb-4 p-3 bg-light rounded">
-          <h4 className="text-end">
-            Total: ${calculateTotal().toFixed(2)}
-          </h4>
+          <h4 className="text-end">Total: LKR{calculateTotal().toFixed(2)}</h4>
         </div>
 
         <div className="d-flex justify-content-between">
@@ -268,7 +331,7 @@ const SaleForm = () => {
             className="btn btn-primary"
             disabled={loading || formData.products.length === 0}
           >
-            {loading ? "Saving...": "Record Sale"}
+            {loading ? "Saving..." : "Record Sale"}
           </button>
         </div>
       </form>
@@ -277,7 +340,3 @@ const SaleForm = () => {
 };
 
 export default SaleForm;
-
-
-
-
