@@ -1,25 +1,58 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
+import './css/Header.css'; // Create this CSS file for the styles
 
 const Header = ({ isLoggedIn, handleLogout }) => {
-
     return (
-        <header className="header">
-            <div className="logo">CLOZ</div>
-            <nav className="nav">
-                <ul>
-                <li><Link to="/CustomerDashboard/">Customer Dashboard</Link></li>
-                    <li><Link to="/HRdashboard">HR Dashboard</Link></li>
-                    <li><Link to="/SalesDashboard/">Sales Dashboard</Link></li>
-                    <li><Link to="/FinanceDashboard/">Finance Dashboard</Link></li>
+        <header className="header-container">
+            <div className="header-content">
+                <Link to="/" className="logo">
+                    <span className="logo-primary">CLOZ</span>
+                    <span className="logo-dot">.</span>
+                </Link>
+                
+                <nav className="nav-menu">
+                    <ul className="nav-list">
+                        <li className="nav-item">
+                            <Link to="/CustomerDashboard/" className="nav-link">
+                                <i className="fas fa-users"></i> Customers
+                            </Link>
+                        </li>
+                        <li className="nav-item">
+                            <Link to="/HRdashboard" className="nav-link">
+                                <i className="fas fa-user-tie"></i> HR
+                            </Link>
+                        </li>
+                        <li className="nav-item">
+                            <Link to="/SalesDashboard/" className="nav-link">
+                                <i className="fas fa-chart-line"></i> Sales
+                            </Link>
+                        </li>
+                        <li className="nav-item">
+                            <Link to="/FinanceDashboard/" className="nav-link">
+                                <i className="fas fa-coins"></i> Finance
+                            </Link>
+                        </li>
+                    </ul>
+                </nav>
+                
+                <div className="auth-actions">
                     {isLoggedIn ? (
-                        <li><button onClick={handleLogout}>Logout</button></li>
+                        <>
+                            <Link to="/change-password" className="auth-link">
+                                <i className="fas fa-key"></i> Password
+                            </Link>
+                            <button onClick={handleLogout} className="logout-btn">
+                                <i className="fas fa-sign-out-alt"></i> Logout
+                            </button>
+                        </>
                     ) : (
-                        <li><Link to="/login">Login</Link></li>
+                        <Link to="/login" className="login-btn">
+                            <i className="fas fa-sign-in-alt"></i> Login
+                        </Link>
                     )}
-                    <li><Link to="/change-password">Change Password</Link></li>
-                </ul>
-            </nav>
+                </div>
+            </div>
         </header>
     );
 };

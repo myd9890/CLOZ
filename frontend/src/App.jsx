@@ -347,7 +347,10 @@ const App = () => {
               <Link to="/CustomerDashboard/customers">Customers</Link>
             </li>
             <li>
-              <Link to="/CustomerDashboard/Emails">Customers</Link>
+              <Link to="/CustomerDashboard/Email">Customers</Link>
+            </li>
+            <li>
+              <Link to="/CustomerDashboard/sale/add">Add sale</Link>
             </li>
           </ul>
         </nav>
@@ -377,7 +380,7 @@ const App = () => {
             <li><Link to="/HRdashboard/leave-requests">Leave Requests</Link></li>
             <li><Link to="/HRdashboard/reports">Reports</Link></li>
             <li><Link to="/HRdashboard/salary">Salary</Link></li>
-            <li><Link to="/HRdashboard">HR Dashboard</Link></li>
+            
 
           </ul>
         </nav>

@@ -221,7 +221,7 @@ const CustomerProfile = () => {
                       Edit Profile
                     </button>
                     <Link
-                      to={`/sale/add/new?customer=${customer._id}`}
+                      to={`/customerDashboard/sale/add/new?customer=${customer._id}`}
                       className="btn btn-primary"
                     >
                       New Sale
