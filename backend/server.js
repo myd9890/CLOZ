@@ -29,7 +29,8 @@ connection.once("open", () => {
   console.log("Mongodb connection success!");
 });
 
-/* app.use("/emails", customerRoutes); */
+app.use("/api/customers", customerRoutes);
+app.use("/emails", customerRoutes);
 
 const server = http.createServer(app);
 const io = new Server(server, {
