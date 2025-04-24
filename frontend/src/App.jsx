@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { io } from "socket.io-client";
@@ -11,7 +10,7 @@ import Sidebar from "./components/MainDashoardSideBar";
 import ProductFilter from "./components/ProductFilter";
 import SupplierProfile from "./components/supplierprofile";
 import ViewAllOrders from "./components/SupplierOrder";
-import PlaceOrderForm from "./components/SupplierManualOrder" ;
+import PlaceOrderForm from "./components/SupplierManualOrder";
 import SupplierList from "./components/SupplierList";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Dashboard from "./components/MainDashboard";
@@ -24,6 +23,7 @@ import SingleSale from "./components/SingleSale";
 import AddSaleFormWithoutCustomer from "./components/AddSaleFormWithoutCustomer";
 import ReturnForm from "./components/ReturnForm";
 //import SupplierLogin from './components/SupplierLogin';
+import Email from "./Components/Email";
 
 import SalesList from "./components/SalesList";
 import AddSaleForm from "./components/AddSaleForm";
@@ -98,8 +98,11 @@ const App = () => {
                     notifications={notifications}
                     markNotificationAsSeen={markNotificationAsSeen}
                   />
-                  <ProductFilter/>
-                  <ProductList products={products} fetchProducts={fetchProducts} />
+                  <ProductFilter />
+                  <ProductList
+                    products={products}
+                    fetchProducts={fetchProducts}
+                  />
                 </div>
               }
             />
@@ -111,22 +114,34 @@ const App = () => {
               path="/products/update/:productId"
               element={<UpdateProductForm fetchProducts={fetchProducts} />}
             />
-      
+
             <Route path="/supplier/:supplierId" element={<SupplierProfile />} />
             <Route path="/supplier/profiles" element={<SupplierList />} />
-            <Route path="/supplier/add" element={<AddSupplier/>} />
+            <Route path="/supplier/add" element={<AddSupplier />} />
             <Route path="/supplier/orders" element={<ViewAllOrders />} />
-            <Route path="supplier/update/:supplerId" element={<EditSupplier />} />
-            <Route path="/products/order/:productId" element={<PlaceOrderForm />} />
+            <Route
+              path="supplier/update/:supplerId"
+              element={<EditSupplier />}
+            />
+            <Route
+              path="/products/order/:productId"
+              element={<PlaceOrderForm />}
+            />
             {/* <Route path="/login" element={<SupplierLogin />} /> */}
-           {/*  <Route path="/supplierprofile" element={<SupplierProfile />} /> */}
+            {/*  <Route path="/supplierprofile" element={<SupplierProfile />} /> */}
             <Route path="/sales" element={<SalesList />} />
-            <Route path="/sale/add/new" element={<AddSaleForm/>} /> 
-            <Route path="/sale/add" element={<AddSaleFormWithoutCustomer/>} />
+            <Route path="/sale/add/new" element={<AddSaleForm />} />
+            <Route path="/sale/add" element={<AddSaleFormWithoutCustomer />} />
             <Route path="/sale/details/:id" element={<SingleSale />} />
             <Route path="/registercustomer" element={<RegisterCustomer />} />
             <Route path="/customers" element={<CustomerList />} />
-            <Route path="/customerprofile/:phone" element={<CustomerProfile/>} />
+
+            <Route path="/Email" element={<Email />} />
+
+            <Route
+              path="/customerprofile/:phone"
+              element={<CustomerProfile />}
+            />
             <Route path="/sale/return/:id" element={<ReturnForm />} />
           </Routes>
         </div>
