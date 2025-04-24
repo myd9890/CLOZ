@@ -112,8 +112,4 @@ server.listen(PORT, () => {
     console.log(`Server is up and running on port ${PORT}`);
 
 
-// Start server
-app.listen(port, () => {
-  console.log(`Server is running on port: ${port}`);
-});
 });
