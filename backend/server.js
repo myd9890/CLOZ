@@ -5,38 +5,25 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const http = require("http");
 
-
-const express= require("express");
-const mongoose= require("mongoose");
-const dotenv=require("dotenv");
-const cors= require("cors");
-const bodyParser= require("body-parser");
-
-const http = require("http"); 
-
 const { Server } = require("socket.io");
 const app = express();
 
 require("dotenv").config();
 const customerRoutes = require("./routes/customerRoutes");
 //const loyaltyRoutes = require("./routes/loyaltyRoutes");
-const employeeRoutes = require('./routes/employees');
-const authRoutes = require('./routes/auth');
-const attendanceRoutes = require('./routes/attendance');
-const salaryRoutes = require('./routes/salary');
+const employeeRoutes = require("./routes/employees");
+const authRoutes = require("./routes/auth");
+const attendanceRoutes = require("./routes/attendance");
+const salaryRoutes = require("./routes/salary");
 
 const PORT = process.env.PORT || 8070;
 
-
-
-console.log('MongoDB URL:', process.env.MONGODB_URL); // Add this line to check the MongoDB URL
+console.log("MongoDB URL:", process.env.MONGODB_URL); // Add this line to check the MongoDB URL
 
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.json());
-
-
 
 const URL = process.env.MONGODB_URL;
 
@@ -89,29 +76,25 @@ app.use("/customers", customerRoutes);
 
 //app.use("/api/loyalty", loyaltyRoutes);
 const assetRouter = require("./routes/Assets.js");
-app.use("/assets",assetRouter);
+app.use("/assets", assetRouter);
 
 const liabilityRouter = require("./routes/Liabilities.js");
-app.use("/liabilities",liabilityRouter);
+app.use("/liabilities", liabilityRouter);
 
 const expenseRouter = require("./routes/Expenses.js");
-app.use("/expenses",expenseRouter);
+app.use("/expenses", expenseRouter);
 
 const pettyRouter = require("./routes/pettyCashexp.js");
-app.use("/pettycash",pettyRouter);
+app.use("/pettycash", pettyRouter);
 
 const incomeRouter = require("./routes/Incomes.js");
-app.use("/incomes",incomeRouter);
+app.use("/incomes", incomeRouter);
 
-app.use('/api/employees', employeeRoutes);
-app.use('/api/auth', authRoutes);
-app.use('/api/attendance', attendanceRoutes);
-app.use('/api/salary', salaryRoutes);
-
-
+app.use("/api/employees", employeeRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/attendance", attendanceRoutes);
+app.use("/api/salary", salaryRoutes);
 
 server.listen(PORT, () => {
-    console.log(`Server is up and running on port ${PORT}`);
-
-
+  console.log(`Server is up and running on port ${PORT}`);
 });
