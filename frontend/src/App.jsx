@@ -164,7 +164,7 @@ const App = () => {
           } />
           
           <Route path="/CustomerDashboard/*" element={
-            <AccessControl requiredDept="Customer">
+            <AccessControl requiredDept="CRM">
               <CustomerDashboard />
             </AccessControl>
           } />
@@ -186,21 +186,23 @@ const App = () => {
       console.log('Access denied: User not logged in.');
       return <Navigate to="/login" />;
     }
-
+  
+    // Role check (if needed)
     if (requiredRole && user.role !== requiredRole) {
-      console.log(`Access denied: You must have the '${requiredRole}' role to access this page.`);
+      console.log(`Access denied: Role must be '${requiredRole}'`);
       return <div>Access Denied: Insufficient role permissions.</div>;
     }
-    if (requiredDept === user.department && requiredRole === user.role) {
-      console.log(`Access granted: You have AND access`);
-      return children;
+  
+    // Department check (if needed)
+    if (requiredDept && user.department !== requiredDept) {
+      console.log(`Access denied: Department must be '${requiredDept}'`);
+      return <div>Access Denied: Insufficient department permissions.</div>;
     }
-    else if (requiredDept === user.department || requiredRole === user.role) {
-      console.log(`Access granted: You have OR access`);
-      return children;
-    }
+  
+    // All checks passed
     return children;
   }
+  
 
   function InventoryDashboard() {
     return (
@@ -308,10 +310,13 @@ const App = () => {
         <p> Hi {user?.name}</p>
         <nav>
           <ul>
+            <li><Link to="/HRdashboard/list">Employee List</Link></li>
+            <li><Link to="/HRdashboard/add">Add Employee</Link></li>
             <li><Link to="/HRdashboard/attendance">Attendance</Link></li>
             <li><Link to="/HRdashboard/leave-requests">Leave Requests</Link></li>
             <li><Link to="/HRdashboard/reports">Reports</Link></li>
             <li><Link to="/HRdashboard/salary">Salary</Link></li>
+            <li><Link to="/HRdashboard">HR Dashboard</Link></li>
           </ul>
         </nav>
         <Routes>

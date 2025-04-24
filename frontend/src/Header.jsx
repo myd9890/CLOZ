@@ -8,9 +8,10 @@ const Header = ({ isLoggedIn, handleLogout }) => {
             <div className="logo">CLOZ</div>
             <nav className="nav">
                 <ul>
+                <li><Link to="/CustomerDashboard/">Customer Dashboard</Link></li>
                     <li><Link to="/HRdashboard">HR Dashboard</Link></li>
-                    <li><Link to="/HRdashboard/list">Employee List</Link></li>
-                    <li><Link to="/HRdashboard/add">Add Employee</Link></li>
+                    <li><Link to="/SalesDashboard/">Sales Dashboard</Link></li>
+                    <li><Link to="/FinanceDashboard/">Finance Dashboard</Link></li>
                     {isLoggedIn ? (
                         <li><button onClick={handleLogout}>Logout</button></li>
                     ) : (
