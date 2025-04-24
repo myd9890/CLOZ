@@ -5,6 +5,8 @@ const API_URL = "http://localhost:8070/api/customers";
 
 function CustomerList() {
   const [customers, setCustomers] = useState([]);
+  const [filteredCustomers, setFilteredCustomers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [editData, setEditData] = useState(null);
   const [errors, setErrors] = useState({ name: "", email: "", phone: "" });
 
@@ -14,10 +16,22 @@ function CustomerList() {
     fetchCustomers();
   }, []);
 
+  useEffect(() => {
+    if (searchTerm === "") {
+      setFilteredCustomers(customers);
+    } else {
+      const filtered = customers.filter(customer => 
+        customer.phone.includes(searchTerm)
+      );
+      setFilteredCustomers(filtered);
+    }
+  }, [searchTerm, customers]);
+
   const fetchCustomers = async () => {
     try {
       const response = await axios.get(`${API_URL}/read`);
       setCustomers(response.data);
+      setFilteredCustomers(response.data);
     } catch (error) {
       console.error("Error fetching customers:", error);
     }
@@ -96,6 +110,16 @@ function CustomerList() {
     <div>
       <h1>Customer Management</h1>
 
+      <div className="mb-3">
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Search by phone number..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
       {editData ? (
         <div>
           <h2>Edit Customer</h2>
@@ -154,7 +178,7 @@ function CustomerList() {
               </tr>
             </thead>
             <tbody>
-              {customers.map((customer) => (
+              {filteredCustomers.map((customer) => (
                 <tr key={customer._id}>
                   <td>{customer.name}</td>
                   <td>{customer.email}</td>
