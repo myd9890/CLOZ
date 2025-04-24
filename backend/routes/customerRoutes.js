@@ -1,13 +1,13 @@
 const express = require("express");
 const {
   createCustomer,
-  //loginCustomer,
-  //logoutCustomer,
+
   getCustomers,
   updateCustomer,
   deleteCustomer,
   getCustomerByPhone,
   getCustomerById,
+  sendBroadcastEmail,
 } = require("../controllers/customerController");
 
 const router = express.Router();
@@ -27,5 +27,7 @@ router.delete("/delete/:id", deleteCustomer);
 router.get("/profile/:phone", getCustomerByPhone);
 
 router.get("/:id", getCustomerById);
+// Broadcast Email Route
+router.post("/broadcast-email", sendBroadcastEmail);
 
 module.exports = router;
