@@ -36,53 +36,6 @@ export const createCustomer = async (req, res) => {
   }
 };
 
-// Customer Login by Phone Number
-/*export const loginCustomer = async (req, res) => {
-  try {
-    const { phone } = req.body;
-
-    // Find customer by phone
-    const customer = await Customer.findOne({ phone });
-    if (!customer) {
-      return res.status(404).json({ message: "Customer not found!" });
-    }
-
-    // Return customer profile
-    res.status(200).json({
-      message: "Customer logged in successfully!",
-      customer: {
-        id: customer._id,
-        name: customer.name,
-        email: customer.email,
-        phone: customer.phone,
-        loyaltyPoints: customer.loyaltyPoints,
-        purchaseHistory: customer.purchaseHistory,
-      },
-    });
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error });
-  }
-};
-
-// Customer Logout
-/*export const logoutCustomer = (req, res) => {
-  try {
-    // Destroy the session or clear authentication token
-    req.session?.destroy((err) => {
-      if (err) {
-        return res.status(500).json({ message: "Logout failed!" });
-      }
-      res.status(200).json({ message: "Customer logged out successfully!" });
-    });
-  } catch (error) {
-    res.status(500).json({ message: "Server error during logout", error });
-  }
-};*/
-
-// Function to handle customer search by phone number
-// Function to handle customer search by phone number
-
-// Fetch all customers
 export const getCustomers = async (req, res) => {
   try {
     const customers = await Customer.find();
@@ -136,15 +89,15 @@ export const deleteCustomer = async (req, res) => {
 
 export const getCustomerByPhone = async (req, res) => {
   try {
-    let phone=req.params.phone;
-    const customer = await Customer.findOne({phone:phone});
+    let phone = req.params.phone;
+    const customer = await Customer.findOne({ phone: phone });
     if (!customer) {
-      return res.status(404).json({ error: 'Customer not found' });
+      return res.status(404).json({ error: "Customer not found" });
     }
     console.log(customer);
     res.json(customer);
   } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: "Server error" });
   }
 };
 
@@ -162,7 +115,5 @@ export const getCustomerById = async (req, res) => {
     res.status(500).json({ message: "Server error", error });
   }
 };
-// Login route
-//router.post("/login", loginCustomer);
 
 export default router;

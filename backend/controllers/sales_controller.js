@@ -5,7 +5,7 @@ import Customer from "../models/customer.js";
 // Create new sale
 export const createSale = async (req, res) => {
   try {
-    const { products, customer, ...saleData } = req.body;
+    const { products, customer, pointsToRedeem, ...saleData } = req.body;
 
     // Verify products and check stock
     const productUpdates = [];
@@ -25,17 +25,26 @@ export const createSale = async (req, res) => {
       if (!customerData) {
         return res.status(404).json({ message: "Customer not found" });
       }
+
+      // Validate points redemption
+      if (pointsToRedeem > customerData.loyaltyPoints) {
+        return res
+          .status(400)
+          .json({ message: "Not enough loyalty points available" });
+      }
     }
 
     // Process products
     for (const item of products) {
       const product = await Product.findById(item.product);
       if (!product) {
-        return res.status(404).json({ message: `Product ${item.product} not found` });
+        return res
+          .status(404)
+          .json({ message: `Product ${item.product} not found` });
       }
       if (product.quantityInStock < item.quantity) {
-        return res.status(400).json({ 
-          message: `Insufficient stock for ${product.name} (Available: ${product.quantityInStock})`
+        return res.status(400).json({
+          message: `Insufficient stock for ${product.name} (Available: ${product.quantityInStock})`,
         });
       }
 
@@ -45,26 +54,32 @@ export const createSale = async (req, res) => {
       saleProducts.push({
         product: product._id,
         quantity: item.quantity,
-        priceAtSale: item.priceAtSale
+        priceAtSale: item.priceAtSale,
       });
 
       productUpdates.push({
         updateOne: {
           filter: { _id: product._id },
-          update: { $inc: { quantityInStock: -item.quantity } }
-        }
+          update: { $inc: { quantityInStock: -item.quantity } },
+        },
       });
     }
 
-    // Calculate total with discount and tax
-    const totalAmount = subtotal - saleData.discount + (subtotal * (saleData.tax / 100));
+    // Calculate total with discount, points redemption, and tax
+    const pointsDiscount = pointsToRedeem * 0.1; // 1 point = $0.10
+    const totalAmount =
+      subtotal -
+      saleData.discount -
+      pointsDiscount +
+      subtotal * (saleData.tax / 100);
 
     // Create sale
     const sale = new Sale({
       ...saleData,
       products: saleProducts,
       totalAmount,
-      ...(customer && { customer }) // Only include customer if it exists
+      pointsRedeemed: pointsToRedeem || 0,
+      ...(customer && { customer }), // Only include customer if it exists
     });
 
     // Update product stocks
@@ -76,7 +91,10 @@ export const createSale = async (req, res) => {
 
     // Handle customer loyalty points if customer exists
     if (customerData) {
-      const pointsEarned = Math.floor(totalAmount / 10);
+      // Calculate points earned based on the amount paid (excluding points redemption)
+      const amountPaid = totalAmount + pointsDiscount; // Add back the points discount to get the actual amount paid
+      const pointsEarned = pointsToRedeem > 0 ? 0 : Math.floor(amountPaid / 10); // Only earn points if no points were redeemed
+      const finalPoints = pointsEarned - pointsToRedeem;
 
       await Customer.findByIdAndUpdate(customer, {
         $push: {
@@ -84,20 +102,21 @@ export const createSale = async (req, res) => {
             saleId: sale._id,
             date: sale.createdAt,
             amount: totalAmount,
-            items: saleProducts.map(item => ({
+            items: saleProducts.map((item) => ({
               product: item.product,
-              quantity: item.quantity
+              quantity: item.quantity,
             })),
             pointsEarned: pointsEarned,
-          }
+            pointsRedeemed: pointsToRedeem || 0,
+          },
         },
-        $inc: { 
+        $inc: {
           totalPurchases: totalAmount,
-          loyaltyPoints: pointsEarned 
-        }
+          loyaltyPoints: finalPoints,
+        },
       });
     }
-    
+
     // Populate fields for response
     const populatedSale = await Sale.findById(sale._id)
       .populate("customer", "name phone")
@@ -105,7 +124,13 @@ export const createSale = async (req, res) => {
 
     const response = {
       ...populatedSale.toObject(),
-      ...(customerData && { pointsEarned: Math.floor(totalAmount / 10) })
+      ...(customerData && {
+        pointsEarned:
+          pointsToRedeem > 0
+            ? 0
+            : Math.floor((totalAmount + pointsDiscount) / 10),
+        pointsRedeemed: pointsToRedeem || 0,
+      }),
     };
 
     res.status(201).json(response);
@@ -113,6 +138,7 @@ export const createSale = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 // Update sale
 export const updateSale = async (req, res) => {
   try {
@@ -127,11 +153,11 @@ export const updateSale = async (req, res) => {
     // Handle product updates if products array is provided
     if (products) {
       // First revert old product quantities
-      const revertUpdates = sale.products.map(item => ({
+      const revertUpdates = sale.products.map((item) => ({
         updateOne: {
           filter: { _id: item.product },
-          update: { $inc: { stock: item.quantity } }
-        }
+          update: { $inc: { stock: item.quantity } },
+        },
       }));
 
       await Product.bulkWrite(revertUpdates);
@@ -144,11 +170,13 @@ export const updateSale = async (req, res) => {
       for (const item of products) {
         const product = await Product.findById(item.product);
         if (!product) {
-          return res.status(404).json({ message: `Product ${item.product} not found` });
+          return res
+            .status(404)
+            .json({ message: `Product ${item.product} not found` });
         }
         if (product.stock < item.quantity) {
-          return res.status(400).json({ 
-            message: `Insufficient stock for ${product.name} (Available: ${product.stock})`
+          return res.status(400).json({
+            message: `Insufficient stock for ${product.name} (Available: ${product.stock})`,
           });
         }
 
@@ -158,26 +186,29 @@ export const updateSale = async (req, res) => {
         saleProducts.push({
           product: product._id,
           quantity: item.quantity,
-          priceAtSale: item.priceAtSale
+          priceAtSale: item.priceAtSale,
         });
 
         productUpdates.push({
           updateOne: {
             filter: { _id: product._id },
-            update: { $inc: { stock: -item.quantity } }
-          }
+            update: { $inc: { stock: -item.quantity } },
+          },
         });
       }
 
       updateData.products = saleProducts;
-      updateData.totalAmount = subtotal - (updateData.discount || 0) + 
-                             (subtotal * ((updateData.tax || 0) / 100));
+      updateData.totalAmount =
+        subtotal -
+        (updateData.discount || 0) +
+        subtotal * ((updateData.tax || 0) / 100);
 
       await Product.bulkWrite(productUpdates);
     }
 
-    
-    const updatedSale = await Sale.findByIdAndUpdate(id, updateData, { new: true })
+    const updatedSale = await Sale.findByIdAndUpdate(id, updateData, {
+      new: true,
+    })
       .populate("customer", "name phone")
       .populate("products.product", "name price");
 
@@ -210,7 +241,7 @@ export const getSales = async (req, res) => {
   try {
     const { customerId } = req.query;
     const query = customerId ? { customer: customerId } : {};
-    
+
     const sales = await Sale.find(query)
       .populate("customer", "name phone")
       .populate("products.product", "name price")
@@ -241,13 +272,15 @@ export const deleteSale = async (req, res) => {
 
 export const initiateReturn = async (req, res) => {
   try {
-    const sale = await Sale.findById(req.params.id).populate('products.product').populate('customer');
+    const sale = await Sale.findById(req.params.id)
+      .populate("products.product")
+      .populate("customer");
     if (!sale) {
-      return res.status(404).send('Sale not found');
+      return res.status(404).send("Sale not found");
     }
-    res.json(sale); 
+    res.json(sale);
   } catch (err) {
-    res.status(500).send('Server error');
+    res.status(500).send("Server error");
   }
 };
 
@@ -259,7 +292,7 @@ export const processReturn = async (req, res) => {
     const sale = await Sale.findById(req.params.id);
 
     if (!sale) {
-      return res.status(404).json({ error: 'Sale not found' });
+      return res.status(404).json({ error: "Sale not found" });
     }
 
     // Update product quantities
@@ -271,21 +304,26 @@ export const processReturn = async (req, res) => {
       }
 
       // Update sale items - mark as returned
-      const saleItem = sale.products.find(p => p.product.toString() === item.productId);
+      const saleItem = sale.products.find(
+        (p) => p.product.toString() === item.productId
+      );
       if (saleItem) {
-        saleItem.returnedQuantity = (saleItem.returnedQuantity || 0) + item.quantity;
+        saleItem.returnedQuantity =
+          (saleItem.returnedQuantity || 0) + item.quantity;
         saleItem.returnReason = item.reason;
       }
     }
 
     // Check if all items are returned
-    const allReturned = sale.products.every(p => p.quantity === (p.returnedQuantity || 0));
-    sale.status = allReturned ? 'returned' : 'partial_return';
+    const allReturned = sale.products.every(
+      (p) => p.quantity === (p.returnedQuantity || 0)
+    );
+    sale.status = allReturned ? "returned" : "partial_return";
 
     await sale.save();
-    res.json({ message: 'Return processed successfully', sale });
+    res.json({ message: "Return processed successfully", sale });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: "Server error" });
   }
 };
