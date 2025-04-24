@@ -1,4 +1,5 @@
 
+
 const express= require("express");
 const mongoose= require("mongoose");
 const dotenv=require("dotenv");
@@ -12,12 +13,22 @@ const app= express();
 require("dotenv").config();
 const customerRoutes = require("./routes/customerRoutes");
 //const loyaltyRoutes = require("./routes/loyaltyRoutes");
+const employeeRoutes = require('./routes/employees');
+const authRoutes = require('./routes/auth');
+const attendanceRoutes = require('./routes/attendance');
+const salaryRoutes = require('./routes/salary');
 
 const PORT = process.env.PORT || 8070;
 
 
+
+console.log('MongoDB URL:', process.env.MONGODB_URL); // Add this line to check the MongoDB URL
+
+// Middleware
 app.use(cors());
 app.use(bodyParser.json());
+app.use(express.json());
+
 
 
 const URL = process.env.MONGODB_URL;
@@ -90,12 +101,19 @@ app.use("/pettycash",pettyRouter);
 const incomeRouter = require("./routes/Incomes.js");
 app.use("/incomes",incomeRouter);
 
+app.use('/api/employees', employeeRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/attendance', attendanceRoutes);
+app.use('/api/salary', salaryRoutes);
 
 
 
 server.listen(PORT, () => {
     console.log(`Server is up and running on port ${PORT}`);
 
+
+// Start server
+app.listen(port, () => {
+  console.log(`Server is running on port: ${port}`);
 });
-
-
+});
