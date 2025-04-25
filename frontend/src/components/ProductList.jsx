@@ -479,7 +479,7 @@ const ProductList = () => {
 
       {/* Add Product */}
       <div className="d-flex justify-content-end mb-3">
-        <Link to="/products/add" className="btn btn-primary">
+        <Link to="/InventoryDashboard/products/add" className="btn btn-primary">
           ➕ Add New Product
         </Link>
       </div>
@@ -506,7 +506,7 @@ const ProductList = () => {
                 <td>{product.quantityInStock}</td>
                 <td>LKR {product.price}</td>
                 <td>
-                  <Link to={`/products/update/${product.productId}`} className="btn btn-success btn-sm me-2">
+                  <Link to={`/InventoryDashboard/products/update/${product.productId}`} className="btn btn-success btn-sm me-2">
                     Edit
                   </Link>
                   <button

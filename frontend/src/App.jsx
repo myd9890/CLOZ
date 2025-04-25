@@ -50,6 +50,7 @@ import Salary from "./components/Salary";
 import Header from "./Header";
 import Footer from "./Footer";
 import Index from "./index";
+import Customerogin from "./components/Customerogin";
 
 import "./App.css";
 import ProductListWithDiscounts from "./components/ProductListWithDiscounts";
@@ -156,38 +157,55 @@ const App = () => {
 
           {/* Protected Routes */}
 
-          <Route path="/change-password" element={isLoggedIn ? <ChangePassword /> : <Navigate to="/login" />} />
-          
-          <Route path="/InventoryDashboard/*" element={
-            <AccessControl requiredDept="Inventory">
-              <InventoryDashboard />
-            </AccessControl>
-          } />
-          
-          <Route path="/FinanceDashboard/*" element={
-            <AccessControl requiredDept="Finance">
-              <FinanceDashboard />
-            </AccessControl>
-          } />
-          
-          <Route path="/SalesDashboard/*" element={
-            <AccessControl requiredDept="Sales">
-              <SalesDashboard />
-            </AccessControl>
-          } />
-          
-          <Route path="/CustomerDashboard/*" element={
-            <AccessControl requiredDept="CRM">
-              <CustomerDashboard />
-            </AccessControl>
-          } />
-          
-          <Route path="/HRdashboard/*" element={
-            <AccessControl requiredDept="HR">
-              <HRDashboard user={user} />
-            </AccessControl>
-          } />
+          <Route
+            path="/change-password"
+            element={isLoggedIn ? <ChangePassword /> : <Navigate to="/login" />}
+          />
 
+          <Route
+            path="/InventoryDashboard/*"
+            element={
+              <AccessControl requiredDept="Inventory">
+                <InventoryDashboard user={user}/>
+              </AccessControl>
+            }
+          />
+
+          <Route
+            path="/FinanceDashboard/*"
+            element={
+              <AccessControl requiredDept="Finance">
+                <FinanceDashboard user={user}/>
+              </AccessControl>
+            }
+          />
+
+          <Route
+            path="/SalesDashboard/*"
+            element={
+              <AccessControl requiredDept="Sales">
+                <SalesDashboard user={user}/>
+              </AccessControl>
+            }
+          />
+
+          <Route
+            path="/CustomerDashboard/*"
+            element={
+              <AccessControl requiredDept="CRM">
+                <CustomerDashboard user={user} />
+              </AccessControl>
+            }
+          />
+
+          <Route
+            path="/HRdashboard/*"
+            element={
+              <AccessControl requiredDept="HR">
+                <HRDashboard user={user} />
+              </AccessControl>
+            }
+          />
         </Routes>
         <Footer />
       </div>
@@ -200,30 +218,28 @@ const App = () => {
       console.log("Access denied: User not logged in.");
       return <Navigate to="/login" />;
     }
-  
+
     // Role check (if needed)
     if (requiredRole && user.role !== requiredRole) {
-
       console.log(`Access denied: Role must be '${requiredRole}'`);
       return <div>Access Denied: Insufficient role permissions.</div>;
     }
-  
+
     // Department check (if needed)
     if (requiredDept && user.department !== requiredDept) {
       console.log(`Access denied: Department must be '${requiredDept}'`);
       return <div>Access Denied: Insufficient department permissions.</div>;
     }
-  
+
     // All checks passed
     return children;
   }
-  
 
-  function InventoryDashboard() {
+  function InventoryDashboard({ user }) {
     return (
-      <div>
-        <h1>Inventory Dashboard</h1>
-        <nav>
+      <div className="dashboard-container">
+        <nav className="sidebar">
+          <h2>Inventory</h2>
           <ul>
             <li>
               <Link to="/InventoryDashboard/products">Inventory</Link>
@@ -232,175 +248,166 @@ const App = () => {
               <Link to="/InventoryDashboard/supplier/orders">Orders</Link>
             </li>
             <li>
-              <Link to="/InventoryDashboard/supplier/profiles">
-                Supplier Profiles
-              </Link>
+              <Link to="/InventoryDashboard/supplier/profiles">Supplier Profiles</Link>
             </li>
           </ul>
         </nav>
-        <Routes>
-          <Route
-            path="products"
-            element={
-              <div className="products-page">
-                <NotificationBell
-                  notifications={notifications}
-                  markNotificationAsSeen={markNotificationAsSeen}
-                  style={{ marginLeft: '20px' }}
-                />
-                <ProductFilter />
-                <ProductList
-                  products={products}
-                  fetchProducts={fetchProducts}
-                />
-              </div>
-            }
-          />
-          <Route
-            path="products/add"
-            element={<AddProductForm fetchProducts={fetchProducts} />}
-          />
-          <Route
-            path="products/update/:productId"
-            element={<UpdateProductForm fetchProducts={fetchProducts} />}
-          />
-          <Route path="supplier/profiles" element={<SupplierList />} />
-          <Route path="supplier/add" element={<AddSupplier />} />
-          <Route path="supplier/orders" element={<ViewAllOrders />} />
-          <Route path="supplier/update/:id" element={<EditSupplier />} />
-          <Route
-            path="products/order/:productId"
-            element={<PlaceOrderForm />}
-          />
-        </Routes>
+  
+        <div className="dashboard-content">
+          <h1>Inventory Dashboard</h1>
+          <p>Hi {user?.name}</p>
+          <Routes>
+            <Route
+              path="products"
+              element={
+                <div className="products-page">
+                  <NotificationBell
+                    notifications={notifications}
+                    markNotificationAsSeen={markNotificationAsSeen}
+                    style={{ marginLeft: '20px' }}
+                  />
+                  <ProductFilter />
+                  <ProductList
+                    products={products}
+                    fetchProducts={fetchProducts}
+                  />
+                </div>
+              }
+            />
+            <Route path="products/add" element={<AddProductForm fetchProducts={fetchProducts} />} />
+            <Route path="products/update/:productId" element={<UpdateProductForm fetchProducts={fetchProducts} />} />
+            <Route path="supplier/profiles" element={<SupplierList />} />
+            <Route path="supplier/add" element={<AddSupplier />} />
+            <Route path="supplier/orders" element={<ViewAllOrders />} />
+            <Route path="supplier/update/:id" element={<EditSupplier />} />
+            <Route path="products/order/:productId" element={<PlaceOrderForm />} />
+          </Routes>
+        </div>
       </div>
     );
   }
+  
 
-  function FinanceDashboard() {
+  function FinanceDashboard({ user }) {
     return (
-      <div>
-        <h1>Finance Dashboard</h1>
-        <nav>
+      <div className="dashboard-container">
+        <nav className="sidebar">
+          <h2>Finance</h2>
           <ul>
-            <li>
-              <Link to="/FinanceDashboard/assets">Assets</Link>
-            </li>
-            <li>
-              <Link to="/FinanceDashboard/liabilities">Liabilities</Link>
-            </li>
-            <li>
-              <Link to="/FinanceDashboard/expenses">Expenses</Link>
-            </li>
-            <li>
-              <Link to="/FinanceDashboard/incomes">Incomes</Link>
-            </li>
-            <li>
-              <Link to="/FinanceDashboard/pettycash">Petty Cash</Link>
-            </li>
+            <li><Link to="/FinanceDashboard/assets">Assets</Link></li>
+            <li><Link to="/FinanceDashboard/liabilities">Liabilities</Link></li>
+            <li><Link to="/FinanceDashboard/expenses">Expenses</Link></li>
+            <li><Link to="/FinanceDashboard/incomes">Incomes</Link></li>
+            <li><Link to="/FinanceDashboard/pettycash">Petty Cash</Link></li>
           </ul>
         </nav>
-        <Routes>
-          <Route path="assets" element={<Asset />} />
-          <Route path="liabilities" element={<Liab />} />
-          <Route path="expenses" element={<Exp />} />
-          <Route path="incomes" element={<Income />} />
-          <Route path="pettycash" element={<PettyCash />} />
-        </Routes>
+  
+        <div className="dashboard-content">
+          <h1>Finance Dashboard</h1>
+          <p>Hi {user?.name}</p>
+          <Routes>
+            <Route path="assets" element={<Asset />} />
+            <Route path="liabilities" element={<Liab />} />
+            <Route path="expenses" element={<Exp />} />
+            <Route path="incomes" element={<Income />} />
+            <Route path="pettycash" element={<PettyCash />} />
+          </Routes>
+        </div>
       </div>
     );
   }
+  
 
-  function SalesDashboard() {
+  function SalesDashboard({ user }) {
     return (
-      <div>
-        <h1>Sales Dashboard</h1>
-        <nav>
+      <div className="dashboard-container">
+        <nav className="sidebar">
+          <h2>Sales</h2>
           <ul>
-            <li>
-              <Link to="/SalesDashboard/sales">Sales</Link>
-              <Link to="/SalesDashboard/discount">Discount</Link>
-            </li>
+            <li><Link to="/SalesDashboard/sales">Sales</Link></li>
+            <li><Link to="/SalesDashboard/discount">Discount</Link></li>
           </ul>
         </nav>
-        <Routes>
-          <Route path="sales" element={<SalesList />} />
-          <Route path="sale/return/:id" element={<ReturnForm />} />
-          <Route path="sale/details/:id" element={<SingleSale />} />
-          <Route path="discount" element={<ProductListWithDiscounts />} />
-
-        </Routes>
+  
+        <div className="dashboard-content">
+          <h1>Sales Dashboard</h1>
+          <p>Hi {user?.name}</p>
+          <Routes>
+            <Route path="sales" element={<SalesList />} />
+            <Route path="sale/return/:id" element={<ReturnForm />} />
+            <Route path="sale/details/:id" element={<SingleSale />} />
+            <Route path="discount" element={<ProductListWithDiscounts />} />
+          </Routes>
+        </div>
       </div>
     );
   }
+  
 
-  function CustomerDashboard() {
+  function CustomerDashboard({ user }) {
     return (
-      <div>
-        <h1>Customer Dashboard</h1>
-        <nav>
+      <div className="dashboard-container">
+        <nav className="sidebar">
+          <h2>Customer</h2>
           <ul>
-            <li>
-              <Link to="/CustomerDashboard/registercustomer">
-                Register Customer
-              </Link>
-            </li>
-            <li>
-              <Link to="/CustomerDashboard/logincustomer">Login Customer</Link>
-            </li>
-            <li>
-              <Link to="/CustomerDashboard/customers">Customers</Link>
-            </li>
-            <li>
-              <Link to="/CustomerDashboard/Email">Emails</Link>
-            </li>
-            <li>
-              <Link to="/CustomerDashboard/sale/add">Add sale</Link>
-            </li>
+            <li><Link to="/CustomerDashboard/registercustomer">Register Customer</Link></li>
+            <li><Link to="/CustomerDashboard/logincustomer">Login Customer</Link></li>
+            <li><Link to="/CustomerDashboard/customers">Customers</Link></li>
+            <li><Link to="/CustomerDashboard/Email">Emails</Link></li>
+            <li><Link to="/CustomerDashboard/sale/add">Add Sale</Link></li>
           </ul>
         </nav>
-        <Routes>
-          <Route path="registercustomer" element={<RegisterCustomer />} />
-          <Route path="customers" element={<CustomerList />} />
-          <Route path="customerprofile/:phone" element={<CustomerProfile />} />
-          <Route path="sale/add/new" element={<AddSaleForm />} />
-          <Route path="sale/add" element={<AddSaleFormWithoutCustomer />} />
-          <Route path="Email" element={<Email />} />
-        </Routes>
+  
+        <div className="dashboard-content">
+          <h1>Customer Dashboard</h1>
+          <p>Hi {user?.name}</p>
+          <Routes>
+            <Route path="registercustomer" element={<RegisterCustomer />} />
+            <Route path="customers" element={<CustomerList />} />
+            <Route path="customerprofile/:phone" element={<CustomerProfile />} />
+            <Route path="sale/add/new" element={<AddSaleForm />} />
+            <Route path="sale/add" element={<AddSaleFormWithoutCustomer />} />
+            <Route path="Email" element={<Email />} />
+            <Route path="logincustomer" element={<Customerogin />} />
+          </Routes>
+        </div>
       </div>
     );
   }
+  
 
   function HRDashboard({ user }) {
     return (
-      <div>
-        <h1>HR Dashboard</h1>
-        <p> Hi {user?.name}</p>
-        <nav>
+      <div className="dashboard-container">
+        <nav className="sidebar">
+          <h2>HR</h2>
           <ul>
-
             <li><Link to="/HRdashboard/list">Employee List</Link></li>
             <li><Link to="/HRdashboard/add">Add Employee</Link></li>
             <li><Link to="/HRdashboard/attendance">Attendance</Link></li>
             <li><Link to="/HRdashboard/leave-requests">Leave Requests</Link></li>
             <li><Link to="/HRdashboard/reports">Reports</Link></li>
             <li><Link to="/HRdashboard/salary">Salary</Link></li>
-            
-
           </ul>
         </nav>
-        <Routes>
-          <Route path="list" element={<EmployeeList />} />
-          <Route path="add" element={<AddEmployee />} />
-          <Route path="edit/:id" element={<EditEmployee />} />
-          <Route path="attendance" element={<Attendance />} />
-          <Route path="leave-requests" element={<LeaveRequests />} />
-          <Route path="reports" element={<Reports />} />
-          <Route path="salary" element={<Salary />} />
-        </Routes>
+  
+        <div className="dashboard-content">
+          <h1>HR Dashboard</h1>
+          <p>Hi {user?.name}</p>
+          <Routes>
+            <Route path="list" element={<EmployeeList />} />
+            <Route path="add" element={<AddEmployee />} />
+            <Route path="edit/:id" element={<EditEmployee />} />
+            <Route path="attendance" element={<Attendance />} />
+            <Route path="leave-requests" element={<LeaveRequests />} />
+            <Route path="reports" element={<Reports />} />
+            <Route path="salary" element={<Salary />} />
+          </Routes>
+        </div>
       </div>
     );
   }
+  
 };
 
 export default App;

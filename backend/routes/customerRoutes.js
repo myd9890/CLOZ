@@ -8,15 +8,13 @@ const {
   getCustomerByPhone,
   getCustomerById,
   sendBroadcastEmail,
+  loginCustomer,
+  logoutCustomer,
 } = require("../controllers/customerController");
 
 const router = express.Router();
 
 router.post("/register", createCustomer);
-
-//router.post("/login", loginCustomer);
-
-//router.post("/logout", logoutCustomer);
 
 router.get("/read", getCustomers);
 
@@ -29,5 +27,8 @@ router.get("/profile/:phone", getCustomerByPhone);
 router.get("/:id", getCustomerById);
 // Broadcast Email Route
 router.post("/broadcast-email", sendBroadcastEmail);
+
+router.post("/login", loginCustomer);
+router.post("/logout", logoutCustomer);
 
 module.exports = router;

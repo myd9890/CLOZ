@@ -155,4 +155,35 @@ export const getCustomerById = async (req, res) => {
   }
 };
 
+// Check phone number and login
+export const loginCustomer = async (req, res) => {
+  try {
+    const { phoneNumber } = req.body;
+
+    const normalizedPhoneNumber = phoneNumber.replace(/\s+/g, ""); // Remove spaces
+    const customer = await Customer.findOne({ phone: normalizedPhoneNumber });
+
+    if (!customer) {
+      return res.status(404).json({ message: "Customer not found" });
+    }
+
+    // In a real app, you might send OTP here
+    res.status(200).json({
+      success: true,
+      customer,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+export const logoutCustomer = async (req, res) => {
+  try {
+    // Since we're not using sessions/JWT, this is just a client-side action
+    res.status(200).json({ success: true });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
 export default router;
