@@ -90,6 +90,9 @@ app.use("/pettycash",pettyRouter);
 const incomeRouter = require("./routes/Incomes.js");
 app.use("/incomes",incomeRouter);
 
+const balanceSheetRouter = require("./routes/BalanceSheet.js");
+app.use("/balSheet", balanceSheetRouter);
+
 
 
 

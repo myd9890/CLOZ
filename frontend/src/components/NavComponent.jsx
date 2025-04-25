@@ -34,6 +34,12 @@ function Nav() {
             <li className="nav-item">
               <a className="nav-link" href="pettycash">Petty Cash</a>
             </li>
+            <li className="nav-item">
+              <a className="nav-link" href="statements">Financial Statements</a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link" href="accounts">Financial Accounts</a>
+            </li>
           </ul>
         </div>
       </div>
