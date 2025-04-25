@@ -235,9 +235,10 @@ const ProductList = () => {
   };
 
   return (
-    <div className={`container-fluid px-4 py-4 ${
-      darkMode ? "bg-dark text-white" : "bg-light"
-    }`}>
+    <div
+  className={`container-fluid px-4 py-4 ${darkMode ? "bg-dark text-white" : "bg-light"}`}
+  style={{ width: '95%', margin: '0 auto' }}
+    >
       {/* Header Row */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h1>📦 Inventory Dashboard</h1>
@@ -514,7 +515,7 @@ const ProductList = () => {
                   >
                     Delete
                   </button>
-                  <Link to={`/products/order/${product.productId}`} className="btn btn-secondary btn-sm me-2">
+                  <Link to={`/InventoryDashboard/products/order/${product.productId}`} className="btn btn-secondary btn-sm me-2">
                     Order
                   </Link>
                   <button

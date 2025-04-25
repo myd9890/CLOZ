@@ -79,6 +79,12 @@ const PlaceOrderForm = () => {
                 quantity: formData.quantity,
                 totalPrice, 
             });
+            console.log("Sending:", {
+                productObjectId,
+                supplierObjectId,
+                quantity: formData.quantity,
+                totalPrice,
+            });
 
             toast.success("Order placed successfully!");
             setFormData({ productName: "", supplierName: "", quantity: "" });

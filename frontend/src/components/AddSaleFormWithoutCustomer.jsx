@@ -13,13 +13,14 @@ const SaleForm = () => {
     paymentMethod: "cash",
     status: "completed",
     discount: 0,
+    pointsToRedeem: 0,
     tax: 0,
     notes: ""
   });
 
   const [selectedProduct, setSelectedProduct] = useState("");
   const [quantity, setQuantity] = useState(1);
-  
+
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -33,12 +34,14 @@ const SaleForm = () => {
       toast.error("Failed to load products");
     }
   };
- 
+
   const handleAddProduct = () => {
     if (!selectedProduct || quantity < 1) return;
 
     const product = products.find(p => p._id === selectedProduct);
     if (!product) return;
+
+    const priceAtSale = product.price - (product.discountPrice || 0);
 
     const existingIndex = formData.products.findIndex(
       item => item.product === selectedProduct
@@ -56,7 +59,7 @@ const SaleForm = () => {
           {
             product: selectedProduct,
             quantity,
-            priceAtSale: product.price
+            priceAtSale
           }
         ]
       });
@@ -91,10 +94,9 @@ const SaleForm = () => {
         totalAmount: calculateTotal()
       };
       console.log(saleData);
-      
+
       await axios.post("http://localhost:8070/sale/add", saleData);
       toast.success("Sale recorded successfully!");
-      
       navigate(-1);
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to save sale");
@@ -152,7 +154,7 @@ const SaleForm = () => {
                   .filter(p => p.quantityInStock > 0)
                   .map(product => (
                     <option key={product._id} value={product._id}>
-                      {product.name} (LKR {product.price}, Stock: {product.quantityInStock})
+                      {product.name} (LKR {product.price}, Discount: LKR {product.discountPrice || 0}, Stock: {product.quantityInStock})
                     </option>
                   ))}
               </select>
@@ -182,7 +184,7 @@ const SaleForm = () => {
               <thead>
                 <tr>
                   <th>Product</th>
-                  <th>Price</th>
+                  <th>Price (After Discount)</th>
                   <th>Quantity</th>
                   <th>Total</th>
                   <th>Action</th>
@@ -213,33 +215,6 @@ const SaleForm = () => {
             </table>
           </div>
         )}
-
-       {/*  <div className="row mb-3">
-          <div className="col-md-3">
-            <label className="form-label">Discount ($)</label>
-            <input
-              type="number"
-              className="form-control"
-              min="0"
-              step="0.01"
-              value={formData.discount}
-              onChange={(e) => setFormData({ ...formData, discount: parseFloat(e.target.value) || 0 })}
-            />
-          </div>
-
-          <div className="col-md-3">
-            <label className="form-label">Tax (%)</label>
-            <input
-              type="number"
-              className="form-control"
-              min="0"
-              max="100"
-              step="0.01"
-              value={formData.tax}
-              onChange={(e) => setFormData({ ...formData, tax: parseFloat(e.target.value) || 0 })}
-            />
-          </div>
-        </div> */}
 
         <div className="mb-3">
           <label className="form-label">Notes</label>

@@ -52,6 +52,7 @@ import Footer from "./Footer";
 import Index from "./index";
 
 import "./App.css";
+import ProductListWithDiscounts from "./components/ProductListWithDiscounts";
 
 const App = () => {
   const [products, setProducts] = useState([]);
@@ -245,6 +246,7 @@ const App = () => {
                 <NotificationBell
                   notifications={notifications}
                   markNotificationAsSeen={markNotificationAsSeen}
+                  style={{ marginLeft: '20px' }}
                 />
                 <ProductFilter />
                 <ProductList
@@ -317,6 +319,7 @@ const App = () => {
           <ul>
             <li>
               <Link to="/SalesDashboard/sales">Sales</Link>
+              <Link to="/SalesDashboard/discount">Discount</Link>
             </li>
           </ul>
         </nav>
@@ -324,6 +327,8 @@ const App = () => {
           <Route path="sales" element={<SalesList />} />
           <Route path="sale/return/:id" element={<ReturnForm />} />
           <Route path="sale/details/:id" element={<SingleSale />} />
+          <Route path="discount" element={<ProductListWithDiscounts />} />
+
         </Routes>
       </div>
     );
@@ -347,7 +352,7 @@ const App = () => {
               <Link to="/CustomerDashboard/customers">Customers</Link>
             </li>
             <li>
-              <Link to="/CustomerDashboard/Email">Customers</Link>
+              <Link to="/CustomerDashboard/Email">Emails</Link>
             </li>
             <li>
               <Link to="/CustomerDashboard/sale/add">Add sale</Link>

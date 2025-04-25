@@ -1,6 +1,9 @@
+
 import Sale from "../models/sale_model.js";
 import Product from "../models/product_model.js";
 import Customer from "../models/customer.js";
+import { placeOrder } from "./supplierOrder_controller.js";
+
 
 // Create new sale
 export const createSale = async (req, res) => {
@@ -68,7 +71,6 @@ export const createSale = async (req, res) => {
     // Calculate total with discount, points redemption, and tax
     const discount = saleData.discount || 0;
     const tax = saleData.tax || 0;
-
     const pointsDiscount = pointsToRedeem * 0.1;
     const totalAmount = subtotal - discount - pointsDiscount + subtotal * (tax / 100);
 
@@ -86,13 +88,33 @@ export const createSale = async (req, res) => {
       await Product.bulkWrite(productUpdates);
     }
 
+    // Check for low stock and emit notifications manually
+    for (const item of products) {
+      const updatedProduct = await Product.findById(item.product);
+
+      if (updatedProduct.quantityInStock <= updatedProduct.lowStockThreshold) {
+        global.io.emit("lowStockNotification", {
+          message: `Low stock alert for product ${updatedProduct.name} (ID: ${updatedProduct.productId}). Current stock: ${updatedProduct.quantityInStock}.`,
+          product: updatedProduct,
+        });
+      }
+
+      if (updatedProduct.quantityInStock <= updatedProduct.reOrderLevel) {
+        await placeOrder(
+          updatedProduct._id,
+          updatedProduct.supplier,
+          updatedProduct.reOrderquantity,
+          updatedProduct.supplierUnitPrice
+        );
+      }
+    }
+
     await sale.save();
 
     // Handle customer loyalty points if customer exists
     if (customerData) {
-      // Calculate points earned based on the amount paid (excluding points redemption)
-      const amountPaid = totalAmount + pointsDiscount; // Add back the points discount to get the actual amount paid
-      const pointsEarned = pointsToRedeem > 0 ? 0 : Math.floor(amountPaid / 10); // Only earn points if no points were redeemed
+      const amountPaid = totalAmount + pointsDiscount;
+      const pointsEarned = pointsToRedeem > 0 ? 0 : Math.floor(amountPaid / 10);
       const finalPoints = pointsEarned - pointsToRedeem;
 
       await Customer.findByIdAndUpdate(customer, {

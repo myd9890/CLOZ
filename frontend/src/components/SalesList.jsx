@@ -34,7 +34,7 @@ const SalesList = () => {
   const handleReturn = async (saleId, productId) => {
     if (window.confirm("Are you sure you want to initiate a return for this product?")) {
       try {
-        window.location.href = `/sale/return/${saleId}?product=${productId}`;
+        window.location.href = `/salesDashboard/sale/return/${saleId}?product=${productId}`;
       } catch (error) {
         toast.error("Failed to initiate return");
         console.error("Return error:", error);
@@ -66,9 +66,6 @@ const SalesList = () => {
   return (
     <div className="container mt-4">
       <h2>Sales Records</h2>
-      <Link to="/sale/add" className="btn btn-primary mb-3">
-        Add New Sale
-      </Link>
       
       {loading ? (
         <div className="text-center">Loading sales data...</div>

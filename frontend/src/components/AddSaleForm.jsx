@@ -57,14 +57,16 @@ const SaleForm = () => {
 
   const handleAddProduct = () => {
     if (!selectedProduct || quantity < 1) return;
-
-    const product = products.find((p) => p._id === selectedProduct);
+  
+    const product = products.find(p => p._id === selectedProduct);
     if (!product) return;
-
+  
+    const priceAtSale = product.price - (product.discountPrice || 0);
+  
     const existingIndex = formData.products.findIndex(
-      (item) => item.product === selectedProduct
+      item => item.product === selectedProduct
     );
-
+  
     if (existingIndex >= 0) {
       const updatedProducts = [...formData.products];
       updatedProducts[existingIndex].quantity += quantity;
@@ -77,15 +79,16 @@ const SaleForm = () => {
           {
             product: selectedProduct,
             quantity,
-            priceAtSale: product.price,
-          },
-        ],
+            priceAtSale
+          }
+        ]
       });
     }
-
+  
     setSelectedProduct("");
     setQuantity(1);
   };
+  
 
   const handleRemoveProduct = (productId) => {
     setFormData({
@@ -248,7 +251,7 @@ const SaleForm = () => {
                   .filter((p) => p.quantityInStock > 0)
                   .map((product) => (
                     <option key={product._id} value={product._id}>
-                      {product.name} (LKR{product.price}, Stock:{" "}
+                      {product.name} (LKR:{product.price} Discount:{product.discountPrice} Stock:{" "}
                       {product.quantityInStock})
                     </option>
                   ))}
