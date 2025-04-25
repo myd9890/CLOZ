@@ -1,11 +1,12 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import "../css/Nav.css"; // Import external CSS
 
 function Nav() {
   return (
     <nav className="navbar navbar-expand-lg bg-light">
       <div className="container-fluid">
-        <a className="navbar-brand" href="#">CLOZ - Finance Dashboard</a>
+        <Link className="navbar-brand" to="/finance">CLOZ - Finance Dashboard</Link>
         <button
           className="navbar-toggler"
           type="button"
@@ -20,25 +21,25 @@ function Nav() {
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav">
             <li className="nav-item">
-              <a className="nav-link" href="finance/assets">Assets</a>
+              <Link className="nav-link" to="/finance/assets">Assets</Link>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="liabilities">Liabilities</a>
+              <Link className="nav-link" to="/finance/liabilities">Liabilities</Link>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="expenses">Expenses</a>
+              <Link className="nav-link" to="/finance/expenses">Expenses</Link>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="incomes">Incomes</a>
+              <Link className="nav-link" to="/finance/pettycash">Petty Cash</Link>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="pettycash">Petty Cash</a>
+              <Link className="nav-link" to="/finance/incomes">Incomes</Link>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="statements">Financial Statements</a>
+              <Link className="nav-link" to="/finance/statements">Financial Statements</Link>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="accounts">Financial Accounts</a>
+              <Link className="nav-link" to="/finance/accounts">Financial Accounts</Link>
             </li>
           </ul>
         </div>

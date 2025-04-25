@@ -7,11 +7,11 @@ function Income() {
     const [incomes, setIncomes] = useState([]);
     const [form, setForm] = useState({
         ID: "",
-        Income: "",
-        Date: "",
+        IncomeName: "",
+        IncomeDate: "",
         Amount: ""
     });
-    const [formErrors, setFormErrors] = useState({}); // State for validation errors
+    const [formErrors, setFormErrors] = useState({});
     const [editing, setEditing] = useState(false);
     const [editId, setEditId] = useState(null);
     const [sales, setSales] = useState([]);
@@ -40,47 +40,35 @@ function Income() {
                 console.error("Error fetching sales", err);
             }
         };
-    
         fetchSales();
     }, []);
-    
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
-        setFormErrors({ ...formErrors, [e.target.name]: "" }); // Clear error for the field being edited
+        setFormErrors({ ...formErrors, [e.target.name]: "" });
     };
 
     const validateForm = () => {
         const errors = {};
-
-        // Validation for ID: must start with "Inc" followed by numeric values
         const idRegex = /^Inc\d+$/;
         if (!idRegex.test(form.ID)) {
             errors.ID = "ID must start with 'Inc' followed by numeric values (e.g., Inc123).";
         }
-
-        // Validation for Income Name: must contain only alphabetic characters
         const nameRegex = /^[A-Za-z\s]+$/;
-        if (!nameRegex.test(form.Income)) {
-            errors.Income = "Income Name must contain only alphabetic characters.";
+        if (!nameRegex.test(form.IncomeName)) {
+            errors.IncomeName = "Income Name must contain only alphabetic characters.";
         }
-
-        if (!form.Income.trim()) {
-            errors.Income = "Income Name is required!";
+        if (!form.IncomeName.trim()) {
+            errors.IncomeName = "Income Name is required!";
         }
-
-        // Validation for Income Value: must be a positive number
         if (isNaN(form.Amount) || form.Amount <= 0) {
             errors.Amount = "Income Value must be a positive number!";
         }
-
-        // Validation for Date: must not be a future date
         const today = new Date();
-        const enteredDate = new Date(form.Date);
+        const enteredDate = new Date(form.IncomeDate);
         if (enteredDate > today) {
-            errors.Date = "Date cannot be a future date!";
+            errors.IncomeDate = "Date cannot be a future date!";
         }
-
         return errors;
     };
 
@@ -88,7 +76,7 @@ function Income() {
         e.preventDefault();
         const errors = validateForm();
         if (Object.keys(errors).length > 0) {
-            setFormErrors(errors); // Set validation errors
+            setFormErrors(errors);
             return;
         }
 
@@ -98,7 +86,7 @@ function Income() {
             } else {
                 await axios.post("http://localhost:8070/incomes/add", form);
             }
-            setForm({ ID: "", Income: "", Date: "", Amount: "" });
+            setForm({ ID: "", IncomeName: "", IncomeDate: "", Amount: "" });
             setEditing(false);
             showToast("Income saved successfully!", "success");
             fetchIncomes();
@@ -111,19 +99,19 @@ function Income() {
     const handleEdit = (income) => {
         setForm({
             ID: income.ID,
-            Income: income.Income,
-            Date: new Date(income.Date).toISOString().split("T")[0], // Format date for input
+            IncomeName: income.IncomeName,
+            IncomeDate: new Date(income.IncomeDate).toISOString().split("T")[0],
             Amount: income.Amount,
         });
         setEditing(true);
-        setEditId(income._id); // Set the ID of the income being edited
+        setEditId(income._id);
     };
 
     const handleDelete = async (id) => {
         if (window.confirm("Are you sure you want to delete this income?")) {
             try {
                 await axios.delete(`http://localhost:8070/incomes/delete/${id}`);
-                fetchIncomes(); // Refresh the list after deletion
+                fetchIncomes();
                 showToast("Income deleted successfully!", "warning");
             } catch (err) {
                 console.error("Error deleting income", err);
@@ -138,12 +126,15 @@ function Income() {
         document.getElementById("toastMessage").innerText = message;
         const bsToast = new window.bootstrap.Toast(toast, [{ delay: 3000 }]);
         bsToast.show();
-      };
+    };
 
     const filteredIncomes = incomes.filter(income =>
-        income.Income.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        income.IncomeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         income.ID.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+    const totalSales = sales.reduce((total, sale) => total + Number(sale.totalAmount || 0), 0);
+    
 
     return (
         <div className="container mt-4">
@@ -177,24 +168,24 @@ function Income() {
                         <input
                             type="text"
                             name="Income"
-                            className={`form-control ${formErrors.Income ? "is-invalid" : ""}`}
+                            className={`form-control ${formErrors.IncomeName ? "is-invalid" : ""}`}
                             placeholder="Income"
-                            value={form.Income}
+                            value={form.IncomeName}
                             onChange={handleChange}
                             required
                         />
-                        {formErrors.Income && <div className="invalid-feedback">{formErrors.Income}</div>}
+                        {formErrors.IncomeName && <div className="invalid-feedback">{formErrors.IncomeName}</div>}
                     </div>
                     <div className="col-md-4">
                         <input
                             type="date"
                             name="Date"
-                            className={`form-control ${formErrors.Date ? "is-invalid" : ""}`}
-                            value={form.Date}
+                            className={`form-control ${formErrors.IncomeDate ? "is-invalid" : ""}`}
+                            value={form.IncomeDate}
                             onChange={handleChange}
                             required
                         />
-                        {formErrors.Date && <div className="invalid-feedback">{formErrors.Date}</div>}
+                        {formErrors.IncomeDate && <div className="invalid-feedback">{formErrors.IncomeDate}</div>}
                     </div>
                     <div className="col-md-4">
                         <input
@@ -209,7 +200,9 @@ function Income() {
                         {formErrors.Amount && <div className="invalid-feedback">{formErrors.Amount}</div>}
                     </div>
                     <div className="col-md-4">
-                        <button type="submit" className="btn btn-primary w-100">{editing ? "Update Income" : "Add Income"}</button>
+                        <button type="submit" className="btn btn-primary w-100">
+                            {editing ? "Update Income" : "Add Income"}
+                        </button>
                     </div>
                 </form>
             </div>
@@ -228,8 +221,8 @@ function Income() {
                     {filteredIncomes.map((income) => (
                         <tr key={income._id}>
                             <td>{income.ID}</td>
-                            <td>{income.Income}</td>
-                            <td>{new Date(income.Date).toLocaleDateString()}</td>
+                            <td>{income.IncomeName}</td>
+                            <td>{new Date(income.IncomeDate).toLocaleDateString()}</td>
                             <td>Rs.{income.Amount}</td>
                             <td>
                                 <button className="btn btn-warning btn-sm me-2" onClick={() => handleEdit(income)}>Edit</button>
@@ -239,11 +232,17 @@ function Income() {
                     ))}
                 </tbody>
             </table>
+
+            {/* Total Sales Amount Display */}
+            <div className="mt-3 text-end">
+                <h5>Total Sales: Rs. {totalSales.toFixed(2)}</h5>
+            </div>
+
+            {/* Toast */}
             <div id="toast" className="toast align-items-center text-white position-fixed bottom-0 end-0 p-3" role="alert">
-        <div className="toast-body" id="toastMessage"></div>
-      </div>
+                <div className="toast-body" id="toastMessage"></div>
+            </div>
         </div>
-        
     );
 }
 
