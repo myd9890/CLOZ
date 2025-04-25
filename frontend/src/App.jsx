@@ -50,6 +50,7 @@ import Salary from "./components/Salary";
 import Header from "./Header";
 import Footer from "./Footer";
 import Index from "./index";
+import Customerogin from "./components/Customerogin";
 
 import "./App.css";
 
@@ -372,6 +373,7 @@ const App = () => {
           <Route path="sale/add/new" element={<AddSaleForm />} />
           <Route path="sale/add" element={<AddSaleFormWithoutCustomer />} />
           <Route path="Email" element={<Email />} />
+          <Route path="logincustomer" element={<Customerogin />} />
         </Routes>
       </div>
     );
