@@ -155,55 +155,39 @@ const App = () => {
           <Route path="/supplier/:supplierId" element={<SupplierProfile />} />
 
           {/* Protected Routes */}
-          <Route
-            path="/change-password"
-            element={isLoggedIn ? <ChangePassword /> : <Navigate to="/login" />}
-          />
 
-          <Route
-            path="/InventoryDashboard/*"
-            element={
-              <AccessControl requiredDept="Inventory">
-                <InventoryDashboard />
-              </AccessControl>
-            }
-          />
+          <Route path="/change-password" element={isLoggedIn ? <ChangePassword /> : <Navigate to="/login" />} />
+          
+          <Route path="/InventoryDashboard/*" element={
+            <AccessControl requiredDept="Inventory">
+              <InventoryDashboard />
+            </AccessControl>
+          } />
+          
+          <Route path="/FinanceDashboard/*" element={
+            <AccessControl requiredDept="Finance">
+              <FinanceDashboard />
+            </AccessControl>
+          } />
+          
+          <Route path="/SalesDashboard/*" element={
+            <AccessControl requiredDept="Sales">
+              <SalesDashboard />
+            </AccessControl>
+          } />
+          
+          <Route path="/CustomerDashboard/*" element={
+            <AccessControl requiredDept="CRM">
+              <CustomerDashboard />
+            </AccessControl>
+          } />
+          
+          <Route path="/HRdashboard/*" element={
+            <AccessControl requiredDept="HR">
+              <HRDashboard user={user} />
+            </AccessControl>
+          } />
 
-          <Route
-            path="/FinanceDashboard/*"
-            element={
-              <AccessControl requiredDept="Finance">
-                <FinanceDashboard />
-              </AccessControl>
-            }
-          />
-
-          <Route
-            path="/SalesDashboard/*"
-            element={
-              <AccessControl requiredDept="Sales">
-                <SalesDashboard />
-              </AccessControl>
-            }
-          />
-
-          <Route
-            path="/CustomerDashboard/*"
-            element={
-              <AccessControl requiredDept="Customer">
-                <CustomerDashboard />
-              </AccessControl>
-            }
-          />
-
-          <Route
-            path="/HRdashboard/*"
-            element={
-              <AccessControl requiredDept="HR">
-                <HRDashboard user={user} />
-              </AccessControl>
-            }
-          />
         </Routes>
         <Footer />
       </div>
@@ -216,22 +200,24 @@ const App = () => {
       console.log("Access denied: User not logged in.");
       return <Navigate to="/login" />;
     }
-
+  
+    // Role check (if needed)
     if (requiredRole && user.role !== requiredRole) {
-      console.log(
-        `Access denied: You must have the '${requiredRole}' role to access this page.`
-      );
+
+      console.log(`Access denied: Role must be '${requiredRole}'`);
       return <div>Access Denied: Insufficient role permissions.</div>;
     }
-    if (requiredDept === user.department && requiredRole === user.role) {
-      console.log(`Access granted: You have AND access`);
-      return children;
-    } else if (requiredDept === user.department || requiredRole === user.role) {
-      console.log(`Access granted: You have OR access`);
-      return children;
+  
+    // Department check (if needed)
+    if (requiredDept && user.department !== requiredDept) {
+      console.log(`Access denied: Department must be '${requiredDept}'`);
+      return <div>Access Denied: Insufficient department permissions.</div>;
     }
+  
+    // All checks passed
     return children;
   }
+  
 
   function InventoryDashboard() {
     return (
@@ -362,7 +348,10 @@ const App = () => {
               <Link to="/CustomerDashboard/customers">Customers</Link>
             </li>
             <li>
-              <Link to="/CustomerDashboard/Emails">Customers</Link>
+              <Link to="/CustomerDashboard/Email">Customers</Link>
+            </li>
+            <li>
+              <Link to="/CustomerDashboard/sale/add">Add sale</Link>
             </li>
           </ul>
         </nav>
@@ -386,18 +375,15 @@ const App = () => {
         <p> Hi {user?.name}</p>
         <nav>
           <ul>
-            <li>
-              <Link to="/HRdashboard/attendance">Attendance</Link>
-            </li>
-            <li>
-              <Link to="/HRdashboard/leave-requests">Leave Requests</Link>
-            </li>
-            <li>
-              <Link to="/HRdashboard/reports">Reports</Link>
-            </li>
-            <li>
-              <Link to="/HRdashboard/salary">Salary</Link>
-            </li>
+
+            <li><Link to="/HRdashboard/list">Employee List</Link></li>
+            <li><Link to="/HRdashboard/add">Add Employee</Link></li>
+            <li><Link to="/HRdashboard/attendance">Attendance</Link></li>
+            <li><Link to="/HRdashboard/leave-requests">Leave Requests</Link></li>
+            <li><Link to="/HRdashboard/reports">Reports</Link></li>
+            <li><Link to="/HRdashboard/salary">Salary</Link></li>
+            
+
           </ul>
         </nav>
         <Routes>

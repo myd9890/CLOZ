@@ -66,12 +66,11 @@ export const createSale = async (req, res) => {
     }
 
     // Calculate total with discount, points redemption, and tax
-    const pointsDiscount = pointsToRedeem * 0.1; // 1 point = $0.10
-    const totalAmount =
-      subtotal -
-      saleData.discount -
-      pointsDiscount +
-      subtotal * (saleData.tax / 100);
+    const discount = saleData.discount || 0;
+    const tax = saleData.tax || 0;
+
+    const pointsDiscount = pointsToRedeem * 0.1;
+    const totalAmount = subtotal - discount - pointsDiscount + subtotal * (tax / 100);
 
     // Create sale
     const sale = new Sale({
@@ -79,7 +78,7 @@ export const createSale = async (req, res) => {
       products: saleProducts,
       totalAmount,
       pointsRedeemed: pointsToRedeem || 0,
-      ...(customer && { customer }), // Only include customer if it exists
+      ...(customer && { customer }),
     });
 
     // Update product stocks
