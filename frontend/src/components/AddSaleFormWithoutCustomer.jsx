@@ -41,7 +41,8 @@ const SaleForm = () => {
     const product = products.find(p => p._id === selectedProduct);
     if (!product) return;
 
-    const priceAtSale = product.price - (product.discountPrice || 0);
+    // ✅ Updated priceAtSale calculation
+    const priceAtSale = product.price - (product.discountPrice || 0) + product.taxAmount;
 
     const existingIndex = formData.products.findIndex(
       item => item.product === selectedProduct
@@ -154,7 +155,7 @@ const SaleForm = () => {
                   .filter(p => p.quantityInStock > 0)
                   .map(product => (
                     <option key={product._id} value={product._id}>
-                      {product.name} (LKR {product.price}, Discount: LKR {product.discountPrice || 0}, Stock: {product.quantityInStock})
+                      {product.name} (LKR {product.price}, Discount: LKR {product.discountPrice || 0}, Tax: LKR {product.taxAmount || 0}, Stock: {product.quantityInStock})
                     </option>
                   ))}
               </select>
@@ -184,7 +185,7 @@ const SaleForm = () => {
               <thead>
                 <tr>
                   <th>Product</th>
-                  <th>Price (After Discount)</th>
+                  <th>Price (After Discount + Tax)</th>
                   <th>Quantity</th>
                   <th>Total</th>
                   <th>Action</th>
