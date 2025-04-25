@@ -151,12 +151,6 @@ const CustomerProfile = () => {
           >
             Logout
           </button>
-          <button
-            className="btn btn-outline-secondary"
-            onClick={() => navigate("/customers")}
-          >
-            Back to Customers
-          </button>
         </div>
       </div>
 

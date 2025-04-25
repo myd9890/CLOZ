@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const API_URL = "http://localhost:8070/api/customers/register";
 
@@ -59,10 +60,10 @@ function RegisterCustomer() {
       await axios.post(API_URL, formData);
       setFormData({ name: "", email: "", phone: "" });
       setErrors({ name: "", email: "", phone: "" });
-      alert("Customer registered successfully!");
+      toast.success("Customer registered successfully!");
     } catch (error) {
       console.error("Error registering customer:", error);
-      alert("Registration failed. Please try again.");
+      toast.error("Registration failed. Please try again.");
     }
   };
 
