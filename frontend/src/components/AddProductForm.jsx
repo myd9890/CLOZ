@@ -141,7 +141,7 @@ const AddProductForm = ({ fetchProducts }) => {
         await axios.post("http://localhost:8070/products/add", product);
         toast.success("Product added successfully!");
         fetchProducts();
-        navigate("/products/");
+        navigate("/InventoryDashboard/products/");
       } catch (error) {
         console.error("Error adding product:", error);
         toast.error("Failed to add product");

@@ -112,7 +112,7 @@ const AddSupplier = () => {
         brand: "",
         password: "",
       });
-      navigate("/supplier/profiles");
+      navigate("/InventoryDashboard/supplier/profiles");
     } catch (error) {
       console.error("Error adding supplier:", error);
       toast.error(error.response?.data?.message || "Failed to add supplier");

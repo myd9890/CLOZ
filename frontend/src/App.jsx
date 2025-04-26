@@ -27,7 +27,7 @@ import CustomerProfile from "./components/CustomerProfile";
 import SingleSale from "./components/SingleSale";
 import AddSaleFormWithoutCustomer from "./components/AddSaleFormWithoutCustomer";
 import ReturnForm from "./components/ReturnForm";
-//import SupplierLogin from './components/SupplierLogin';
+import SupplierLogin from './components/SupplierLogin';
 import Email from "./Components/Email";
 import SalesList from "./components/SalesList";
 import AddSaleForm from "./components/AddSaleForm";
@@ -148,12 +148,19 @@ const App = () => {
   return (
     <Router>
       <div className="App">
+      <Routes>
+          {/* Routes without header */}
+          <Route path="/supplier/login" element={<SupplierLogin />} />
+          <Route path="/supplier/:supplierId" element={<SupplierProfile />} /> 
+          <Route path="*" element={
+            <>
         <Header isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login onLogin={handleLogin} />} />
           <Route path="/supplier/:supplierId" element={<SupplierProfile />} />
+          <Route path="/supplier/login" element={<SupplierLogin />} />
 
           {/* Protected Routes */}
 
@@ -208,6 +215,9 @@ const App = () => {
           />
         </Routes>
         <Footer />
+        </>
+          } />
+        </Routes>
       </div>
     </Router>
   );
@@ -252,10 +262,11 @@ const App = () => {
             </li>
           </ul>
         </nav>
-  
-        <div className="dashboard-content">
-          <h1>Inventory Dashboard</h1>
-          <p>Hi {user?.name}</p>
+        
+        <div className="dashboard-content text-center">
+        <h2 className="position-absolute top-1 start-1 m-3">Hello {user?.name}</h2>
+          
+          
           <Routes>
             <Route
               path="products"
@@ -266,7 +277,6 @@ const App = () => {
                     markNotificationAsSeen={markNotificationAsSeen}
                     style={{ marginLeft: '20px' }}
                   />
-                  <ProductFilter />
                   <ProductList
                     products={products}
                     fetchProducts={fetchProducts}

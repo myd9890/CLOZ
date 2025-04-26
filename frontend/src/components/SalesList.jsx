@@ -86,7 +86,7 @@ const SalesList = () => {
             {sales.map((sale) => (
               <React.Fragment key={sale._id}>
                 <tr>
-                  <td>{formatDate(sale.saleDate)}</td>
+                  <td>{formatDate(sale.date)}</td>
                   <td>{sale.customer?.name || 'Walk-in Customer'}</td>
                   <td>{sale.products.reduce((sum, p) => sum + p.quantity, 0)}</td>
                   <td>{formatCurrency(sale.totalAmount)}</td>

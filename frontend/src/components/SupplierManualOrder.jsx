@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const PlaceOrderForm = () => {
     const { productId } = useParams();
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         productName: "",
         supplierName: "",
@@ -89,6 +91,7 @@ const PlaceOrderForm = () => {
             toast.success("Order placed successfully!");
             setFormData({ productName: "", supplierName: "", quantity: "" });
             setTotalPrice(0);
+            navigate("/InventoryDashboard/products/");
         } catch (error) {
             setError("Failed to place order. Please try again.");
             console.error("Error placing order:", error);

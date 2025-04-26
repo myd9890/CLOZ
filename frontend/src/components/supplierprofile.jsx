@@ -5,6 +5,7 @@ import { Card, Container, Spinner, Button, Table } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../css/supplierprofile.css";
 import { toast } from "react-toastify";
+import { useNavigate } from 'react-router-dom';
 
 const SupplierProfile = () => {
   const { supplierId } = useParams();
@@ -12,6 +13,7 @@ const SupplierProfile = () => {
   const [loading, setLoading] = useState(true);
   const [orders, setOrders] = useState([]);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchSupplier = async () => {
@@ -34,6 +36,7 @@ const SupplierProfile = () => {
       try {
         const response = await axios.get(`http://localhost:8070/order/supplier/${supplierId}`);
         setOrders(response.data);
+        console.log(response.data);
       } catch (err) {
         setError("Failed to fetch orders.");
         console.error("Error fetching orders:", err);
@@ -42,6 +45,11 @@ const SupplierProfile = () => {
 
     fetchOrders();
   }, [supplierId]);
+
+  const handleLogout = () => {
+    
+    navigate(-1); // Navigate to the login page
+  };
 
   const handleOrderAction = async (orderId, action) => {
     try {
@@ -84,9 +92,17 @@ const SupplierProfile = () => {
   const processedOrders = orders.filter(order => order.status !== 'Pending');
 
   return (
+    
     <>
-      <Container className="mt-5">
-        <Card className="profile-card">
+    <Button 
+  variant="outline-danger" 
+  onClick={handleLogout}
+  className="position-absolute top-0 end-0 mt-2 me-2 w-auto"
+>
+  Logout
+</Button>
+      <Container fluid className="mt-4 px-0"> 
+      <Card className="profile-card mt-10">
           <Card.Header className="profile-header bg-primary text-white">
             <h2>Supplier Profile</h2>
           </Card.Header>
@@ -103,34 +119,59 @@ const SupplierProfile = () => {
         </Card>
       </Container>
 
-      <Container className="mt-4">
-        <h2>Pending Orders</h2>
-        {pendingOrders.length === 0 ? <p>No pending orders.</p> : (
-          <Table striped bordered hover>
-            <thead>
-              <tr>
-                <th>Product</th>
-                <th>Quantity</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {pendingOrders.map(order => (
-                <tr key={order._id}>
-                  <td>{order.product.name}</td>
-                  <td>{order.quantity}</td>
-                  <td>
-                    <Button variant="success" onClick={() => handleOrderAction(order._id, 'Accepted')} className="me-2">Accept</Button>
-                    <Button variant="danger" onClick={() => handleOrderAction(order._id, 'Rejected')}>Reject</Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        )}
-      </Container>
+      <Container fluid className="mt-4 px-20">  
+  <h2 className="px-3">Pending Orders</h2>  
+  {pendingOrders.length === 0 ? (
+    <p className="px-3">No pending orders.</p>
+  ) : (
+    <div className="table-responsive">  
+      <Table striped bordered hover className="m-0">  
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Category</th>
+            <th>Gender</th>
+            <th>Size</th>
+            <th>Material</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {pendingOrders.map(order => (
+            <tr key={order._id}>
+              <td>{order.product?.name}</td>
+              <td>{order.quantity}</td>
+              <td>{order.product?.category}</td>
+              <td>{order.product?.gender}</td>
+              <td>{order.product?.size}</td>
+              <td>{order.product?.material}</td>
+              <td>
+                  <div className="d-flex">
+                    <Button 
+                      variant="success" 
+                      onClick={() => handleOrderAction(order._id, 'Accepted')} 
+                      className="me-2"
+                    >
+                      Accept
+                    </Button>
+                    <Button 
+                      variant="danger" 
+                      onClick={() => handleOrderAction(order._id, 'Rejected')}
+                    >
+                      Reject
+                    </Button>
+                  </div>
+                </td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+    </div>
+  )}
+</Container>
 
-      <Container className="mt-4">
+      <Container fluid className="mt-4 px-20"> 
         <h2>Processed Orders</h2>
         {processedOrders.length === 0 ? <p>No approved or rejected orders.</p> : (
           <Table striped bordered hover>
@@ -138,6 +179,10 @@ const SupplierProfile = () => {
               <tr>
                 <th>Product</th>
                 <th>Quantity</th>
+                <th>Category</th>
+                <th>Gender</th>
+                <th>Size</th>
+                <th>Material</th>
                 <th>Status</th>
               </tr>
             </thead>
@@ -146,6 +191,10 @@ const SupplierProfile = () => {
                 <tr key={order._id}>
                   <td>{order.product.name}</td>
                   <td>{order.quantity}</td>
+                  <td>{order.product?.category}</td>
+                  <td>{order.product?.gender}</td>
+                  <td>{order.product?.size}</td>
+                  <td>{order.product?.material}</td>
                   <td>{order.status}</td>
                 </tr>
               ))}

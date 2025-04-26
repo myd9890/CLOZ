@@ -16,6 +16,7 @@ const ProductFilter = () => {
 
   // State for filtered products
   const [products, setProducts] = useState([]);
+  console.log("filter",products);
 
   // State to track if filters have been applied
   const [filtersApplied, setFiltersApplied] = useState(false);
@@ -79,6 +80,7 @@ const ProductFilter = () => {
       const response = await axios.get("http://localhost:8070/products/", {
         params,
       });
+      console.log("response",response.data);
 
       setProducts(response.data);
     } catch (error) {
@@ -91,7 +93,8 @@ const ProductFilter = () => {
 
   return (
     <div className="product-filter-container">
-      <h1>Product Filter</h1>
+      <p className="text-start ms-2 mt-4 fw-bold">Product Filter</p>
+
 
       {/* Filter Form */}
       <div className="filter-form">
@@ -174,14 +177,14 @@ const ProductFilter = () => {
       {/* Display Filtered Products */}
       {filtersApplied && (
         <div className="filtered-products">
-          <h2>Filtered Products ({products.length})</h2>
+          <h3>Filtered Products ({products.length})</h3>
           {products.length > 0 ? (
             <div className="product-grid">
               {products.map((product) => (
                 <div key={product.productId} className="product-card">
                   <h5>{product.name}</h5>
                   <p><strong>Category:</strong> {product.category}</p>
-                  <p><strong>Brand:</strong> {product.brand}</p>
+                  <p><strong>Brand:</strong> {product.supplier?.brand}</p>
                   <p><strong>Price:</strong> Rs.{product.price}</p>
                   <p><strong>Size:</strong> {product.size}</p>
                 </div>

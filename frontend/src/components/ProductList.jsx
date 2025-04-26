@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+import ProductFilter from "./ProductFilter";
 import "../css/productlist.css";
 import { Pie, Bar, Doughnut } from "react-chartjs-2";
 import {
@@ -29,6 +30,7 @@ ChartJS.register(
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [analytics, setAnalytics] = useState({
     totalProducts: 0,
     totalStock: 0,
@@ -88,11 +90,10 @@ const ProductList = () => {
       // Brand analytics
       const brands = {};
       data.forEach((p) => {
-      if (p.supplier?.brand) {
-      brands[p.supplier.brand] = (brands[p.supplier.brand] || 0) + 1;
-       }
+        if (p.supplier?.brand) {
+          brands[p.supplier.brand] = (brands[p.supplier.brand] || 0) + 1;
+        }
       });
-
 
       // Price distribution analytics
       const priceRanges = {
@@ -132,6 +133,17 @@ const ProductList = () => {
       toast.error("Failed to load products");
     }
   };
+
+  const filteredProducts = products.filter((product) => {
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      product.name.toLowerCase().includes(searchLower) ||
+      product.category.toLowerCase().includes(searchLower) ||
+      (product.supplier?.brand && product.supplier.brand.toLowerCase().includes(searchLower)) ||
+      product.productId.toLowerCase().includes(searchLower) ||
+      (product.description && product.description.toLowerCase().includes(searchLower))
+    );
+  });
 
   const handleDelete = async (productId) => {
     try {
@@ -208,7 +220,7 @@ const ProductList = () => {
       p.productId,
       p.name,
       p.category,
-      p.supplier?.brand ,
+      p.supplier?.brand || "N/A",
       p.quantityInStock,
       `LKR ${p.price}`
     ]);
@@ -234,14 +246,72 @@ const ProductList = () => {
     doc.save(`product_inventory_${new Date().toISOString().slice(0, 10)}.pdf`);
   };
 
+  const downloadProductPDF = (product) => {
+    const doc = new jsPDF();
+    
+    // Title
+    doc.setFontSize(18);
+    doc.text(`Product Details: ${product.name}`, 14, 15);
+    
+    // Date
+    doc.setFontSize(11);
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 22);
+    
+    // Product Details
+    doc.setFontSize(14);
+    doc.text("Product Information", 14, 30);
+    
+    const productDetails = [
+      ["Product ID", product.productId],
+      ["Name", product.name],
+      ["Description", product.description || "N/A"],
+      ["Category", product.category],
+      ["Brand", product.supplier?.brand || "N/A"],
+      ["Size", product.size || "N/A"],
+      ["Material", product.material || "N/A"],
+      ["Color", product.color?.join(", ") || "N/A"],
+      ["Gender", product.gender],
+      ["Stock Quantity", product.quantityInStock],
+      ["Supplier", product.supplier?.name || "N/A"],
+      ["Price", `LKR ${product.price}.00`],
+      ["Supplier Unit Price", `LKR ${product.supplierUnitPrice}.00`],
+      ["Added Date", new Date(product.addedDate).toLocaleDateString()],
+      ["Last Updated", new Date(product.updatedAt).toLocaleDateString()]
+    ];
+    
+    autoTable(doc, {
+      startY: 35,
+      head: [['Field', 'Value']],
+      body: productDetails,
+      theme: 'grid',
+      headStyles: { fillColor: [41, 128, 185] },
+      columnStyles: {
+        0: { cellWidth: 60, fontStyle: 'bold' },
+        1: { cellWidth: 120 }
+      }
+    });
+    
+    // Save the PDF
+    doc.save(`product_${product.productId}_details.pdf`);
+  };
+
+  // Common chart options for consistent sizing
+  const commonChartOptions = {
+    maintainAspectRatio: false,
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'bottom',
+      },
+    },
+  };
+
   return (
     <div
-  className={`container-fluid px-4 py-4 ${darkMode ? "bg-dark text-white" : "bg-light"}`}
-  style={{ width: '95%', margin: '0 auto' }}
+      className={`container-fluid px-4 py-4 ${darkMode ? "bg-dark text-white" : "bg-light"}`}
+      style={{ width: '95%', margin: '0 auto' }}
     >
-      {/* Header Row */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h1>📦 Inventory Dashboard</h1>
+      <div className="d-flex justify-content-end align-items-center mb-4 flex-wrap">
         <div>
           <button
             onClick={() => setDarkMode((prev) => !prev)}
@@ -257,7 +327,9 @@ const ProductList = () => {
           </button>
         </div>
       </div>
-
+      <h1>📦 Inventory Dashboard</h1>
+      <ProductFilter />
+      
       {/* Summary Cards */}
       <div className="row mb-4 g-4">
         {/* Cards */}
@@ -283,191 +355,220 @@ const ProductList = () => {
         ))}
       </div>
 
-      {/* First Row of Charts */}
+      {/* First Row of Charts - Main Distribution Charts */}
       <div className="row mb-4">
-        <div className="col-md-6">
-          <div className="card p-3 shadow-sm">
-            <h5 className="text-center">📊 Category Distribution</h5>
-            <Pie
-              data={{
-                labels: Object.keys(analytics.categories),
-                datasets: [
-                  {
-                    data: Object.values(analytics.categories),
-                    backgroundColor: [
-                      "#007bff",
-                      "#28a745",
-                      "#ffc107",
-                      "#dc3545",
-                      "#17a2b8",
-                      "#6f42c1",
+        {/* Category Distribution */}
+        <div className="col-md-6 mb-4">
+          <div className="card shadow-sm h-100">
+            <div className="card-body">
+              <h5 className="card-title text-center">📊 Category Distribution</h5>
+              <div className="chart-container" style={{ height: '300px', position: 'relative' }}>
+                <Pie
+                  data={{
+                    labels: Object.keys(analytics.categories),
+                    datasets: [
+                      {
+                        data: Object.values(analytics.categories),
+                        backgroundColor: [
+                          "#007bff",
+                          "#28a745",
+                          "#ffc107",
+                          "#dc3545",
+                          "#17a2b8",
+                          "#6f42c1",
+                        ],
+                      },
                     ],
-                  },
-                ],
-              }}
-            />
+                  }}
+                  options={commonChartOptions}
+                />
+              </div>
+            </div>
           </div>
         </div>
-        <div className="col-md-6">
-          <div className="card p-3 shadow-sm">
-            <h5 className="text-center">📦 Stock per Category</h5>
-            <Bar
-              data={{
-                labels: Object.keys(analytics.categories),
-                datasets: [
-                  {
-                    label: "Stock",
-                    data: Object.keys(analytics.categories).map((cat) =>
-                      products
-                        .filter((p) => p.category === cat)
-                        .reduce((sum, p) => sum + p.quantityInStock, 0)
-                    ),
-                    backgroundColor: "#17a2b8",
-                  },
-                ],
-              }}
-              options={{
-                responsive: true,
-                plugins: {
-                  legend: {
-                    display: false,
-                  },
-                },
-                scales: {
-                  y: {
-                    beginAtZero: true,
-                  },
-                },
-              }}
-            />
+
+        {/* Brand Distribution */}
+        <div className="col-md-6 mb-4">
+          <div className="card shadow-sm h-100">
+            <div className="card-body">
+              <h5 className="card-title text-center">🏷️ Brand Distribution</h5>
+              <div className="chart-container" style={{ height: '300px', position: 'relative' }}>
+                <Pie
+                  data={{
+                    labels: Object.keys(analytics.brands),
+                    datasets: [
+                      {
+                        data: Object.values(analytics.brands),
+                        backgroundColor: [
+                          "#FF9F40",
+                          "#FFCD56",
+                          "#FF6384",
+                          "#36A2EB",
+                          "#9966FF",
+                          "#4BC0C0",
+                        ],
+                      },
+                    ],
+                  }}
+                  options={commonChartOptions}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Second Row of Charts - NEW CHARTS */}
+      {/* Second Row of Charts - Stock and Price Analysis */}
       <div className="row mb-4">
-        <div className="col-md-4">
-          <div className="card p-3 shadow-sm">
-            <h5 className="text-center">💰 Price Distribution</h5>
-            <Doughnut
-              data={{
-                labels: Object.keys(analytics.priceDistribution),
-                datasets: [
-                  {
-                    data: Object.values(analytics.priceDistribution),
-                    backgroundColor: [
-                      "#FF6384",
-                      "#36A2EB",
-                      "#FFCE56",
-                      "#4BC0C0",
+        {/* Price Distribution and Stock Status */}
+        <div className="col-md-6 mb-4">
+          <div className="card shadow-sm h-100">
+            <div className="card-body">
+              <h5 className="card-title text-center">💰 Price Distribution</h5>
+              <div className="chart-container" style={{ height: '300px', position: 'relative' }}>
+                <Doughnut
+                  data={{
+                    labels: Object.keys(analytics.priceDistribution),
+                    datasets: [
+                      {
+                        data: Object.values(analytics.priceDistribution),
+                        backgroundColor: [
+                          "#FF6384",
+                          "#36A2EB",
+                          "#FFCE56",
+                          "#4BC0C0",
+                        ],
+                      },
                     ],
-                  },
-                ],
-              }}
-              options={{
-                plugins: {
-                  legend: {
-                    position: "bottom",
-                  },
-                },
-              }}
-            />
+                  }}
+                  options={commonChartOptions}
+                />
+              </div>
+            </div>
           </div>
         </div>
-        <div className="col-md-4">
-          <div className="card p-3 shadow-sm">
-            <h5 className="text-center">🏷️ Brand Distribution</h5>
-            <Pie
-              data={{
-                labels: Object.keys(analytics.brands),
-                datasets: [
-                  {
-                    data: Object.values(analytics.brands),
-                    backgroundColor: [
-                      "#FF9F40",
-                      "#FFCD56",
-                      "#FF6384",
-                      "#36A2EB",
-                      "#9966FF",
-                      "#4BC0C0",
+
+        <div className="col-md-6 mb-4">
+          <div className="card shadow-sm h-100">
+            <div className="card-body">
+              <h5 className="card-title text-center">⚠️ Stock Status</h5>
+              <div className="chart-container" style={{ height: '300px', position: 'relative' }}>
+                <Doughnut
+                  data={{
+                    labels: ["Low Stock (<10)", "Medium Stock (10-50)", "High Stock (>50)"],
+                    datasets: [
+                      {
+                        data: [
+                          analytics.stockStatus.low,
+                          analytics.stockStatus.medium,
+                          analytics.stockStatus.high,
+                        ],
+                        backgroundColor: ["#FF6384", "#FFCE56", "#36A2EB"],
+                      },
                     ],
-                  },
-                ],
-              }}
-              options={{
-                plugins: {
-                  legend: {
-                    position: "bottom",
-                  },
-                },
-              }}
-            />
-          </div>
-        </div>
-        <div className="col-md-4">
-          <div className="card p-3 shadow-sm">
-            <h5 className="text-center">⚠️ Stock Status</h5>
-            <Doughnut
-              data={{
-                labels: ["Low Stock (<10)", "Medium Stock (10-50)", "High Stock (>50)"],
-                datasets: [
-                  {
-                    data: [
-                      analytics.stockStatus.low,
-                      analytics.stockStatus.medium,
-                      analytics.stockStatus.high,
-                    ],
-                    backgroundColor: ["#FF6384", "#FFCE56", "#36A2EB"],
-                  },
-                ],
-              }}
-              options={{
-                plugins: {
-                  legend: {
-                    position: "bottom",
-                  },
-                },
-              }}
-            />
+                  }}
+                  options={commonChartOptions}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Third Row - Inventory Value Chart */}
-      <div className="row mb-5">
-        <div className="col-md-12">
-          <div className="card p-3 shadow-sm">
-            <h5 className="text-center"> Inventory Value by Category</h5>
-            <Bar
-              data={{
-                labels: Object.keys(analytics.inventoryValueByCategory),
-                datasets: [
-                  {
+      {/* Stock per Category - Full width row */}
+      <div className="row mb-4">
+        <div className="col-12 mb-4">
+          <div className="card shadow-sm h-100">
+            <div className="card-body">
+              <h5 className="card-title text-center">📦 Stock per Category</h5>
+              <div className="chart-container" style={{ height: '300px', position: 'relative' }}>
+                <Bar
+                  data={{
+                    labels: Object.keys(analytics.categories),
+                    datasets: [
+                      {
+                        label: "Stock",
+                        data: Object.keys(analytics.categories).map((cat) =>
+                          products
+                            .filter((p) => p.category === cat)
+                            .reduce((sum, p) => sum + p.quantityInStock, 0)
+                        ),
+                        backgroundColor: "#17a2b8",
+                      },
+                    ],
+                  }}
+                  options={{
+                    ...commonChartOptions,
+                    scales: {
+                      y: {
+                        beginAtZero: true,
+                      },
+                    },
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Inventory Value by Category - Full width row */}
+      <div className="container-fluid px-0 mx-0">
+        <div className="card shadow-sm h-100">
+          <div className="card-body p-0">
+            <h5 className="card-title text-center py-3">💰 Inventory Value by Category</h5>
+            <div className="chart-container" style={{ 
+              height: '300px', 
+              position: 'relative',
+              width: '100%',
+              padding: '0 15px'
+            }}>
+              <Bar
+                data={{
+                  labels: Object.keys(analytics.inventoryValueByCategory),
+                  datasets: [{
                     label: "Inventory Value (LKR)",
                     data: Object.values(analytics.inventoryValueByCategory),
                     backgroundColor: "#4BC0C0",
+                    barPercentage: 0.9,
+                    categoryPercentage: 0.9
+                  }],
+                }}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: {
+                      display: false
+                    }
                   },
-                ],
-              }}
-              options={{
-                responsive: true,
-                plugins: {
-                  legend: {
-                    display: false,
-                  },
-                },
-                scales: {
-                  y: {
-                    beginAtZero: true,
-                    ticks: {
-                      callback: function (value) {
-                        return "LKR " + value.toLocaleString();
+                  scales: {
+                    y: {
+                      beginAtZero: true,
+                      ticks: {
+                        callback: function (value) {
+                          return "LKR " + value.toLocaleString();
+                        },
                       },
+                      grid: {
+                        display: true
+                      }
                     },
+                    x: {
+                      ticks: {
+                        autoSkip: false,
+                        maxRotation: 45,
+                        minRotation: 45
+                      },
+                      grid: {
+                        display: false
+                      }
+                    }
                   },
-                },
-              }}
-            />
+                  devicePixelRatio: 2
+                }}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -477,12 +578,33 @@ const ProductList = () => {
         Top Category: <strong>{analytics.topCategory || "N/A"}</strong>
       </div>
 
-      {/* Add Product */}
-      <div className="d-flex justify-content-end mb-3">
-        <Link to="/InventoryDashboard/products/add" className="btn btn-primary">
-          ➕ Add New Product
-        </Link>
-      </div>
+
+      <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+  {/* Search input - left side */}
+  <div className="mb-3 mb-md-0" style={{ width: '300px' }}>
+    <div className="input-group">
+      <span className="input-group-text">
+        <i className="bi bi-search"></i>
+      </span>
+      <input
+        type="text"
+        className="form-control"
+        placeholder="Search products..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+    </div>
+  </div>
+  
+  {/* Search results and Add Product button - right side */}
+  <div className="d-flex align-items-center">
+    <div>
+      <Link to="/InventoryDashboard/products/add" className="btn btn-primary">
+        ➕ Add New Product
+      </Link>
+    </div>
+  </div>
+</div>
 
       {/* Product Table */}
       <div className="table-responsive">
@@ -498,30 +620,40 @@ const ProductList = () => {
             </tr>
           </thead>
           <tbody>
-            {products.map((product) => (
+            {filteredProducts.map((product) => (
               <tr key={product.productId}>
                 <td>{product.name}</td>
                 <td>{product.category}</td>
-                <td>{product.supplier?.brand}</td>
+                <td>{product.supplier?.brand || "N/A"}</td>
                 <td>{product.quantityInStock}</td>
                 <td>LKR {product.price}</td>
                 <td>
-                  <Link to={`/InventoryDashboard/products/update/${product.productId}`} className="btn btn-success btn-sm me-2">
+                  <Link
+                    to={`/InventoryDashboard/products/update/${product.productId}`}
+                    className="btn btn-success btn-sm me-2"
+                    style={{ width: "80px" }}
+                  >
                     Edit
                   </Link>
                   <button
                     onClick={() => handleDelete(product.productId)}
                     className="btn btn-danger btn-sm me-2"
+                    style={{ width: "80px" }}
                   >
                     Delete
                   </button>
-                  <Link to={`/InventoryDashboard/products/order/${product.productId}`} className="btn btn-secondary btn-sm me-2">
+                  <Link
+                    to={`/InventoryDashboard/products/order/${product.productId}`}
+                    className="btn btn-secondary btn-sm me-2"
+                    style={{ width: "80px" }}
+                  >
                     Order
                   </Link>
                   <button
                     className="btn btn-info btn-sm"
                     data-bs-toggle="modal"
                     data-bs-target={`#orderModal${product._id}`}
+                    style={{ width: "80px" }}
                   >
                     View
                   </button>
@@ -546,7 +678,7 @@ const ProductList = () => {
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">Product Details</h5>
-                <button type="button" className="btn-close" data-bs-dismiss="modal" />
+                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div className="modal-body">
                 <div className="row">
@@ -570,6 +702,16 @@ const ProductList = () => {
                     <p><strong>Last Updated:</strong> {new Date(product.updatedAt).toLocaleDateString()}</p>
                   </div>
                 </div>
+              </div>
+              <div className="modal-footer">
+                <button 
+                  type="button" 
+                  className="btn btn-primary"
+                  onClick={() => downloadProductPDF(product)}
+                >
+                  Download Report
+                </button>
+                <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
               </div>
             </div>
           </div>

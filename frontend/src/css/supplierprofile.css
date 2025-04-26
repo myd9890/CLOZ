@@ -1,162 +1,69 @@
-/* General Styles */
-body {
-  background-color: #f8f9fa;
-  font-family: 'Arial', sans-serif;
-}
-
-/* General container styling */
-.container {
-  background-color: #f9f9f9;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* Profile Card */
 .profile-card {
-  max-width: 600px;
+  width :70%;
+  max-width: 900px;
   margin: 0 auto;
-  border: none;
-  border-radius: 10px;
+  margin-top: 30px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  background-color: #ffffff;
 }
 
 .profile-header {
   text-align: center;
-  padding: 15px;
-  font-family: 'Arial', sans-serif;
-  font-size: 20px;
-  font-weight: bold;
-  border-radius: 10px 10px 0 0;
+  font-size: 1.8rem;
+  padding: 20px 0;
+  background: linear-gradient(90deg, #007bff, #0056b3);
 }
 
 .profile-body {
-  padding: 20px;
-  font-size: 16px;
-  line-height: 1.8;
-  color: #333;
-  background-color: white;
-}
-
-.profile-body p {
-  margin-bottom: 10px;
+  padding: 25px;
+  background-color: #f9f9f9;
   font-size: 1rem;
+  line-height: 1.6;
 }
 
-/* Status Styles */
 .status-active {
-  color: #28a745;
+  color: green;
   font-weight: bold;
 }
 
 .status-inactive {
-  color: #dc3545;
+  color: red;
   font-weight: bold;
 }
 
-/* Orders Section */
-.orders-container {
-  max-width: 800px;
-  margin: 20px auto;
-}
-
-.order-card {
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.order-card h5 {
-  font-size: 1.25rem;
-  color: #343a40;
-}
-
-/* Table styling */
 .table {
-  font-size: 14px;
   margin-top: 20px;
-  border-collapse: collapse;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .table th {
   background-color: #007bff;
   color: white;
   text-align: center;
-  font-weight: bold;
-  padding: 10px;
 }
 
 .table td {
-  text-align: center;
   vertical-align: middle;
-  padding: 10px;
-}
-
-.table-hover tbody tr:hover {
-  background-color: #f1f1f1;
-}
-
-/* Buttons */
-.btn {
-  font-size: 14px;
-  padding: 8px 12px;
-  border-radius: 4px;
-}
-
-.btn-success {
-  background-color: #28a745;
-  border: none;
-}
-
-.btn-success:hover {
-  background-color: #218838;
-}
-
-.btn-danger {
-  background-color: #dc3545;
-  border: none;
-}
-
-.btn-danger:hover {
-  background-color: #c82333;
-}
-
-/* Spinner styling */
-.spinner-border {
-  width: 3rem;
-  height: 3rem;
-  border-width: 0.3rem;
-}
-
-/* Error message styling */
-.text-danger {
-  font-size: 16px;
-  font-weight: bold;
-  color: #dc3545;
-}
-
-/* No orders message styling */
-.no-orders {
-  font-size: 16px;
-  color: #6c757d;
   text-align: center;
-  margin-top: 20px;
 }
 
-/* Headings styling */
 h2 {
-  font-family: 'Arial', sans-serif;
-  font-weight: bold;
-  color: #333;
+  font-size: 2rem;
   margin-bottom: 20px;
+  color: #333;
   text-align: center;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .profile-card, .orders-container {
-    width: 90%;
-  }
+button {
+  font-weight: 600;
+}
+
+.logout-button {
+  position: absolute;
+  top: 15px;
+  right: 15px;
 }
