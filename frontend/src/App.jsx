@@ -170,7 +170,7 @@ const App = () => {
             path="/InventoryDashboard/*"
             element={
               <AccessControl requiredDept="Inventory">
-                <InventoryDashboard user={user}/>
+                <InventoryDashboard user={user} />
               </AccessControl>
             }
           />
@@ -179,7 +179,7 @@ const App = () => {
             path="/FinanceDashboard/*"
             element={
               <AccessControl requiredDept="Finance">
-                <FinanceDashboard user={user}/>
+                <FinanceDashboard user={user} />
               </AccessControl>
             }
           />
@@ -188,7 +188,7 @@ const App = () => {
             path="/SalesDashboard/*"
             element={
               <AccessControl requiredDept="Sales">
-                <SalesDashboard user={user}/>
+                <SalesDashboard user={user} />
               </AccessControl>
             }
           />
@@ -288,7 +288,7 @@ const App = () => {
             </li>
           </ul>
         </nav>
-  
+
         <div className="dashboard-content">
           <h1>Inventory Dashboard</h1>
           <p>Hi {user?.name}</p>
@@ -322,7 +322,7 @@ const App = () => {
       </div>
     );
   }
-  
+
 
   function FinanceDashboard({ user }) {
     return (
@@ -337,7 +337,7 @@ const App = () => {
             <li><Link to="/FinanceDashboard/pettycash">Petty Cash</Link></li>
           </ul>
         </nav>
-  
+
         <div className="dashboard-content">
           <h1>Finance Dashboard</h1>
           <p>Hi {user?.name}</p>
@@ -352,7 +352,7 @@ const App = () => {
       </div>
     );
   }
-  
+
 
   function SalesDashboard({ user }) {
     return (
@@ -364,7 +364,7 @@ const App = () => {
             <li><Link to="/SalesDashboard/discount">Discount</Link></li>
           </ul>
         </nav>
-  
+
         <div className="dashboard-content">
           <h1>Sales Dashboard</h1>
           <p>Hi {user?.name}</p>
@@ -378,7 +378,7 @@ const App = () => {
       </div>
     );
   }
-  
+
 
   function CustomerDashboard({ user }) {
     return (
@@ -393,7 +393,7 @@ const App = () => {
             <li><Link to="/CustomerDashboard/sale/add">Add Sale</Link></li>
           </ul>
         </nav>
-  
+
         <div className="dashboard-content">
           <h1>Customer Dashboard</h1>
           <p>Hi {user?.name}</p>
@@ -416,14 +416,12 @@ const App = () => {
     </LeaveRequestProvider>,
     document.getElementById('root')
   );
-  
+
 
   function HRDashboard({ user }) {
     return (
-      <div>
-        <h1>HR Dashboard</h1>
-        <p> Hi {user?.name}</p>
-        <nav>
+      <div className="dashboard-container">
+        <nav className="sidebar">
           <ul>
             <li><Link to="/HRdashboard/dashboard">Dashboard</Link></li>
             <li><Link to="/HRdashboard/reports">Reports</Link></li>
@@ -432,7 +430,7 @@ const App = () => {
         </nav>
         <div className="dashboard-content">
           <h1>HR Dashboard</h1>
-            <p>Hi {user?.name}</p>
+          <p>Hi {user?.name}</p>
           <Routes>
             <Route path="list" element={<EmployeeList />} />
             <Route path="add" element={<AddEmployee />} />
@@ -443,11 +441,11 @@ const App = () => {
             <Route path="reports" element={<Reports />} />
             <Route path="salary" element={<Salary />} />
           </Routes>
-          </div>
+        </div>
       </div>
     );
   }
-  
+
 };
 
 export default App;
