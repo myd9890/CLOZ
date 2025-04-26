@@ -23,10 +23,10 @@ function EmployeeProfile() {
         <Link to="/change-password">
           <button style={{ marginRight: '10px' }}>Change Password</button>
         </Link>
-        {/* <Link to="/HRdashboard/leave-requests">
+        <Link to="/leave-requests">
           <button style={{ marginRight: '10px' }}>Leave Requests</button>
-        </Link> */}
-        <button onClick={() => navigate('/leave-request')}>Request Leave</button>
+        </Link>
+        <button onClick={() => navigate('/apply-request')}>Request Leave</button>
       </div>
     </div>
   );

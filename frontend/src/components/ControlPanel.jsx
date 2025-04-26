@@ -69,7 +69,7 @@ function ControlPanel() {
             Add Employee
           </button>
         </Link>
-        <Link to="/HRdashboard/leave-requests">
+        <Link to="/leave-requests">
           <button style={{ display: 'block', marginBottom: '10px', width: '100%' }}>
             Leave Requests
           </button>

@@ -238,7 +238,8 @@ const App = () => {
             </AccessControl>
           } />
           <Route path="/EmployeeProfile" element={<EmployeeProfile />} />
-          <Route path="/leave-request" element={<LeaveRequestForm user={user} />} />
+          <Route path="/leave-requests" element={<LeaveRequests user={user} />} />
+          <Route path="/apply-request" element={<LeaveRequestForm user={user} />} />
         </Routes>
         <Footer />
       </div>
@@ -437,7 +438,6 @@ const App = () => {
             <Route path="attendance" element={<Attendance />} />
             <Route path="edit/:id" element={<EditEmployee />} />
             <Route path="dashboard" element={<ControlPanel />} />
-            <Route path="leave-requests" element={<LeaveRequests />} />
             <Route path="reports" element={<Reports />} />
             <Route path="salary" element={<Salary />} />
           </Routes>
