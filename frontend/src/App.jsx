@@ -44,9 +44,13 @@ import EditEmployee from "./components/EditEmployee";
 import Login from "./components/Login";
 import ChangePassword from "./components/ChangePassword";
 import Attendance from "./components/Attendance";
-import LeaveRequests from "./components/LeaveRequests";
+import ControlPanel from "./components/ControlPanel";
 import Reports from "./components/Reports";
 import Salary from "./components/Salary";
+import LeaveRequests from "./components/LeaveRequests";
+import EmployeeProfile from "./components/EmployeeProfile";
+import LeaveRequestForm from "./components/LeaveRequestForm";
+import { LeaveRequestProvider } from './context/LeaveRequestContext';
 import Header from "./Header";
 import Footer from "./Footer";
 import Index from "./index";
@@ -154,39 +158,35 @@ const App = () => {
           <Route path="/supplier/:supplierId" element={<SupplierProfile />} />
 
           {/* Protected Routes */}
-
+          <Route path="/profile" element={isLoggedIn ? <EmployeeProfile /> : <Navigate to="/login" />} />
           <Route path="/change-password" element={isLoggedIn ? <ChangePassword /> : <Navigate to="/login" />} />
-          
           <Route path="/InventoryDashboard/*" element={
             <AccessControl requiredDept="Inventory">
               <InventoryDashboard />
             </AccessControl>
           } />
-          
           <Route path="/FinanceDashboard/*" element={
             <AccessControl requiredDept="Finance">
               <FinanceDashboard />
             </AccessControl>
           } />
-          
           <Route path="/SalesDashboard/*" element={
             <AccessControl requiredDept="Sales">
               <SalesDashboard />
             </AccessControl>
           } />
-          
           <Route path="/CustomerDashboard/*" element={
             <AccessControl requiredDept="CRM">
               <CustomerDashboard />
             </AccessControl>
           } />
-          
           <Route path="/HRdashboard/*" element={
             <AccessControl requiredDept="HR">
               <HRDashboard user={user} />
             </AccessControl>
           } />
-
+          <Route path="/EmployeeProfile" element={<EmployeeProfile />} />
+          <Route path="/leave-request" element={<LeaveRequestForm user={user} />} />
         </Routes>
         <Footer />
       </div>
@@ -199,24 +199,23 @@ const App = () => {
       console.log("Access denied: User not logged in.");
       return <Navigate to="/login" />;
     }
-  
+
     // Role check (if needed)
     if (requiredRole && user.role !== requiredRole) {
 
       console.log(`Access denied: Role must be '${requiredRole}'`);
       return <div>Access Denied: Insufficient role permissions.</div>;
     }
-  
+
     // Department check (if needed)
     if (requiredDept && user.department !== requiredDept) {
       console.log(`Access denied: Department must be '${requiredDept}'`);
       return <div>Access Denied: Insufficient department permissions.</div>;
     }
-  
+
     // All checks passed
     return children;
   }
-  
 
   function InventoryDashboard() {
     return (
@@ -365,6 +364,12 @@ const App = () => {
       </div>
     );
   }
+  ReactDOM.render(
+    <LeaveRequestProvider>
+      <App />
+    </LeaveRequestProvider>,
+    document.getElementById('root')
+  );
 
   function HRDashboard({ user }) {
     return (
@@ -373,22 +378,17 @@ const App = () => {
         <p> Hi {user?.name}</p>
         <nav>
           <ul>
-
-            <li><Link to="/HRdashboard/list">Employee List</Link></li>
-            <li><Link to="/HRdashboard/add">Add Employee</Link></li>
-            <li><Link to="/HRdashboard/attendance">Attendance</Link></li>
-            <li><Link to="/HRdashboard/leave-requests">Leave Requests</Link></li>
+            <li><Link to="/HRdashboard/dashboard">Dashboard</Link></li>
             <li><Link to="/HRdashboard/reports">Reports</Link></li>
             <li><Link to="/HRdashboard/salary">Salary</Link></li>
-            
-
           </ul>
         </nav>
         <Routes>
           <Route path="list" element={<EmployeeList />} />
           <Route path="add" element={<AddEmployee />} />
-          <Route path="edit/:id" element={<EditEmployee />} />
           <Route path="attendance" element={<Attendance />} />
+          <Route path="edit/:id" element={<EditEmployee />} />
+          <Route path="dashboard" element={<ControlPanel />} />
           <Route path="leave-requests" element={<LeaveRequests />} />
           <Route path="reports" element={<Reports />} />
           <Route path="salary" element={<Salary />} />

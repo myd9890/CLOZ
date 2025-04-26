@@ -18,24 +18,31 @@ function Login({ onLogin }) {
     try {
       const response = await axios.post('http://localhost:8070/api/auth/login', { empID, password });
       const { token, employee } = response.data;
-      
-      if (!token || !employee || !employee.department || !employee.role) {
+
+      if (!token || !employee || !employee.empID || !employee.department || !employee.role) {
         console.error('Invalid login response: Missing required fields.');
         setError('Login failed: Invalid server response.');
         return;
       }
 
+      // Include empID in the userData object
       const userData = {
+        empID: employee.empID,
         token: token,
         name: employee.name,
         department: employee.department,
         role: employee.role,
       };
-      
+
+      // Store token and user data in sessionStorage
+      sessionStorage.setItem('token', token); // Store the token
+      sessionStorage.setItem('user', JSON.stringify(userData)); // Store the user data
+
+      // Pass userData to onLogin
       onLogin(userData);
-      
+
       // Redirect based on department
-      switch(employee.department.toLowerCase()) {
+      switch (employee.department.toLowerCase()) {
         case 'inventory':
           navigate('/InventoryDashboard');
           break;
@@ -54,7 +61,6 @@ function Login({ onLogin }) {
         default:
           navigate('/'); // Fallback to home if department not matched
       }
-
     } catch (error) {
       console.error('Error logging in:', error);
       setError(error.response?.data?.message || 'Login failed. Please check your credentials.');

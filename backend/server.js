@@ -15,6 +15,7 @@ const employeeRoutes = require("./routes/employees");
 const authRoutes = require("./routes/auth");
 const attendanceRoutes = require("./routes/attendance");
 const salaryRoutes = require("./routes/salary");
+const requestRoutes = require("./routes/requests");
 
 const PORT = process.env.PORT || 8070;
 
@@ -94,6 +95,7 @@ app.use("/api/employees", employeeRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/salary", salaryRoutes);
+app.use("/api/requests", requestRoutes);
 
 server.listen(PORT, () => {
   console.log(`Server is up and running on port ${PORT}`);

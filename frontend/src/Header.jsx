@@ -39,8 +39,8 @@ const Header = ({ isLoggedIn, handleLogout }) => {
                 <div className="auth-actions">
                     {isLoggedIn ? (
                         <>
-                            <Link to="/change-password" className="auth-link">
-                                <i className="fas fa-key"></i> Password
+                            <Link to="/profile" className="auth-link">
+                                <i className="fas fa-user"></i> Profile
                             </Link>
                             <button onClick={handleLogout} className="logout-btn">
                                 <i className="fas fa-sign-out-alt"></i> Logout
