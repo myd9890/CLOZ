@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const SaleForm = () => {
@@ -27,7 +27,6 @@ const SaleForm = () => {
   const [customerData, setCustomerData] = useState(null);
 
   useEffect(() => {
-    console.log("Customer from URL:", customer);
     fetchProducts();
     if (customer) {
       fetchCustomerData();
@@ -38,7 +37,6 @@ const SaleForm = () => {
     try {
       const response = await axios.get("http://localhost:8070/products/");
       setProducts(response.data);
-      console.log(response.data);
     } catch (error) {
       toast.error("Failed to load products");
     }
@@ -61,6 +59,9 @@ const SaleForm = () => {
     const product = products.find((p) => p._id === selectedProduct);
     if (!product) return;
 
+    const priceAtSale =
+      product.price - (product.discountPrice || 0) + (product.taxAmount || 0);
+
     const existingIndex = formData.products.findIndex(
       (item) => item.product === selectedProduct
     );
@@ -77,7 +78,7 @@ const SaleForm = () => {
           {
             product: selectedProduct,
             quantity,
-            priceAtSale: product.price,
+            priceAtSale,
           },
         ],
       });
@@ -99,12 +100,9 @@ const SaleForm = () => {
       (sum, item) => sum + item.priceAtSale * item.quantity,
       0
     );
-    const pointsDiscount = formData.pointsToRedeem * 0.1; // Assuming 1 point = $0.10
+    const pointsDiscount = formData.pointsToRedeem * 0.1;
     return (
-      subtotal -
-      formData.discount -
-      pointsDiscount +
-      subtotal * (formData.tax / 100)
+      subtotal - formData.discount - pointsDiscount + subtotal * (formData.tax / 100)
     );
   };
 
@@ -113,27 +111,22 @@ const SaleForm = () => {
     setLoading(true);
 
     try {
-      const pointsDiscount = formData.pointsToRedeem * 0.1;
       const subtotal = formData.products.reduce(
         (sum, item) => sum + item.priceAtSale * item.quantity,
         0
       );
       const totalAmount = calculateTotal();
-
-      // Calculate amount eligible for loyalty points (excluding points discount)
       const loyaltyEligibleAmount =
         subtotal - formData.discount + subtotal * (formData.tax / 100);
 
       const saleData = {
         ...formData,
         totalAmount,
-        loyaltyEligibleAmount, // Add this field to track amount eligible for points
+        loyaltyEligibleAmount,
       };
-      console.log(saleData);
 
       await axios.post("http://localhost:8070/sale/add", saleData);
       toast.success("Sale recorded successfully!");
-
       navigate(-1);
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to save sale");
@@ -199,6 +192,7 @@ const SaleForm = () => {
             </div>
           </div>
         )}
+
         <div className="row mb-3">
           <div className="col-md-3">
             <label className="form-label">Payment Method</label>
@@ -248,7 +242,7 @@ const SaleForm = () => {
                   .filter((p) => p.quantityInStock > 0)
                   .map((product) => (
                     <option key={product._id} value={product._id}>
-                      {product.name} (LKR{product.price}, Stock:{" "}
+                      {product.name} (LKR:{product.price} Discount:{product.discountPrice} Tax:{product.taxAmount} Stock:{" "}
                       {product.quantityInStock})
                     </option>
                   ))}

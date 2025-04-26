@@ -33,6 +33,12 @@ const Header = ({ isLoggedIn, handleLogout }) => {
                                 <i className="fas fa-coins"></i> Finance
                             </Link>
                         </li>
+
+                        <li className="nav-item">
+                            <Link to="/InventoryDashboard/" className="nav-link">
+                                <i className="fas fa-coins"></i> Inventory
+                            </Link>
+                        </li>
                     </ul>
                 </nav>
                 

@@ -38,6 +38,7 @@
 .nav-menu {
     flex-grow: 1;
     margin: 0 2rem;
+    background: transparent;
 }
 
 .nav-list {

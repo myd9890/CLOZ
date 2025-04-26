@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const CustomerProfile = () => {
   const { id, phone } = useParams();
@@ -11,82 +11,111 @@ const CustomerProfile = () => {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    address: '',
-    loyaltyPoints: 0
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+    loyaltyPoints: 0,
   });
 
+  // Check for logged-in customer on component mount
   useEffect(() => {
-    const fetchCustomerData = async () => {
-      try {
-        setLoading(true);
-        const [customerRes] = await Promise.all([
-          axios.get(`http://localhost:8070/customers/profile/${phone}`)
-        ]);
+    const loggedInCustomer = JSON.parse(localStorage.getItem("customer"));
 
-        console.log("API Response:", customerRes.data);
-        console.log("Raw Purchase History:", customerRes.data.purchaseHistory);
+    if (!loggedInCustomer) {
+      toast.info("Please login with your phone number");
+      navigate("/login");
+      return;
+    }
 
-        setCustomer(customerRes.data);
-        setPurchases(customerRes.data.purchaseHistory ?? []);
+    // Verify the phone number matches the logged-in customer
+    if (phone && loggedInCustomer.phone !== phone) {
+      toast.error("Unauthorized access");
+      navigate("/login");
+      return;
+    }
 
-        setFormData({
-          name: customerRes.data.name,
-          email: customerRes.data.email,
-          phone: customerRes.data.phone,
-          address: customerRes.data.address || '',
-          loyaltyPoints: customerRes.data.loyaltyPoints || 0
-        });
-
-      } catch (error) {
-        toast.error('Failed to load customer data');
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCustomerData();
+    fetchCustomerData(phone || loggedInCustomer.phone);
   }, [phone]);
 
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleSave = async () => {
+  const fetchCustomerData = async (phoneNumber) => {
     try {
       setLoading(true);
-      const response = await axios.put(`http://localhost:8070/customers/update/${id}`, formData);
-      setCustomer(response.data);
-      toast.success('Customer updated successfully');
-      setEditing(false);
+      const [customerRes] = await Promise.all([
+        axios.get(`http://localhost:8070/customers/profile/${phoneNumber}`),
+      ]);
+
+      setCustomer(customerRes.data);
+      setPurchases(customerRes.data.purchaseHistory ?? []);
+
+      setFormData({
+        name: customerRes.data.name,
+        email: customerRes.data.email,
+        phone: customerRes.data.phone,
+        address: customerRes.data.address || "",
+        loyaltyPoints: customerRes.data.loyaltyPoints || 0,
+      });
     } catch (error) {
-      toast.error('Failed to update customer');
+      toast.error("Failed to load customer data");
       console.error(error);
     } finally {
       setLoading(false);
     }
   };
 
+  const handleLogout = () => {
+    // Remove the customer data from local storage
+    localStorage.removeItem("customer");
+
+    // Show a success message
+    toast.success("Logged out successfully");
+
+    // Navigate to the Customerogin page
+    navigate("/CustomerDashboard/logincustomer");
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSave = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.put(
+        `http://localhost:8070/customers/update/${customer._id}`,
+        formData
+      );
+
+      setCustomer(response.data);
+      // Update local storage with new data
+      localStorage.setItem("customer", JSON.stringify(response.data));
+      toast.success("Profile updated successfully");
+      setEditing(false);
+    } catch (error) {
+      toast.error("Failed to update profile");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Rest of your existing functions (formatDate, formatCurrency) remain the same
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
     }).format(amount);
   };
 
@@ -104,8 +133,8 @@ const CustomerProfile = () => {
     return (
       <div className="container mt-4">
         <div className="alert alert-danger">Customer not found</div>
-        <button className="btn btn-primary" onClick={() => navigate('/customers')}>
-          Back to Customers
+        <button className="btn btn-primary" onClick={() => navigate("/login")}>
+          Back to Login
         </button>
       </div>
     );
@@ -115,11 +144,17 @@ const CustomerProfile = () => {
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2>Customer Profile</h2>
-        <button className="btn btn-outline-secondary" onClick={() => navigate('/customers')}>
-          Back to Customers
-        </button>
+        <div>
+          <button
+            className="btn btn-outline-danger me-2"
+            onClick={handleLogout}
+          >
+            Logout
+          </button>
+        </div>
       </div>
 
+      {/* Rest of your existing UI remains unchanged */}
       <div className="row">
         <div className="col-md-4">
           <div className="card mb-4">
@@ -154,6 +189,7 @@ const CustomerProfile = () => {
                     name="phone"
                     value={formData.phone}
                     onChange={handleInputChange}
+                    disabled // Phone number shouldn't be editable
                   />
 
                   <label className="form-label">Address</label>
@@ -188,7 +224,7 @@ const CustomerProfile = () => {
                       onClick={handleSave}
                       disabled={loading}
                     >
-                      {loading ? 'Saving...' : 'Save Changes'}
+                      {loading ? "Saving..." : "Save Changes"}
                     </button>
                   </div>
                 </div>
@@ -197,7 +233,7 @@ const CustomerProfile = () => {
                   <h4>{customer.name}</h4>
                   <p className="text-muted mb-1">
                     <i className="bi bi-envelope me-2"></i>
-                    {customer.email || 'No email provided'}
+                    {customer.email || "No email provided"}
                   </p>
                   <p className="text-muted mb-1">
                     <i className="bi bi-telephone me-2"></i>
@@ -267,21 +303,16 @@ const CustomerProfile = () => {
                           <td>
                             <span
                               className={`badge ${
-                                purchase.status === 'completed'
-                                  ? 'bg-success'
-                                  : purchase.status === 'pending'
-                                  ? 'bg-warning'
-                                  : 'bg-danger'
+                                purchase.status === "completed"
+                                  ? "bg-success"
+                                  : purchase.status === "pending"
+                                  ? "bg-warning"
+                                  : "bg-danger"
                               }`}
                             >
                               {purchase.status}
                             </span>
                           </td>
-                         {/*  <td>
-                          <Link to={`/sale/details/${purchase._id}`} className="btn btn-sm btn-outline-primary">
-                              View
-                            </Link>
-                          </td> */}
                         </tr>
                       ))}
                     </tbody>
