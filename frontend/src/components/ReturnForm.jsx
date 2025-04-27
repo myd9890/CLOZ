@@ -67,7 +67,7 @@ const ReturnForm = () => {
       });
       
       toast.success('Return processed successfully');
-      navigate('/sales');
+      navigate('/salesDashboard/sales');
     } catch (error) {
       toast.error('Failed to process return');
       console.error(error);
@@ -129,7 +129,7 @@ const ReturnForm = () => {
           <button
             type="button"
             className="btn btn-secondary ms-2"
-            onClick={() => navigate('/sales')}
+            onClick={() => navigate('/salesDashboard/sales')}
           >
             Cancel
           </button>

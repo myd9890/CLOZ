@@ -37,16 +37,16 @@ function Login({ onLogin }) {
       // Redirect based on department
       switch(employee.department.toLowerCase()) {
         case 'inventory':
-          navigate('/InventoryDashboard');
+          navigate('/InventoryDashboard/products');
           break;
         case 'finance':
           navigate('/FinanceDashboard');
           break;
         case 'sales':
-          navigate('/SalesDashboard');
+          navigate('/SalesDashboard/sales');
           break;
         case 'crm':
-          navigate('/CustomerDashboard');
+          navigate('/CustomerDashboard/customers');
           break;
         case 'hr':
           navigate('/HRdashboard/list');

@@ -3,11 +3,14 @@ import axios from 'axios';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../css/SupplierOrder.css';
+import { Bar, Pie } from 'react-chartjs-2';
+import Chart from 'chart.js/auto';
 
 const ViewAllOrders = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
+    const [showAnalytics, setShowAnalytics] = useState(false);
     const ordersPerPage = 10;
 
     useEffect(() => {
@@ -48,9 +51,203 @@ const ViewAllOrders = () => {
 
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+    // Analytics Data Preparation
+    const getStatusDistribution = () => {
+        const statusCounts = orders.reduce((acc, order) => {
+            acc[order.adminStatus] = (acc[order.adminStatus] || 0) + 1;
+            return acc;
+        }, {});
+
+        return {
+            labels: Object.keys(statusCounts),
+            datasets: [
+                {
+                    label: 'Orders by Status',
+                    data: Object.values(statusCounts),
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.7)',
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(255, 206, 86, 0.7)',
+                        'rgba(75, 192, 192, 0.7)',
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                    ],
+                    borderWidth: 1,
+                },
+            ],
+        };
+    };
+
+    const getSupplierDistribution = () => {
+        const supplierCounts = orders.reduce((acc, order) => {
+            const supplierName = order.supplier?.name || 'Unknown';
+            acc[supplierName] = (acc[supplierName] || 0) + 1;
+            return acc;
+        }, {});
+
+        return {
+            labels: Object.keys(supplierCounts),
+            datasets: [
+                {
+                    label: 'Orders by Supplier',
+                    data: Object.values(supplierCounts),
+                    backgroundColor: Object.keys(supplierCounts).map(
+                        (_, i) => `hsl(${(i * 360) / Object.keys(supplierCounts).length}, 70%, 50%)`
+                    ),
+                    borderWidth: 1,
+                },
+            ],
+        };
+    };
+
+    const getMonthlyOrderTrends = () => {
+        // Group orders by month
+        const monthlyData = orders.reduce((acc, order) => {
+            const date = new Date(order.createdAt || Date.now());
+            const monthYear = `${date.getFullYear()}-${date.getMonth() + 1}`;
+            acc[monthYear] = (acc[monthYear] || 0) + 1;
+            return acc;
+        }, {});
+
+        // Sort by date
+        const sortedMonths = Object.keys(monthlyData).sort();
+        
+        return {
+            labels: sortedMonths,
+            datasets: [
+                {
+                    label: 'Orders per Month',
+                    data: sortedMonths.map(month => monthlyData[month]),
+                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1,
+                },
+            ],
+        };
+    };
+
+    const getTotalOrderValue = () => {
+        return orders.reduce((sum, order) => sum + (order.totalPrice || 0), 0).toFixed(2);
+    };
+
+    const getAverageOrderValue = () => {
+        return orders.length > 0 
+            ? (orders.reduce((sum, order) => sum + (order.totalPrice || 0), 0) / orders.length).toFixed(2)
+            : 0;
+    };
+
     return (
-        <div className="container mt-5">
+        <div className="mt-5 mx-auto" style={{ width: '90%' }}>
             <h2 className="text-center mb-4" style={{ color: '#333' }}>Supplier Orders Management</h2>
+
+            <div className="text-center mb-4">
+                <button 
+                    className="btn btn-primary"
+                    onClick={() => setShowAnalytics(!showAnalytics)}
+                >
+                    {showAnalytics ? 'Hide Analytics' : 'Show Analytics'}
+                </button>
+            </div>
+
+            {showAnalytics && (
+                <div className="analytics-section mb-5 p-4 border rounded shadow-sm">
+                    <h3 className="text-center mb-4">Order Analytics</h3>
+                    
+                    <div className="row mb-4">
+                        <div className="col-md-6">
+                            <div className="card mb-4">
+                                <div className="card-header bg-primary text-white">
+                                    <h5>Order Status Distribution</h5>
+                                </div>
+                                <div className="card-body">
+                                    <Pie data={getStatusDistribution()} />
+                                </div>
+                            </div>
+                        </div>
+                        <div className="col-md-6">
+                            <div className="card mb-4">
+                                <div className="card-header bg-success text-white">
+                                    <h5>Orders by Supplier</h5>
+                                </div>
+                                <div className="card-body">
+                                    <Bar data={getSupplierDistribution()} />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div className="row mb-4">
+                        <div className="col-md-12">
+                            <div className="card">
+                                <div className="card-header bg-info text-white">
+                                    <h5>Monthly Order Trends</h5>
+                                </div>
+                                <div className="card-body">
+                                    <Bar 
+                                        data={getMonthlyOrderTrends()} 
+                                        options={{
+                                            scales: {
+                                                y: {
+                                                    beginAtZero: true,
+                                                    title: {
+                                                        display: true,
+                                                        text: 'Number of Orders'
+                                                    }
+                                                },
+                                                x: {
+                                                    title: {
+                                                        display: true,
+                                                        text: 'Month'
+                                                    }
+                                                }
+                                            }
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div className="row">
+                        <div className="col-md-6">
+                            <div className="card text-white bg-secondary mb-3">
+                                <div className="card-header">Total Orders</div>
+                                <div className="card-body">
+                                    <h2 className="card-title">{orders.length}</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="col-md-6">
+                            <div className="card text-bg-info mb-3">
+                                <div className="card-header">Total Order Value</div>
+                                <div className="card-body">
+                                    <h2 className="card-title">Rs.{getTotalOrderValue()}</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="col-md-6">
+                            <div className="card text-white bg-warning mb-3">
+                                <div className="card-header">Average Order Value</div>
+                                <div className="card-body">
+                                    <h2 className="card-title">Rs.{getAverageOrderValue()}</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="col-md-6">
+                            <div className="card text-white bg-danger mb-3">
+                                <div className="card-header">Pending Orders</div>
+                                <div className="card-body">
+                                    <h2 className="card-title">{pendingOrders.length}</h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {loading ? (
                 <div className="text-center">

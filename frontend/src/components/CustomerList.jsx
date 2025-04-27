@@ -16,7 +16,7 @@ function CustomerList() {
   const [reportType, setReportType] = useState("all");
   const [reportLoading, setReportLoading] = useState(false);
 
-  const mobileCodes = ["070", "071", "072", "075", "077", "078"];
+  const mobileCodes = ["070", "071", "072", "074", "075", "076", "077", "078"];
 
   useEffect(() => {
     fetchCustomers();
@@ -128,23 +128,28 @@ function CustomerList() {
         reportData = reportData.filter((c) => c.loyaltyPoints > 1000);
       }
 
-      // Initialize PDF document
       const doc = new jsPDF();
 
-      // Add title
-      doc.setFontSize(18);
-      doc.text("Customer Report", 14, 15);
+      // Set font size and color for the shop name
+      doc.setFontSize(24); // Larger font size for the shop name
+      doc.setTextColor("#3498db"); // Set text color to #3498db
+      doc.setFont("helvetica", "bold"); // Set font to bold
+      doc.text("CLOZ", doc.internal.pageSize.getWidth() / 2, 20, {
+        align: "center", // Center the text horizontally
+      });
 
-      // Add report metadata
+      // Add the report title below the shop name
+      doc.setFontSize(18);
+      doc.setTextColor("#000000"); // Reset text color to black
+      doc.setFont("helvetica", "normal"); // Reset font to normal
+      doc.text("Customer Report", doc.internal.pageSize.getWidth() / 2, 30, {
+        align: "center",
+      });
+
+      // Add the report type and generation date
       doc.setFontSize(12);
-      const reportTitle =
-        reportType === "all"
-          ? "All Customers"
-          : reportType === "withPurchases"
-          ? "Customers with Purchases"
-          : "High Value Customers";
-      doc.text(`Report Type: ${reportTitle}`, 14, 25);
-      doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
+      doc.text(`Report Type: ${reportType}`, 14, 40);
+      doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 45);
 
       // Prepare table data
       const tableData = reportData.map((customer) => {
@@ -154,7 +159,6 @@ function CustomerList() {
             (sum, p) => sum + (p.amount || 0),
             0
           ) || 0;
-
         return [
           customer.name,
           customer.email,
@@ -166,7 +170,7 @@ function CustomerList() {
         ];
       });
 
-      // Add table using the autoTable function directly
+      // Add table to the PDF
       autoTable(doc, {
         head: [
           [
@@ -180,7 +184,7 @@ function CustomerList() {
           ],
         ],
         body: tableData,
-        startY: 40,
+        startY: 50,
         styles: {
           fontSize: 8,
           cellPadding: 2,
@@ -210,41 +214,73 @@ function CustomerList() {
     }
   };
 
+  const handleSearchChange = (e) => {
+    let value = e.target.value.replace(/[^0-9]/g, ""); // Allow only numeric input
+
+    // Enforce starting with "07"
+    if (value.length === 1 && value !== "0") {
+      value = "";
+    } else if (value.length === 2 && value !== "07") {
+      value = "0";
+    } else if (value.length > 2) {
+      const prefix = value.substring(0, 3);
+      if (!mobileCodes.includes(prefix)) {
+        value = value.slice(0, 2);
+      }
+    }
+
+    // Limit to 10 digits
+    if (value.length > 10) {
+      value = value.slice(0, 10);
+    }
+
+    setSearchTerm(value);
+  };
+
   return (
-    <div className="container" style={{ padding: "20px" }}>
-      <h1>Customer Management</h1>
+    <div className="container-fluid px-0">
+      <div className="px-3">
+        <h1 style={{ fontSize: "2.0rem", fontWeight: "bold" }}>
+          Customer Management
+        </h1>
 
-      {error && <div className="alert alert-danger">{error}</div>}
+        {error && <div className="alert alert-danger">{error}</div>}
 
-      <div className="row mb-3">
-        <div className="col-md-6">
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Search by name, email or phone..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-        <div className="col-md-4">
-          <select
-            className="form-control"
-            value={reportType}
-            onChange={(e) => setReportType(e.target.value)}
-          >
-            <option value="all">All Customers</option>
-            <option value="withPurchases">Customers with Purchases</option>
-            <option value="highValue">High Value Customers</option>
-          </select>
-        </div>
-        <div className="col-md-2">
-          <button
-            className="btn btn-primary w-100"
-            onClick={generateReport}
-            disabled={reportLoading}
-          >
-            {reportLoading ? "Generating..." : "Export PDF"}
-          </button>
+        <div className="row mb-3">
+          <div className="col-md-6">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Search by phone"
+              value={searchTerm}
+              onChange={handleSearchChange}
+            />
+          </div>
+          <div className="col-md-4">
+            <select
+              className="form-control"
+              value={reportType}
+              onChange={(e) => setReportType(e.target.value)}
+            >
+              <option value="all">All Customers</option>
+              <option value="withPurchases">Customers with Purchases</option>
+              <option value="highValue">High Value Customers</option>
+            </select>
+          </div>
+          <div className="col-md-2">
+            <button
+              className="btn btn-primary w-100"
+              onClick={generateReport}
+              disabled={reportLoading}
+              style={{
+                backgroundColor: "#3498db",
+                borderColor: "#3498db",
+                color: "white",
+              }}
+            >
+              {reportLoading ? "Generating..." : "Export PDF"}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -254,7 +290,7 @@ function CustomerList() {
           <p>Loading customers...</p>
         </div>
       ) : editData ? (
-        <div className="card mb-4">
+        <div className="card mb-4 mx-3">
           <div className="card-body">
             <h2 className="card-title">Edit Customer</h2>
             <div className="mb-3">
@@ -311,7 +347,7 @@ function CustomerList() {
           </div>
         </div>
       ) : (
-        <div className="table-responsive">
+        <div className="table-responsive px-3">
           <table className="table table-striped table-hover">
             <thead className="table-dark">
               <tr>
@@ -320,7 +356,7 @@ function CustomerList() {
                 <th>Phone</th>
                 <th>Registration Date</th>
                 <th>Loyalty Points</th>
-                <th>Purchase History</th>
+                <th>Purchase Amount</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -331,43 +367,67 @@ function CustomerList() {
                   <td>{customer.email}</td>
                   <td>{customer.phone}</td>
                   <td>
-                    {new Date(customer.registrationDate).toLocaleDateString()}
+                    {customer.registrationDate
+                      ? new Date(customer.registrationDate).toLocaleDateString()
+                      : "-"}
                   </td>
-                  <td>{customer.loyaltyPoints}</td>
+                  <td>{customer.loyaltyPoints || 0}</td>
+                  <td>{customer.purchaseHistory?.length || 0} purchases</td>
                   <td>
-                    {customer.purchaseHistory?.length > 0 ? (
-                      <details>
-                        <summary>
-                          View Purchases ({customer.purchaseHistory.length})
-                        </summary>
-                        <ul>
-                          {customer.purchaseHistory.map((p, index) => (
-                            <li key={index}>
-                              {p.date} - Rs. {p.amount}
-                            </li>
-                          ))}
-                        </ul>
-                      </details>
-                    ) : (
-                      "No Purchases"
-                    )}
-                  </td>
-                  <td>
-                    <button
-                      className="btn btn-warning btn-sm me-2"
-                      onClick={() => handleEdit(customer)}
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "8px",
+                        justifyContent: "center",
+                      }}
                     >
-                      Edit
-                    </button>
-                    <button
-                      className="btn btn-danger btn-sm"
-                      onClick={() => handleDelete(customer._id)}
-                    >
-                      Delete
-                    </button>
+                      <button
+                        style={{
+                          backgroundColor: "transparent",
+                          border: "none",
+                          padding: "5px",
+                          borderRadius: "5px",
+                          color: "#f7b731",
+                          cursor: "pointer",
+                          fontSize: "16px",
+                        }}
+                        onClick={() => handleEdit(customer)}
+                        onFocus={(e) =>
+                          (e.target.style.boxShadow = "0 0 0 2px #f7b731")
+                        }
+                        onBlur={(e) => (e.target.style.boxShadow = "none")}
+                      >
+                        ✏️
+                      </button>
+                      <button
+                        style={{
+                          backgroundColor: "transparent",
+                          border: "none",
+                          padding: "5px",
+                          borderRadius: "5px",
+                          color: "#eb3b5a",
+                          cursor: "pointer",
+                          fontSize: "16px",
+                        }}
+                        onClick={() => handleDelete(customer._id)}
+                        onFocus={(e) =>
+                          (e.target.style.boxShadow = "0 0 0 2px #eb3b5a")
+                        }
+                        onBlur={(e) => (e.target.style.boxShadow = "none")}
+                      >
+                        🗑️
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
+              {filteredCustomers.length === 0 && (
+                <tr>
+                  <td colSpan="7" className="text-center">
+                    No customers found.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

@@ -96,7 +96,19 @@ const productSchema = new mongoose.Schema({
 
   updatedAt: { 
     type: Date,
-    default: Date.now }
+    default: Date.now },
+
+    discountStartDate: {
+      type: Date
+  },
+  discountEndDate: {
+      type: Date
+  },
+  status: {
+      type: String,
+      enum: ['Regular', 'On Sale', 'Out of Stock', 'Discontinued'],
+      default: 'Regular'
+  }
 });
 
 // Middleware to update `updatedAt` before saving

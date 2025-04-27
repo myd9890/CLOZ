@@ -11,7 +11,6 @@ const Index = () => {
     return (
         <div className="index-page">
             <h1>Welcome to CLOZ</h1>
-            <p>Your one-stop solution for employee management.</p>
             <button onClick={handleLoginClick}>Login</button>
         </div>
     );

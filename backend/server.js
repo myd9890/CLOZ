@@ -95,6 +95,9 @@ app.use("/api/auth", authRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/salary", salaryRoutes);
 
+const discountRoutes = require('./routes/discount_routes');
+app.use('/api/discounts', discountRoutes);
+
 server.listen(PORT, () => {
   console.log(`Server is up and running on port ${PORT}`);
 });
