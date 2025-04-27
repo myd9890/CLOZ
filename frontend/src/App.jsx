@@ -307,14 +307,22 @@ const App = () => {
               <Link to="/InventoryDashboard/supplier/orders">Orders</Link>
             </li>
             <li>
-              <Link to="/InventoryDashboard/supplier/profiles">Supplier Profiles</Link>
+              <Link to="/InventoryDashboard/supplier/profiles">
+                Supplier Profiles
+              </Link>
             </li>
           </ul>
         </nav>
 
+<<<<<<< HEAD
         
         <div className="dashboard-content text-center">
         <h2 className="position-absolute top-1 start-1 m-3">Hello {user?.name}</h2>
+=======
+        <div className="dashboard-content">
+          <h1>Inventory Dashboard</h1>
+          <p>Hi {user?.name}</p>
+>>>>>>> hr-finance-inventory-sales-crm
           <Routes>
             <Route
               path="products"
@@ -323,7 +331,7 @@ const App = () => {
                   <NotificationBell
                     notifications={notifications}
                     markNotificationAsSeen={markNotificationAsSeen}
-                    style={{ marginLeft: '20px' }}
+                    style={{ marginLeft: "20px" }}
                   />
                   <ProductList
                     products={products}
@@ -332,21 +340,37 @@ const App = () => {
                 </div>
               }
             />
-            <Route path="products/add" element={<AddProductForm fetchProducts={fetchProducts} />} />
-            <Route path="products/update/:productId" element={<UpdateProductForm fetchProducts={fetchProducts} />} />
+            <Route
+              path="products/add"
+              element={<AddProductForm fetchProducts={fetchProducts} />}
+            />
+            <Route
+              path="products/update/:productId"
+              element={<UpdateProductForm fetchProducts={fetchProducts} />}
+            />
             <Route path="supplier/profiles" element={<SupplierList />} />
             <Route path="supplier/add" element={<AddSupplier />} />
             <Route path="supplier/orders" element={<ViewAllOrders />} />
             <Route path="supplier/update/:id" element={<EditSupplier />} />
+<<<<<<< HEAD
 
             <Route path="products/order/:productId" element={<PlaceOrderForm />} />
 
+=======
+            <Route
+              path="products/order/:productId"
+              element={<PlaceOrderForm />}
+            />
+>>>>>>> hr-finance-inventory-sales-crm
           </Routes>
         </div>
       </div>
     );
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> hr-finance-inventory-sales-crm
 
   function FinanceDashboard({ user }) {
     return (
@@ -354,6 +378,7 @@ const App = () => {
         <nav className="sidebar">
           <h2>Finance</h2>
           <ul>
+<<<<<<< HEAD
             <li><Link to="/FinanceDashboard/assets">Assets</Link></li>
             <li><Link to="/FinanceDashboard/liabilities">Liabilities</Link></li>
             <li><Link to="/FinanceDashboard/expenses">Expenses</Link></li>
@@ -361,6 +386,23 @@ const App = () => {
             <li><Link to="/FinanceDashboard/pettycash">Petty Cash</Link></li>
             <li><Link to="/FinanceDashboard/finstatement">Financial statement</Link></li>
 
+=======
+            <li>
+              <Link to="/FinanceDashboard/assets">Assets</Link>
+            </li>
+            <li>
+              <Link to="/FinanceDashboard/liabilities">Liabilities</Link>
+            </li>
+            <li>
+              <Link to="/FinanceDashboard/expenses">Expenses</Link>
+            </li>
+            <li>
+              <Link to="/FinanceDashboard/incomes">Incomes</Link>
+            </li>
+            <li>
+              <Link to="/FinanceDashboard/pettycash">Petty Cash</Link>
+            </li>
+>>>>>>> hr-finance-inventory-sales-crm
           </ul>
         </nav>
 
@@ -379,7 +421,10 @@ const App = () => {
       </div>
     );
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> hr-finance-inventory-sales-crm
 
   function SalesDashboard({ user }) {
     return (
@@ -387,8 +432,12 @@ const App = () => {
         <nav className="sidebar">
           <h2>Sales</h2>
           <ul>
-            <li><Link to="/SalesDashboard/sales">Sales</Link></li>
-            <li><Link to="/SalesDashboard/discount">Discount</Link></li>
+            <li>
+              <Link to="/SalesDashboard/sales">Sales</Link>
+            </li>
+            <li>
+              <Link to="/SalesDashboard/discount">Discount</Link>
+            </li>
           </ul>
         </nav>
 
@@ -405,7 +454,10 @@ const App = () => {
       </div>
     );
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> hr-finance-inventory-sales-crm
 
   function CustomerDashboard({ user }) {
     return (
@@ -413,21 +465,35 @@ const App = () => {
         <nav className="sidebar">
           <h2>Customer</h2>
           <ul>
-            <li><Link to="/CustomerDashboard/registercustomer">Register Customer</Link></li>
-            <li><Link to="/CustomerDashboard/logincustomer">Login Customer</Link></li>
-            <li><Link to="/CustomerDashboard/customers">Customers</Link></li>
-            <li><Link to="/CustomerDashboard/Email">Emails</Link></li>
-            <li><Link to="/CustomerDashboard/sale/add">Add Sale</Link></li>
+            <li>
+              <Link to="/CustomerDashboard/registercustomer">
+                Register Customer
+              </Link>
+            </li>
+            <li>
+              <Link to="/CustomerDashboard/logincustomer">Login Customer</Link>
+            </li>
+            <li>
+              <Link to="/CustomerDashboard/customers">Customers</Link>
+            </li>
+            <li>
+              <Link to="/CustomerDashboard/Email">Emails</Link>
+            </li>
+            <li>
+              <Link to="/CustomerDashboard/sale/add">Add Sale</Link>
+            </li>
           </ul>
         </nav>
 
         <div className="dashboard-content">
-          <h1>Customer Dashboard</h1>
           <p>Hi {user?.name}</p>
           <Routes>
             <Route path="registercustomer" element={<RegisterCustomer />} />
             <Route path="customers" element={<CustomerList />} />
-            <Route path="customerprofile/:phone" element={<CustomerProfile />} />
+            <Route
+              path="customerprofile/:phone"
+              element={<CustomerProfile />}
+            />
             <Route path="sale/add/new" element={<AddSaleForm />} />
             <Route path="sale/add" element={<AddSaleFormWithoutCustomer />} />
             <Route path="Email" element={<Email />} />
@@ -437,6 +503,7 @@ const App = () => {
       </div>
     );
   }
+<<<<<<< HEAD
   ReactDOM.render(
     <LeaveRequestProvider>
       <App />
@@ -444,17 +511,43 @@ const App = () => {
     document.getElementById('root')
   );
 
+=======
+>>>>>>> hr-finance-inventory-sales-crm
 
   function HRDashboard({ user }) {
     return (
       <div className="dashboard-container">
         <nav className="sidebar">
           <ul>
+<<<<<<< HEAD
             <li><Link to="/HRdashboard/dashboard">Dashboard</Link></li>
             <li><Link to="/HRdashboard/reports">Reports</Link></li>
             <li><Link to="/HRdashboard/salary">Salary</Link></li>
           </ul>
         </nav>
+=======
+            <li>
+              <Link to="/HRdashboard/list">Employee List</Link>
+            </li>
+            <li>
+              <Link to="/HRdashboard/add">Add Employee</Link>
+            </li>
+            <li>
+              <Link to="/HRdashboard/attendance">Attendance</Link>
+            </li>
+            <li>
+              <Link to="/HRdashboard/leave-requests">Leave Requests</Link>
+            </li>
+            <li>
+              <Link to="/HRdashboard/reports">Reports</Link>
+            </li>
+            <li>
+              <Link to="/HRdashboard/salary">Salary</Link>
+            </li>
+          </ul>
+        </nav>
+
+>>>>>>> hr-finance-inventory-sales-crm
         <div className="dashboard-content">
           <h1>HR Dashboard</h1>
           <p>Hi {user?.name}</p>
@@ -471,7 +564,6 @@ const App = () => {
       </div>
     );
   }
-  
 };
 
 export default App;

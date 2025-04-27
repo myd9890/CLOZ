@@ -1,0 +1,93 @@
+.loginContainer {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.loginCard {
+  width: 100%;
+  max-width: 400px;
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.loginCard:hover {
+  transform: translateY(-5px);
+}
+
+.cardHeader {
+  background: linear-gradient(to right, #4b6cb7, #182848);
+  color: white;
+  padding: 25px;
+  text-align: center;
+}
+
+.cardTitle {
+  font-weight: 600;
+  margin-bottom: 5px;
+  font-size: 1.8rem;
+}
+
+.cardSubtitle {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.cardBody {
+  padding: 30px;
+}
+
+.formControl {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 12px 15px;
+  transition: all 0.3s;
+}
+
+.formControl:focus {
+  border-color: #4b6cb7;
+  box-shadow: 0 0 0 0.2rem rgba(75, 108, 183, 0.25);
+}
+
+.loginBtn {
+  background: linear-gradient(to right, #4b6cb7, #182848);
+  border: none;
+  padding: 12px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  border-radius: 8px;
+  transition: all 0.3s;
+}
+
+.loginBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(75, 108, 183, 0.3);
+}
+
+.loginBtn:disabled {
+  background: #cccccc;
+  transform: none;
+  box-shadow: none;
+}
+
+.errorAlert {
+  border-radius: 8px;
+  border-left: 4px solid #dc3545;
+}
+
+.formText {
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border-width: 2px;
+}

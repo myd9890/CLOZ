@@ -147,58 +147,97 @@ const SaleForm = () => {
 
   return (
     <div className="container mt-4">
-      <h2>Record New Sale</h2>
-      <form onSubmit={handleSubmit}>
-        {customerData && (
-          <div className="row mb-3">
-            <div className="col-md-6">
-              <div className="card">
-                <div className="card-body">
-                  <h5 className="card-title">Loyalty Points</h5>
-                  <div className="mb-3">
-                    <p className="card-text">
-                      <strong>Available Points:</strong>{" "}
-                      {customerData.loyaltyPoints}
-                    </p>
-                    <label htmlFor="pointsToRedeem" className="form-label">
-                      Points to Redeem
-                    </label>
+      <div className="d-flex justify-content-center">
+        <div
+          className="card shadow-sm"
+          style={{ maxWidth: "800px", width: "100%" }}
+        >
+          <div className="card-header bg-primary text-white">
+            <h2 className="mb-0 text-center">Record New Sale</h2>
+          </div>
+          <div className="card-body">
+            <form onSubmit={handleSubmit}>
+              {/* Payment Method and Status */}
+              <div className="row mb-4">
+                <div className="col-md-6">
+                  <label className="form-label">Payment Method</label>
+                  <select
+                    className="form-select"
+                    value={formData.paymentMethod}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        paymentMethod: e.target.value,
+                      })
+                    }
+                    required
+                  >
+                    <option value="cash">Cash</option>
+                    <option value="credit_card">Credit Card</option>
+                    <option value="debit_card">Debit Card</option>
+                    <option value="mobile_payment">Mobile Payment</option>
+                  </select>
+                </div>
+
+                <div className="col-md-6">
+                  <label className="form-label">Status</label>
+                  <select
+                    className="form-select"
+                    value={formData.status}
+                    onChange={(e) =>
+                      setFormData({ ...formData, status: e.target.value })
+                    }
+                    required
+                  >
+                    <option value="completed">Completed</option>
+                    <option value="pending">Pending</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Add Product */}
+              <div className="row mb-4">
+                <div className="col-md-12">
+                  <label className="form-label">Add Product</label>
+                  <div className="input-group">
+                    <select
+                      className="form-select"
+                      value={selectedProduct}
+                      onChange={(e) => setSelectedProduct(e.target.value)}
+                    >
+                      <option value="">Select Product</option>
+                      {products
+                        .filter((p) => p.quantityInStock > 0)
+                        .map((product) => (
+                          <option key={product._id} value={product._id}>
+                            {product.name} (LKR:{product.price} Discount:
+                            {product.discountPrice} Tax:{product.taxAmount}{" "}
+                            Stock: {product.quantityInStock})
+                          </option>
+                        ))}
+                    </select>
                     <input
                       type="number"
                       className="form-control"
-                      id="pointsToRedeem"
-                      min="0"
-                      max={customerData.loyaltyPoints}
-                      value={formData.pointsToRedeem}
+                      style={{ maxWidth: "100px" }}
+                      min="1"
+                      value={quantity}
                       onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          pointsToRedeem: parseInt(e.target.value) || 0,
-                        })
+                        setQuantity(parseInt(e.target.value) || 0)
                       }
                     />
-
-                    <div className="mt-2">
-                      <p className="text-success">
-                        <strong>Discount from Points: </strong>$
-                        {(formData.pointsToRedeem * 0.1).toFixed(2)}
-                      </p>
-                      <button
-                        type="button"
-                        className="btn btn-secondary btn-sm"
-                        onClick={() =>
-                          setFormData({
-                            ...formData,
-                            pointsToRedeem: 0,
-                          })
-                        }
-                      >
-                        Clear Points
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      onClick={handleAddProduct}
+                    >
+                      Add
+                    </button>
                   </div>
                 </div>
               </div>
+<<<<<<< HEAD
             </div>
           </div>
         )}
@@ -219,23 +258,161 @@ const SaleForm = () => {
               <option value="mobile_payment">Mobile Payment</option>
             </select>
           </div>
+=======
 
-          <div className="col-md-3">
-            <label className="form-label">Status</label>
-            <select
-              className="form-select"
-              value={formData.status}
-              onChange={(e) =>
-                setFormData({ ...formData, status: e.target.value })
-              }
-              required
-            >
-              <option value="completed">Completed</option>
-              <option value="pending">Pending</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
+              {/* Selected Products */}
+              {formData.products.length > 0 && (
+                <div className="mb-4">
+                  <h5>Selected Products</h5>
+                  <div className="table-responsive">
+                    <table className="table table-bordered table-hover">
+                      <thead className="table-light">
+                        <tr>
+                          <th>Product</th>
+                          <th>Price</th>
+                          <th>Quantity</th>
+                          <th>Total</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {formData.products.map((item) => {
+                          const product = products.find(
+                            (p) => p._id === item.product
+                          );
+                          return (
+                            <tr key={item.product}>
+                              <td>{product?.name || "Unknown Product"}</td>
+                              <td>LKR {item.priceAtSale?.toFixed(2)}</td>
+                              <td>{item.quantity}</td>
+                              <td>
+                                LKR{" "}
+                                {(item.priceAtSale * item.quantity).toFixed(2)}
+                              </td>
+                              <td>
+                                <button
+                                  type="button"
+                                  className="btn btn-sm btn-danger"
+                                  onClick={() =>
+                                    handleRemoveProduct(item.product)
+                                  }
+                                >
+                                  Remove
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+>>>>>>> hr-finance-inventory-sales-crm
+
+              {/* Loyalty Points */}
+              {customerData && (
+                <div className="row mb-4">
+                  <div className="col-md-12">
+                    <div className="card border-primary">
+                      <div className="card-header bg-light">
+                        <h5 className="mb-0">Loyalty Points</h5>
+                      </div>
+                      <div className="card-body">
+                        <div className="mb-3">
+                          <p className="card-text">
+                            <strong>Available Points:</strong>{" "}
+                            <span className="badge bg-success">
+                              {customerData.loyaltyPoints}
+                            </span>
+                          </p>
+                          <label
+                            htmlFor="pointsToRedeem"
+                            className="form-label"
+                          >
+                            Points to Redeem
+                          </label>
+                          <input
+                            type="number"
+                            className="form-control"
+                            id="pointsToRedeem"
+                            min="0"
+                            max={customerData.loyaltyPoints}
+                            value={formData.pointsToRedeem}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                pointsToRedeem: parseInt(e.target.value) || 0,
+                              })
+                            }
+                          />
+                          <div className="mt-2">
+                            <p className="text-success">
+                              <strong>Discount from Points: </strong>LKR{" "}
+                              {(formData.pointsToRedeem * 0.1).toFixed(2)}
+                            </p>
+                            <button
+                              type="button"
+                              className="btn btn-outline-secondary btn-sm"
+                              onClick={() =>
+                                setFormData({
+                                  ...formData,
+                                  pointsToRedeem: 0,
+                                })
+                              }
+                            >
+                              Clear Points
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Total */}
+              <div className="mb-4 p-3 bg-light rounded">
+                <h4 className="text-end text-primary">
+                  Total: LKR {calculateTotal().toFixed(2)}
+                </h4>
+              </div>
+
+              {/* Buttons */}
+              <div className="d-flex justify-content-end gap-3">
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary"
+                  style={{ width: "150px" }}
+                  onClick={() => navigate(-1)}
+                  disabled={loading}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  style={{ width: "150px" }}
+                  disabled={loading || formData.products.length === 0}
+                >
+                  {loading ? (
+                    <>
+                      <span
+                        className="spinner-border spinner-border-sm me-2"
+                        role="status"
+                        aria-hidden="true"
+                      ></span>
+                      Saving...
+                    </>
+                  ) : (
+                    "Record Sale"
+                  )}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
+<<<<<<< HEAD
 
         <div className="row mb-3">
           <div className="col-md-8">
@@ -338,6 +515,9 @@ const SaleForm = () => {
           </button>
         </div>
       </form>
+=======
+      </div>
+>>>>>>> hr-finance-inventory-sales-crm
     </div>
   );
 };
