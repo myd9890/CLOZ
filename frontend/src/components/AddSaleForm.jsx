@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const SaleForm = () => {
@@ -10,7 +10,6 @@ const SaleForm = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState([]);
-  const [errors, setErrors] = useState({});
 
   const [formData, setFormData] = useState({
     customer: customer || "",
@@ -21,7 +20,6 @@ const SaleForm = () => {
     tax: 0,
     pointsToRedeem: 0,
     notes: "",
-    saleDate: new Date().toISOString().split("T")[0], // Auto-fill today's date
   });
 
   const [selectedProduct, setSelectedProduct] = useState("");
@@ -29,6 +27,7 @@ const SaleForm = () => {
   const [customerData, setCustomerData] = useState(null);
 
   useEffect(() => {
+    console.log("Customer from URL:", customer);
     fetchProducts();
     if (customer) {
       fetchCustomerData();
@@ -39,6 +38,7 @@ const SaleForm = () => {
     try {
       const response = await axios.get("http://localhost:8070/products/");
       setProducts(response.data);
+      console.log(response.data);
     } catch (error) {
       toast.error("Failed to load products");
     }
@@ -55,44 +55,88 @@ const SaleForm = () => {
     }
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-    if (!formData.saleDate) newErrors.saleDate = "Sale date is required.";
-    if (formData.products.length === 0)
-      newErrors.products = "At least one product must be added.";
-    if (!formData.paymentMethod)
-      newErrors.paymentMethod = "Payment method is required.";
-    if (!formData.status) newErrors.status = "Status is required.";
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  const handleAddProduct = () => {
+    if (!selectedProduct || quantity < 1) return;
+  
+    const product = products.find(p => p._id === selectedProduct);
+    if (!product) return;
+  
+    const priceAtSale = product.price - (product.discountPrice || 0);
+  
+    const existingIndex = formData.products.findIndex(
+      item => item.product === selectedProduct
+    );
+  
+    if (existingIndex >= 0) {
+      const updatedProducts = [...formData.products];
+      updatedProducts[existingIndex].quantity += quantity;
+      setFormData({ ...formData, products: updatedProducts });
+    } else {
+      setFormData({
+        ...formData,
+        products: [
+          ...formData.products,
+          {
+            product: selectedProduct,
+            quantity,
+            priceAtSale
+          }
+        ]
+      });
+    }
+  
+    setSelectedProduct("");
+    setQuantity(1);
+  };
+  
+
+  const handleRemoveProduct = (productId) => {
+    setFormData({
+      ...formData,
+      products: formData.products.filter((item) => item.product !== productId),
+    });
+  };
+
+  const calculateTotal = () => {
+    const subtotal = formData.products.reduce(
+      (sum, item) => sum + item.priceAtSale * item.quantity,
+      0
+    );
+    const pointsDiscount = formData.pointsToRedeem * 0.1; // Assuming 1 point = $0.10
+    return (
+      subtotal -
+      formData.discount -
+      pointsDiscount +
+      subtotal * (formData.tax / 100)
+    );
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) {
-      toast.error("Please fill in all required fields.");
-      return;
-    }
-
     setLoading(true);
 
     try {
+      const pointsDiscount = formData.pointsToRedeem * 0.1;
       const subtotal = formData.products.reduce(
         (sum, item) => sum + item.priceAtSale * item.quantity,
         0
       );
       const totalAmount = calculateTotal();
+
+      // Calculate amount eligible for loyalty points (excluding points discount)
       const loyaltyEligibleAmount =
         subtotal - formData.discount + subtotal * (formData.tax / 100);
 
       const saleData = {
         ...formData,
         totalAmount,
-        loyaltyEligibleAmount,
+        loyaltyEligibleAmount, // Add this field to track amount eligible for points
       };
+      console.log(saleData);
 
       await axios.post("http://localhost:8070/sale/add", saleData);
       toast.success("Sale recorded successfully!");
+
       navigate(-1);
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to save sale");
@@ -101,137 +145,63 @@ const SaleForm = () => {
     }
   };
 
-  const calculateTotal = () => {
-    const subtotal = formData.products.reduce(
-      (sum, item) => sum + item.priceAtSale * item.quantity,
-      0
-    );
-    const pointsDiscount = formData.pointsToRedeem * 0.1;
-    return (
-      subtotal - formData.discount - pointsDiscount + subtotal * (formData.tax / 100)
-    );
-  };
-
   return (
     <div className="container mt-4">
       <h2>Record New Sale</h2>
       <form onSubmit={handleSubmit}>
-        {/* Sale Date */}
-        <div className="mb-3">
-          <label htmlFor="saleDate" className="form-label">
-            Sale Date
-          </label>
-          <input
-            type="date"
-            id="saleDate"
-            className="form-control"
-            value={formData.saleDate}
-            onChange={(e) =>
-              setFormData({ ...formData, saleDate: e.target.value })
-            }
-            required
-          />
-          {errors.saleDate && (
-            <div className="text-danger">{errors.saleDate}</div>
-          )}
-        </div>
+        {customerData && (
+          <div className="row mb-3">
+            <div className="col-md-6">
+              <div className="card">
+                <div className="card-body">
+                  <h5 className="card-title">Loyalty Points</h5>
+                  <div className="mb-3">
+                    <p className="card-text">
+                      <strong>Available Points:</strong>{" "}
+                      {customerData.loyaltyPoints}
+                    </p>
+                    <label htmlFor="pointsToRedeem" className="form-label">
+                      Points to Redeem
+                    </label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      id="pointsToRedeem"
+                      min="0"
+                      max={customerData.loyaltyPoints}
+                      value={formData.pointsToRedeem}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          pointsToRedeem: parseInt(e.target.value) || 0,
+                        })
+                      }
+                    />
 
-        {/* Select Product */}
-        <div className="mb-3">
-          <label htmlFor="product" className="form-label">
-            Select Product
-          </label>
-          <select
-            id="product"
-            className="form-select"
-            value={selectedProduct}
-            onChange={(e) => setSelectedProduct(e.target.value)}
-          >
-            <option value="">Select a product</option>
-            {products.map((product) => (
-              <option key={product._id} value={product._id}>
-                {product.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Quantity */}
-        <div className="mb-3">
-          <label htmlFor="quantity" className="form-label">
-            Quantity
-          </label>
-          <input
-            type="number"
-            id="quantity"
-            className="form-control"
-            min="1"
-            value={quantity}
-            onChange={(e) => setQuantity(parseInt(e.target.value))}
-          />
-        </div>
-
-        {/* Add Product Button */}
-        <div className="mb-3">
-          <button
-            type="button"
-            className="btn btn-success"
-            onClick={() => {
-              if (!selectedProduct) {
-                toast.error("Please select a product");
-                return;
-              }
-              const productToAdd = products.find(
-                (p) => p._id === selectedProduct
-              );
-              if (productToAdd) {
-                setFormData({
-                  ...formData,
-                  products: [
-                    ...formData.products,
-                    {
-                      productId: productToAdd._id,
-                      productName: productToAdd.name,
-                      quantity,
-                      priceAtSale: productToAdd.price,
-                    },
-                  ],
-                });
-                setSelectedProduct("");
-                setQuantity(1);
-              }
-            }}
-          >
-            Add Product
-          </button>
-        </div>
-
-        {/* List of Added Products */}
-        {formData.products.length > 0 && (
-          <div className="mb-3">
-            <h5>Added Products:</h5>
-            <ul className="list-group">
-              {formData.products.map((item, index) => (
-                <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
-                  {item.productName} - {item.quantity} × {item.priceAtSale}
-                  <button
-                    type="button"
-                    className="btn btn-danger btn-sm"
-                    onClick={() => {
-                      const newProducts = [...formData.products];
-                      newProducts.splice(index, 1);
-                      setFormData({ ...formData, products: newProducts });
-                    }}
-                  >
-                    Remove
-                  </button>
-                </li>
-              ))}
-            </ul>
+                    <div className="mt-2">
+                      <p className="text-success">
+                        <strong>Discount from Points: </strong>$
+                        {(formData.pointsToRedeem * 0.1).toFixed(2)}
+                      </p>
+                      <button
+                        type="button"
+                        className="btn btn-secondary btn-sm"
+                        onClick={() =>
+                          setFormData({
+                            ...formData,
+                            pointsToRedeem: 0,
+                          })
+                        }
+                      >
+                        Clear Points
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
-
-        {/* Payment Method */}
         <div className="row mb-3">
           <div className="col-md-3">
             <label className="form-label">Payment Method</label>
@@ -248,12 +218,8 @@ const SaleForm = () => {
               <option value="debit_card">Debit Card</option>
               <option value="mobile_payment">Mobile Payment</option>
             </select>
-            {errors.paymentMethod && (
-              <div className="text-danger">{errors.paymentMethod}</div>
-            )}
           </div>
 
-          {/* Status */}
           <div className="col-md-3">
             <label className="form-label">Status</label>
             <select
@@ -268,18 +234,92 @@ const SaleForm = () => {
               <option value="pending">Pending</option>
               <option value="cancelled">Cancelled</option>
             </select>
-            {errors.status && (
-              <div className="text-danger">{errors.status}</div>
-            )}
           </div>
         </div>
 
-        {/* Errors for products */}
-        {errors.products && (
-          <div className="text-danger mb-3">{errors.products}</div>
+        <div className="row mb-3">
+          <div className="col-md-8">
+            <label className="form-label">Add Product</label>
+            <div className="input-group">
+              <select
+                className="form-select"
+                value={selectedProduct}
+                onChange={(e) => setSelectedProduct(e.target.value)}
+              >
+                <option value="">Select Product</option>
+                {products
+                  .filter((p) => p.quantityInStock > 0)
+                  .map((product) => (
+                    <option key={product._id} value={product._id}>
+                      {product.name} (LKR:{product.price}Discount:{product.discountPrice} Stock:{" "}
+                      {product.quantityInStock})
+                    </option>
+                  ))}
+              </select>
+              <input
+                type="number"
+                className="form-control"
+                style={{ width: "80px" }}
+                min="1"
+                value={quantity}
+                onChange={(e) => setQuantity(parseInt(e.target.value) || 0)}
+              />
+              <button
+                type="button"
+                className="btn btn-outline-primary"
+                onClick={handleAddProduct}
+              >
+                Add
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {formData.products.length > 0 && (
+          <div className="mb-3">
+            <h5>Selected Products</h5>
+            <table className="table table-bordered">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Price</th>
+                  <th>Quantity</th>
+                  <th>Total</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {formData.products.map((item) => {
+                  const product = products.find((p) => p._id === item.product);
+                  return (
+                    <tr key={item.product}>
+                      <td>{product?.name || "Unknown Product"}</td>
+                      <td>LKR{item.priceAtSale?.toFixed(2)}</td>
+                      <td>{item.quantity}</td>
+                      <td>
+                        LKR{(item.priceAtSale * item.quantity).toFixed(2)}
+                      </td>
+                      <td>
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-danger"
+                          onClick={() => handleRemoveProduct(item.product)}
+                        >
+                          Remove
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
 
-        {/* Submit Buttons */}
+        <div className="mb-4 p-3 bg-light rounded">
+          <h4 className="text-end">Total: LKR{calculateTotal().toFixed(2)}</h4>
+        </div>
+
         <div className="d-flex justify-content-between">
           <button
             type="button"
@@ -292,7 +332,7 @@ const SaleForm = () => {
           <button
             type="submit"
             className="btn btn-primary"
-            disabled={loading}
+            disabled={loading || formData.products.length === 0}
           >
             {loading ? "Saving..." : "Record Sale"}
           </button>
