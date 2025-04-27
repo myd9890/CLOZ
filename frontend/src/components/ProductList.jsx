@@ -327,7 +327,7 @@ const ProductList = () => {
           </button>
         </div>
       </div>
-      <h1>📦 Inventory Dashboard</h1>
+      <h1 style={{ textAlign: "center" }}>📦 Inventory Dashboard</h1>
       <ProductFilter />
       
       {/* Summary Cards */}
@@ -580,7 +580,7 @@ const ProductList = () => {
 
 
       <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap">
-  {/* Search input - left side */}
+  
   <div className="mb-3 mb-md-0" style={{ width: '300px' }}>
     <div className="input-group">
       <span className="input-group-text">
@@ -596,7 +596,7 @@ const ProductList = () => {
     </div>
   </div>
   
-  {/* Search results and Add Product button - right side */}
+ 
   <div className="d-flex align-items-center">
     <div>
       <Link to="/InventoryDashboard/products/add" className="btn btn-primary">
