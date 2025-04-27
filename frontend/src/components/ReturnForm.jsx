@@ -78,64 +78,72 @@ const ReturnForm = () => {
   if (!sale) return <div>Sale not found</div>;
 
   return (
-    <div className="container mt-4">
-      <h2>Process Return for Sale </h2>
-      <p>Date: {new Date(sale.date).toLocaleDateString()}</p>
-      <p>Customer: {sale.customer?.name || 'Walk-in Customer'}</p>
-      <form onSubmit={handleSubmit}>
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Product</th>
-              <th>Sold Qty</th>
-              <th>Return Qty</th>
-              <th>Reason</th>
+    <div className="container-fluid mt-4 px-4">
+  <h2 className="mb-4">Process Return for Sale</h2>
+
+  <div className="mb-2">
+    <strong>Date:</strong> {new Date(sale.date).toLocaleDateString()}
+  </div>
+  <div className="mb-4">
+    <strong>Customer:</strong> {sale.customer?.name || 'Walk-in Customer'}
+  </div>
+
+  <form onSubmit={handleSubmit}>
+    <div className="table-responsive">
+      <table className="table table-bordered table-striped">
+        <thead className="table-dark">
+          <tr>
+            <th>Product</th>
+            <th>Sold Qty</th>
+            <th>Return Qty</th>
+            <th>Reason</th>
+          </tr>
+        </thead>
+        <tbody>
+          {returnItems.map((item, index) => (
+            <tr key={item.productId}>
+              <td>{item.name}</td>
+              <td>{item.maxQuantity}</td>
+              <td>
+                <input
+                  type="number"
+                  min="0"
+                  max={item.maxQuantity}
+                  value={item.quantity}
+                  onChange={(e) => handleQuantityChange(index, e.target.value)}
+                  className="form-control"
+                />
+              </td>
+              <td>
+                <input
+                  type="text"
+                  value={item.reason}
+                  onChange={(e) => handleReasonChange(index, e.target.value)}
+                  className="form-control"
+                  placeholder="Reason for return"
+                  disabled={item.quantity === 0}
+                />
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {returnItems.map((item, index) => (
-              <tr key={item.productId}>
-                <td>{item.name}</td>
-                <td>{item.maxQuantity}</td>
-                <td>
-                  <input
-                    type="number"
-                    min="0"
-                    max={item.maxQuantity}
-                    value={item.quantity}
-                    onChange={(e) => handleQuantityChange(index, e.target.value)}
-                    className="form-control"
-                  />
-                </td>
-                <td>
-                  <input
-                    type="text"
-                    value={item.reason}
-                    onChange={(e) => handleReasonChange(index, e.target.value)}
-                    className="form-control"
-                    placeholder="Reason for return"
-                    disabled={item.quantity === 0}
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        
-        <div className="mt-3">
-          <button type="submit" className="btn btn-primary">
-            Process Return
-          </button>
-          <button
-            type="button"
-            className="btn btn-secondary ms-2"
-            onClick={() => navigate('/salesDashboard/sales')}
-          >
-            Cancel
-          </button>
-        </div>
-      </form>
+          ))}
+        </tbody>
+      </table>
     </div>
+
+    <div className="mt-4 d-flex justify-content-start">
+      <button type="submit" className="btn btn-primary me-2">
+        Process Return
+      </button>
+      <button
+        type="button"
+        className="btn btn-secondary"
+        onClick={() => navigate('/salesDashboard/sales')}
+      >
+        Cancel
+      </button>
+    </div>
+  </form>
+</div>
   );
 };
 
