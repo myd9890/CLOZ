@@ -2,15 +2,20 @@ const jwt = require('jsonwebtoken');
 const Employee = require('../models/Employee');
 
 const auth = async (req, res, next) => {
-  const token = req.header('Authorization').replace('Bearer ', '');
   try {
+    const token = req.header('Authorization').replace('Bearer ', '');
+    console.log('Received Token:', token); // Log the token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const employee = await Employee.findOne({ _id: decoded._id, 'tokens.token': token });
-    if (!employee) throw new Error();
+    console.log('Decoded Token:', decoded); // Log the decoded token
+    const employee = await Employee.findOne({ _id: decoded._id });
+    if (!employee) {
+      throw new Error();
+    }
     req.token = token;
     req.employee = employee;
     next();
   } catch (error) {
+    console.error('Authentication Error:', error);
     res.status(401).send({ error: 'Please authenticate.' });
   }
 };

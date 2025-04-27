@@ -173,9 +173,9 @@ function Attendance() {
             <label htmlFor="status">Status</label>
             <select id="status" name="status" value={formData.status} onChange={handleChange} required>
               <option value="Present">Present</option>
-              <option value="Paid Leave">Paid Leave</option>
+              {/* <option value="Paid Leave">Paid Leave</option>
               <option value="Leave">Leave</option>
-              <option value="Absent">Absent</option>
+              <option value="Absent">Absent</option> */}
             </select>
           </div>
           <button type="submit">Submit</button>
@@ -206,29 +206,7 @@ function Attendance() {
           <button type="submit">Submit</button>
         </form>
       )}
-      <h2>Absent Employees Today</h2>
-      <table className="attendance-table">
-        <thead>
-          <tr>
-            <th>EmpID</th>
-            <th>Name</th>
-            <th>Status</th>
-            <th>Leave Type</th>
-          </tr>
-        </thead>
-        <tbody>
-          {attendanceRecords
-            .filter((record) => record.status !== 'Present')
-            .map((record) => (
-              <tr key={record._id}>
-                <td>{record.employee.empID}</td>
-                <td>{record.employee.name}</td>
-                <td>{record.status}</td>
-                <td>{record.status === 'Paid Leave' ? 'Paid Leave' : 'Leave'}</td>
-              </tr>
-            ))}
-        </tbody>
-      </table>
+      
     </div>
   );
 }

@@ -3,6 +3,7 @@ const Attendance = require('../models/Attendance');
 const Employee = require('../models/Employee');
 const { calculateSalary } = require('../utils/salaryCalculation');
 const { calculateDayType } = require('../utils/dayTypeCalculation');
+const { get } = require('mongoose');
 
 const calculateOvertimeHours = (arrivalTime, departureTime) => {
   const normalEndTime = new Date(`1970-01-01T17:00:00Z`);
@@ -21,6 +22,35 @@ const getTodayAttendance = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+const getMonthAttendance = async (req, res) => {
+  console.log('Test: Fetching month attendance records...');
+  const { month, department } = req.query;
+  console.log('Request body:', req.query);
+  console.log('Received month:', month); // Log the received month
+  console.log('Received department:', department); // Log the received department
+  try {
+    // attendance.date is in YYYY-MM-DD format and is a String
+    // so we take the MM part only
+    // then we convert our given "Word" month input to MM's number
+    const monthNumber = new Date(Date.parse(month + " 1, 2021")).getMonth() + 1; // January is 0
+    const attendanceRecords = await Attendance.find({ date: { $regex: `^\\d{4}-${String(monthNumber).padStart(2, '0')}` } }).populate('employee');
+    console.log('Fetched attendance records:', attendanceRecords); // Log fetched records
+
+    // Filter records by department
+    console.log('Department filter:', department); // Log department filter
+    const filteredRecords = attendanceRecords.filter(
+      (record) => record.employee.department === department
+    );
+    // count how many records are there for the given month and department
+    // output it as a number
+    res.status(200).json(filteredRecords.length);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
 
 const addAttendanceRecord = async (req, res) => {
   const { date, employeeId, arrivalTime, status } = req.body;
@@ -132,6 +162,7 @@ const clearAttendanceRecords = async (req, res) => {
 
 module.exports = {
   getTodayAttendance,
+  getMonthAttendance,
   addAttendanceRecord,
   checkInToday,
   checkOut,
