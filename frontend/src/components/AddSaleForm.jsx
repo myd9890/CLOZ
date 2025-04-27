@@ -57,16 +57,16 @@ const SaleForm = () => {
 
   const handleAddProduct = () => {
     if (!selectedProduct || quantity < 1) return;
-  
-    const product = products.find(p => p._id === selectedProduct);
+
+    const product = products.find((p) => p._id === selectedProduct);
     if (!product) return;
-  
+
     const priceAtSale = product.price - (product.discountPrice || 0);
-  
+
     const existingIndex = formData.products.findIndex(
-      item => item.product === selectedProduct
+      (item) => item.product === selectedProduct
     );
-  
+
     if (existingIndex >= 0) {
       const updatedProducts = [...formData.products];
       updatedProducts[existingIndex].quantity += quantity;
@@ -79,16 +79,15 @@ const SaleForm = () => {
           {
             product: selectedProduct,
             quantity,
-            priceAtSale
-          }
-        ]
+            priceAtSale,
+          },
+        ],
       });
     }
-  
+
     setSelectedProduct("");
     setQuantity(1);
   };
-  
 
   const handleRemoveProduct = (productId) => {
     setFormData({
@@ -237,28 +236,6 @@ const SaleForm = () => {
                   </div>
                 </div>
               </div>
-<<<<<<< HEAD
-            </div>
-          </div>
-        )}
-        <div className="row mb-3">
-          <div className="col-md-3">
-            <label className="form-label">Payment Method</label>
-            <select
-              className="form-select"
-              value={formData.paymentMethod}
-              onChange={(e) =>
-                setFormData({ ...formData, paymentMethod: e.target.value })
-              }
-              required
-            >
-              <option value="cash">Cash</option>
-              <option value="credit_card">Credit Card</option>
-              <option value="debit_card">Debit Card</option>
-              <option value="mobile_payment">Mobile Payment</option>
-            </select>
-          </div>
-=======
 
               {/* Selected Products */}
               {formData.products.length > 0 && (
@@ -308,7 +285,6 @@ const SaleForm = () => {
                   </div>
                 </div>
               )}
->>>>>>> hr-finance-inventory-sales-crm
 
               {/* Loyalty Points */}
               {customerData && (
@@ -412,112 +388,7 @@ const SaleForm = () => {
             </form>
           </div>
         </div>
-<<<<<<< HEAD
-
-        <div className="row mb-3">
-          <div className="col-md-8">
-            <label className="form-label">Add Product</label>
-            <div className="input-group">
-              <select
-                className="form-select"
-                value={selectedProduct}
-                onChange={(e) => setSelectedProduct(e.target.value)}
-              >
-                <option value="">Select Product</option>
-                {products
-                  .filter((p) => p.quantityInStock > 0)
-                  .map((product) => (
-                    <option key={product._id} value={product._id}>
-                      {product.name} (LKR:{product.price}Discount:{product.discountPrice} Stock:{" "}
-                      {product.quantityInStock})
-                    </option>
-                  ))}
-              </select>
-              <input
-                type="number"
-                className="form-control"
-                style={{ width: "80px" }}
-                min="1"
-                value={quantity}
-                onChange={(e) => setQuantity(parseInt(e.target.value) || 0)}
-              />
-              <button
-                type="button"
-                className="btn btn-outline-primary"
-                onClick={handleAddProduct}
-              >
-                Add
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {formData.products.length > 0 && (
-          <div className="mb-3">
-            <h5>Selected Products</h5>
-            <table className="table table-bordered">
-              <thead>
-                <tr>
-                  <th>Product</th>
-                  <th>Price</th>
-                  <th>Quantity</th>
-                  <th>Total</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {formData.products.map((item) => {
-                  const product = products.find((p) => p._id === item.product);
-                  return (
-                    <tr key={item.product}>
-                      <td>{product?.name || "Unknown Product"}</td>
-                      <td>LKR{item.priceAtSale?.toFixed(2)}</td>
-                      <td>{item.quantity}</td>
-                      <td>
-                        LKR{(item.priceAtSale * item.quantity).toFixed(2)}
-                      </td>
-                      <td>
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-outline-danger"
-                          onClick={() => handleRemoveProduct(item.product)}
-                        >
-                          Remove
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        <div className="mb-4 p-3 bg-light rounded">
-          <h4 className="text-end">Total: LKR{calculateTotal().toFixed(2)}</h4>
-        </div>
-
-        <div className="d-flex justify-content-between">
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={() => navigate(-1)}
-            disabled={loading}
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className="btn btn-primary"
-            disabled={loading || formData.products.length === 0}
-          >
-            {loading ? "Saving..." : "Record Sale"}
-          </button>
-        </div>
-      </form>
-=======
       </div>
->>>>>>> hr-finance-inventory-sales-crm
     </div>
   );
 };
