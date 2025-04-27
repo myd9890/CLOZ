@@ -74,21 +74,23 @@ const getAllOrders = async (req, res) => {
 // Get orders for supplier
 const getOrdersForSupplier = async (req, res) => {
     try {
-        const supplierCode = req.params.supplierId; 
+        const supplierCode = req.params.supplierId;
 
-        // First find supplier _id
         const supplier = await Supplier.findOne({ supplierId: supplierCode });
         if (!supplier) return res.status(404).json({ message: "Supplier not found" });
 
-        // Then find orders
         const orders = await Order.find({ supplier: supplier._id }).populate('product');
-        const acceptedOrders = orders.filter(order => order.adminStatus === "Approved");
-        res.json(acceptedOrders);
         
+        // Filter only approved orders with existing product
+        const acceptedOrders = orders.filter(order => order.adminStatus === "Approved" && order.product);
+
+        res.json(acceptedOrders);
+
     } catch (error) {
         res.status(500).json({ message: "Error fetching orders", error: error.message });
     }
 };
+
 
 // Update order status
 const updateOrderStatus = async (req, res) => {

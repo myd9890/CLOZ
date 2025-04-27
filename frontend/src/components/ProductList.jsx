@@ -307,10 +307,12 @@ const ProductList = () => {
   };
 
   return (
+    
     <div
       className={`container-fluid px-4 py-4 ${darkMode ? "bg-dark text-white" : "bg-light"}`}
       style={{ width: '95%', margin: '0 auto' }}
     >
+      <h1 style={{ textAlign: "center" }}>📦 Inventory Dashboard</h1>
       <div className="d-flex justify-content-end align-items-center mb-4 flex-wrap">
         <div>
           <button
@@ -327,7 +329,6 @@ const ProductList = () => {
           </button>
         </div>
       </div>
-      <h1 style={{ textAlign: "center" }}>📦 Inventory Dashboard</h1>
       <ProductFilter />
       
       {/* Summary Cards */}

@@ -358,7 +358,7 @@ const App = () => {
         </nav>
 
         <div className="dashboard-content">
-          <h1>Inventory Dashboard</h1>
+          
           <p>Hi {user?.name}</p>
           <Routes>
             <Route

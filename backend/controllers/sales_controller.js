@@ -275,7 +275,7 @@ export const getSales = async (req, res) => {
 
     const sales = await Sale.find(query)
       .populate("customer", "name phone")
-      .populate("products.product", "name price")
+      .populate("products.product", "name price taxAmount")
       .sort({ createdAt: -1 });
 
     const salesWithTax = sales.map(sale => {

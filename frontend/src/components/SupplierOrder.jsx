@@ -356,8 +356,8 @@ const ViewAllOrders = () => {
                                     {pendingOrders.map(order => (
                                         <tr key={order._id}>
                                             <td>{order._id}</td>
-                                            <td>{order.product?.name || 'N/A'}</td>
-                                            <td>{order.supplier?.name || 'N/A'}</td>
+                                            <td>{order.product?.name ||  'Product is deleted'}</td>
+                                            <td>{order.supplier?.name || 'Supplier is deleted'}</td>
                                             <td>{order.quantity}</td>
                                             <td>Rs.{order.totalPrice ? order.totalPrice.toFixed(2) : 'N/A'}</td>
                                             <td>
@@ -392,7 +392,7 @@ const ViewAllOrders = () => {
                                                             </div>
                                                             <div className="modal-body">
                                                                 <p><strong>Order ID:</strong> {order._id}</p>
-                                                                <p><strong>Product:</strong> {order.product?.name}</p>
+                                                                <p><strong>Product:</strong> {order.product?.name || "Product is deleted"}</p>
                                                                 <p><strong>Supplier:</strong> {order.supplier?.name}</p>
                                                                 <p><strong>Quantity:</strong> {order.quantity}</p>
                                                                 <p><strong>Total Price:</strong>Rs.{order.totalPrice ? order.totalPrice.toFixed(2) : 'N/A'}</p>
@@ -447,8 +447,8 @@ const ViewAllOrders = () => {
                                     {currentOrders.map(order => (
                                         <tr key={order._id}>
                                             <td>{order._id}</td>
-                                            <td>{order.product?.name || 'N/A'}</td>
-                                            <td>{order.supplier?.name || 'N/A'}</td>
+                                            <td>{order.product?.name || 'Product is deleted'}</td>
+                                            <td>{order.supplier?.name || 'Supplier is deleted'}</td>
                                             <td>{order.quantity}</td>
                                             <td>Rs.{order.totalPrice ? order.totalPrice.toFixed(2) : 'N/A'}</td>
                                             <td><span className={`badge ${getStatusClass(order.status)}`}>{order.status}</span></td>
@@ -464,7 +464,7 @@ const ViewAllOrders = () => {
                                                             </div>
                                                             <div className="modal-body">
                                                                 <p><strong>Order ID:</strong> {order._id}</p>
-                                                                <p><strong>Product:</strong> {order.product?.name}</p>
+                                                                <p><strong>Product:</strong> {order.product?.name || "Product is deleted"}</p>
                                                                 <p><strong>Supplier:</strong> {order.supplier?.name}</p>
                                                                 <p><strong>Quantity:</strong> {order.quantity}</p>
                                                                 <p><strong>Total Price:</strong>Rs.{order.totalPrice ? order.totalPrice.toFixed(2) : 'N/A'}</p>
