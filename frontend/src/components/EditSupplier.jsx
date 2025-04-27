@@ -38,7 +38,7 @@ const EditSupplier = () => {
     try {
       await axios.put(`http://localhost:8070/supplier/update/${id}`, supplier);
       toast.success("Supplier updated successfully!");
-      navigate("/supplier/profiles"); // Redirect to supplier list
+      navigate("/InventoryDashboard/supplier/profiles"); // Redirect to supplier list
     } catch (error) {
       console.error("Error updating supplier:", error);
       toast.error("Failed to update supplier");

@@ -32,6 +32,7 @@ const UpdateProductForm = ({ fetchProducts }) => {
           `http://localhost:8070/products/${productId}`
         );
         setProduct(response.data);
+        console.log(response.data);
       } catch (error) {
         console.error("Error fetching product:", error);
         toast.error("Failed to fetch product details");
@@ -69,7 +70,6 @@ const UpdateProductForm = ({ fetchProducts }) => {
 
     if (!product.name) newErrors.name = "Name is required";
     if (!product.category) newErrors.category = "Category is required";
-    if (!product.brand) newErrors.brand = "Brand is required";
     if (!product.size) newErrors.size = "Size is required";
     if (!product.color) newErrors.color = "Color is required";
     if (!product.material) newErrors.material = "Material is required";
@@ -102,7 +102,7 @@ const UpdateProductForm = ({ fetchProducts }) => {
         );
         toast.success("Product updated successfully!");
         fetchProducts(); 
-        navigate("/products"); 
+        navigate("/InventoryDashboard/products"); 
       } catch (error) {
         console.error("Error updating product:", error);
         toast.error("Failed to update product");
@@ -158,19 +158,6 @@ const UpdateProductForm = ({ fetchProducts }) => {
           />
           {errors.category && (
             <div className="invalid-feedback">{errors.category}</div>
-          )}
-        </div>
-        <div className="mb-3">
-          <label className="form-label">Brand:</label>
-          <input
-            type="text"
-            name="brand"
-            value={product.brand}
-            onChange={handleChange}
-            className={`form-control ${errors.brand ? "is-invalid" : ""}`}
-          />
-          {errors.brand && (
-            <div className="invalid-feedback">{errors.brand}</div>
           )}
         </div>
         <div className="mb-3">

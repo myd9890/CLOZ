@@ -64,6 +64,7 @@ const getAllOrders = async (req, res) => {
             .populate('supplier');
 
         res.json(orders);
+        
     } catch (error) {
         res.status(500).json({ message: "Error fetching all orders", error: error.message });
     }
@@ -73,7 +74,7 @@ const getAllOrders = async (req, res) => {
 // Get orders for supplier
 const getOrdersForSupplier = async (req, res) => {
     try {
-        const supplierCode = req.params.supplierId; // This is "SUP001"
+        const supplierCode = req.params.supplierId; 
 
         // First find supplier _id
         const supplier = await Supplier.findOne({ supplierId: supplierCode });
@@ -83,6 +84,7 @@ const getOrdersForSupplier = async (req, res) => {
         const orders = await Order.find({ supplier: supplier._id }).populate('product');
         const acceptedOrders = orders.filter(order => order.adminStatus === "Approved");
         res.json(acceptedOrders);
+        
     } catch (error) {
         res.status(500).json({ message: "Error fetching orders", error: error.message });
     }

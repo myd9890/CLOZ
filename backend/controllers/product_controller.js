@@ -98,8 +98,11 @@ const getProducts = async (req, res) => {
             filters.size = size;
         }
 
+        
+
         const products = await Product.find(filters).populate("supplier");
         res.json(products);
+        console.log("Filtered products:", products);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Failed to fetch products" });

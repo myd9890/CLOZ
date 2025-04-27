@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
@@ -8,7 +9,7 @@ const SalesList = () => {
   const [sales, setSales] = useState([]);
   const [loading, setLoading] = useState(false);
   const [expandedSale, setExpandedSale] = useState(null);
-  const [searchQuery, setSearchQuery] = useState(""); // State for search query
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     fetchSales();
@@ -32,6 +33,17 @@ const SalesList = () => {
     setExpandedSale(expandedSale === saleId ? null : saleId);
   };
 
+  const handleReturn = async (saleId, productId) => {
+    if (window.confirm("Are you sure you want to initiate a return for this product?")) {
+      try {
+        window.location.href = `/salesDashboard/sale/return/${saleId}?product=${productId}`;
+      } catch (error) {
+        toast.error("Failed to initiate return");
+        console.error("Return error:", error);
+      }
+    }
+  };
+
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString();
   };
@@ -43,75 +55,77 @@ const SalesList = () => {
     }).format(amount);
   };
 
-  const generatePDF = () => {
-    if (window.confirm("Do you want to download the sales report as a PDF?")) {
-      const input = document.getElementById("sales-table");
-      html2canvas(input).then((canvas) => {
-        const imgData = canvas.toDataURL("image/png");
-        const pdf = new jsPDF();
-        const imgWidth = 190; // Adjust width to fit the page
-        const pageHeight = pdf.internal.pageSize.height;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        let heightLeft = imgHeight;
-        let position = 0;
-
-        pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-
-        while (heightLeft >= 0) {
-          position = heightLeft - imgHeight;
-          pdf.addPage();
-          pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
-        }
-
-        pdf.save("sales_report.pdf");
-        toast.success("Sales report downloaded successfully!");
-      });
+  const getProductStatus = (product) => {
+    if (product.returnedQuantity >= product.quantity) {
+      return { text: "Fully Returned", class: "bg-danger", canReturn: false };
     }
+    if (product.returnedQuantity > 0) {
+      return { text: "Partially Returned", class: "bg-warning", canReturn: true };
+    }
+    return { text: "Sold", class: "bg-success", canReturn: true };
   };
 
-  // Filter sales based on the search query
   const filteredSales = sales.filter((sale) =>
     sale.status.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const deleteSale = async (saleId) => {
-    if (window.confirm("Are you sure you want to delete this sale?")) {
-      try {
-        await axios.delete(`http://localhost:8070/sale/${saleId}`);
-        toast.success("Sale deleted successfully!");
-        // Update the sales state to remove the deleted sale
-        setSales(sales.filter((sale) => sale._id !== saleId));
-      } catch (error) {
-        console.error("Error deleting sale:", error);
-        toast.error("Failed to delete sale");
+  const generatePDF = async () => {
+    if (window.confirm("Do you want to download the sales table as a PDF?")) {
+      const table = document.getElementById("sales-table");
+
+      const canvas = await html2canvas(table, { scale: 2 });
+      const imgData = canvas.toDataURL("image/png");
+
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+
+      const imgWidth = pdfWidth;
+      const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pdfHeight;
+
+      while (heightLeft > 0) {
+        position -= pdfHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+        heightLeft -= pdfHeight;
       }
+
+      pdf.save("sales_table.pdf");
     }
   };
 
   return (
     <div className="container mt-4">
       <h2>Sales Records</h2>
+
+      {/* Search Bar */}
       <div className="mb-3">
         <input
           type="text"
           className="form-control"
           placeholder="Search by status (e.g., completed, pending)"
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)} // Update search query
+          onChange={(e) => setSearchQuery(e.target.value)}
         />
       </div>
-      <button className="btn btn-primary mb-3" onClick={generatePDF}>
-        Download PDF
-      </button>
+
+      {/* Generate PDF Button */}
+      <div className="mb-3">
+        <button className="btn btn-primary" onClick={generatePDF}>
+          Download PDF
+        </button>
+      </div>
+
       {loading ? (
         <div className="text-center">Loading sales data...</div>
       ) : (
-        <table
-          id="sales-table"
-          className="table table-bordered table-striped"
-        >
+        <table id="sales-table" className="table table-bordered table-striped">
           <thead className="table-dark">
             <tr>
               <th>Date</th>
@@ -127,7 +141,7 @@ const SalesList = () => {
             {filteredSales.map((sale) => (
               <React.Fragment key={sale._id}>
                 <tr>
-                  <td>{formatDate(sale.saleDate)}</td>
+                  <td>{formatDate(sale.date)}</td>
                   <td>{sale.customer?.name || "Walk-in Customer"}</td>
                   <td>{sale.products.reduce((sum, p) => sum + p.quantity, 0)}</td>
                   <td>{formatCurrency(sale.totalAmount)}</td>
@@ -169,24 +183,48 @@ const SalesList = () => {
                               <th>Price</th>
                               <th>Returned</th>
                               <th>Status</th>
+                              <th>Actions</th>
                             </tr>
                           </thead>
                           <tbody>
-                            {sale.products.map((product, index) => (
-                              <tr key={index}>
-                                <td>{product.product?.name || "Unknown Product"}</td>
-                                <td>{product.quantity}</td>
-                                <td>
-                                  {formatCurrency(
-                                    product.quantity * product.product.price
-                                  )}
-                                </td>
-                                <td>{product.returnedQuantity || 0}</td>
-                                <td>
-                                  <span className="badge bg-success">Sold</span>
-                                </td>
-                              </tr>
-                            ))}
+                            {sale.products.map((product, index) => {
+                              const status = getProductStatus(product);
+                              const remainingQty =
+                                product.quantity - (product.returnedQuantity || 0);
+
+                              return (
+                                <tr key={index}>
+                                  <td>{product.product?.name || "Unknown Product"}</td>
+                                  <td>{product.quantity}</td>
+                                  <td>
+                                    {formatCurrency(
+                                      product.quantity * product.product.price
+                                    )}
+                                  </td>
+                                  <td>{product.returnedQuantity || 0}</td>
+                                  <td>
+                                    <span className={`badge ${status.class}`}>
+                                      {status.text}
+                                    </span>
+                                  </td>
+                                  <td>
+                                    {status.canReturn &&
+                                      remainingQty > 0 &&
+                                      sale.status === "completed" && (
+                                        <button
+                                          className="btn btn-warning btn-sm"
+                                          onClick={() =>
+                                            handleReturn(sale._id, product.product._id)
+                                          }
+                                          title={`Return up to ${remainingQty} items`}
+                                        >
+                                          Return
+                                        </button>
+                                      )}
+                                  </td>
+                                </tr>
+                              );
+                            })}
                           </tbody>
                         </table>
                       </div>

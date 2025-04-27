@@ -80,7 +80,7 @@ const ReturnForm = () => {
   return (
     <div className="container mt-4">
       <h2>Process Return for Sale </h2>
-      <p>Date: {new Date(sale.saleDate).toLocaleDateString()}</p>
+      <p>Date: {new Date(sale.date).toLocaleDateString()}</p>
       <p>Customer: {sale.customer?.name || 'Walk-in Customer'}</p>
       <form onSubmit={handleSubmit}>
         <table className="table">

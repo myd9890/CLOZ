@@ -5,6 +5,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '../css/SupplierOrder.css';
 import { Bar, Pie } from 'react-chartjs-2';
 import Chart from 'chart.js/auto';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const ViewAllOrders = () => {
     const [orders, setOrders] = useState([]);
@@ -38,6 +40,73 @@ const ViewAllOrders = () => {
         } catch (error) {
             console.error(`Error updating order status:`, error);
         }
+    };
+
+    // Generate PDF report for a single order
+    const generateOrderReport = (order) => {
+        const doc = new jsPDF();
+        
+        // Title
+        doc.setFontSize(18);
+        doc.text(`Order Report: ${order._id}`, 14, 15);
+        
+        // Date
+        doc.setFontSize(11);
+        doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 22);
+        
+        // Order Details
+        doc.setFontSize(14);
+        doc.text("Order Information", 14, 30);
+        
+        const orderDetails = [
+            ["Order ID", order._id],
+            ["Product Name", order.product?.name || "N/A"],
+            ["Supplier", order.supplier?.name || "N/A"],
+            ["Quantity", order.quantity],
+            ["Total Price", `Rs.${order.totalPrice ? order.totalPrice.toFixed(2) : 'N/A'}`],
+            ["Supplier Status", order.status],
+            ["Admin Status", order.adminStatus || "Pending"],
+            ["Date", new Date(order.createdAt).toLocaleDateString()]
+        ];
+        
+        autoTable(doc, {
+            startY: 35,
+            head: [['Field', 'Value']],
+            body: orderDetails,
+            theme: 'grid',
+            headStyles: { fillColor: [41, 128, 185] },
+            columnStyles: {
+                0: { cellWidth: 60, fontStyle: 'bold' },
+                1: { cellWidth: 120 }
+            }
+        });
+        
+        // Product Details
+        doc.setFontSize(14);
+        doc.text("Product Details", 14, doc.lastAutoTable.finalY + 15);
+        
+        const productDetails = [
+            ["Gender", order.product?.gender || "N/A"],
+            ["Size", order.product?.size || "N/A"],
+            ["Material", order.product?.material || "N/A"],
+            ["Color", order.product?.color || "N/A"],
+            ["Reorder Quantity", order.product?.reOrderquantity || "N/A"]
+        ];
+        
+        autoTable(doc, {
+            startY: doc.lastAutoTable.finalY + 20,
+            head: [['Field', 'Value']],
+            body: productDetails,
+            theme: 'grid',
+            headStyles: { fillColor: [41, 128, 185] },
+            columnStyles: {
+                0: { cellWidth: 60, fontStyle: 'bold' },
+                1: { cellWidth: 120 }
+            }
+        });
+        
+        // Save the PDF
+        doc.save(`order_report_${order._id}.pdf`);
     };
 
     // Separate orders
@@ -141,7 +210,7 @@ const ViewAllOrders = () => {
     };
 
     return (
-        <div className="mt-5 mx-auto" style={{ width: '90%' }}>
+        <div className="mt-5 mx-auto" style={{ width: '95%' }}>
             <h2 className="text-center mb-4" style={{ color: '#333' }}>Supplier Orders Management</h2>
 
             <div className="text-center mb-4">
@@ -156,92 +225,100 @@ const ViewAllOrders = () => {
             {showAnalytics && (
                 <div className="analytics-section mb-5 p-4 border rounded shadow-sm">
                     <h3 className="text-center mb-4">Order Analytics</h3>
-                    
-                    <div className="row mb-4">
-                        <div className="col-md-6">
-                            <div className="card mb-4">
-                                <div className="card-header bg-primary text-white">
-                                    <h5>Order Status Distribution</h5>
-                                </div>
-                                <div className="card-body">
-                                    <Pie data={getStatusDistribution()} />
-                                </div>
-                            </div>
-                        </div>
-                        <div className="col-md-6">
-                            <div className="card mb-4">
-                                <div className="card-header bg-success text-white">
-                                    <h5>Orders by Supplier</h5>
-                                </div>
-                                <div className="card-body">
-                                    <Bar data={getSupplierDistribution()} />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div className="row mb-4">
-                        <div className="col-md-12">
-                            <div className="card">
-                                <div className="card-header bg-info text-white">
-                                    <h5>Monthly Order Trends</h5>
-                                </div>
-                                <div className="card-body">
-                                    <Bar 
-                                        data={getMonthlyOrderTrends()} 
-                                        options={{
-                                            scales: {
-                                                y: {
-                                                    beginAtZero: true,
-                                                    title: {
-                                                        display: true,
-                                                        text: 'Number of Orders'
-                                                    }
-                                                },
-                                                x: {
-                                                    title: {
-                                                        display: true,
-                                                        text: 'Month'
-                                                    }
-                                                }
-                                            }
-                                        }}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
+
                     <div className="row">
-                        <div className="col-md-6">
-                            <div className="card text-white bg-secondary mb-3">
-                                <div className="card-header">Total Orders</div>
-                                <div className="card-body">
-                                    <h2 className="card-title">{orders.length}</h2>
+                        <div className="col-md-3">
+                            <div className="card text-white bg-secondary mb-2 p-2">
+                                <div className="card-header py-1 px-2">Total Orders</div>
+                                <div className="card-body py-2 px-2">
+                                    <h5 className="card-title mb-0">{orders.length}</h5>
                                 </div>
                             </div>
                         </div>
-                        <div className="col-md-6">
-                            <div className="card text-bg-info mb-3">
-                                <div className="card-header">Total Order Value</div>
-                                <div className="card-body">
-                                    <h2 className="card-title">Rs.{getTotalOrderValue()}</h2>
+                        <div className="col-md-3">
+                            <div className="card text-bg-info mb-2 p-2">
+                                <div className="card-header py-1 px-2">Total Order Value</div>
+                                <div className="card-body py-2 px-2">
+                                    <h5 className="card-title mb-0">Rs.{getTotalOrderValue()}</h5>
                                 </div>
                             </div>
                         </div>
-                        <div className="col-md-6">
-                            <div className="card text-white bg-warning mb-3">
-                                <div className="card-header">Average Order Value</div>
-                                <div className="card-body">
-                                    <h2 className="card-title">Rs.{getAverageOrderValue()}</h2>
+                        <div className="col-md-3">
+                            <div className="card text-white bg-warning mb-2 p-2">
+                                <div className="card-header py-1 px-2">Average Order Value</div>
+                                <div className="card-body py-2 px-2">
+                                    <h5 className="card-title mb-0">Rs.{getAverageOrderValue()}</h5>
                                 </div>
                             </div>
                         </div>
-                        <div className="col-md-6">
-                            <div className="card text-white bg-danger mb-3">
-                                <div className="card-header">Pending Orders</div>
-                                <div className="card-body">
-                                    <h2 className="card-title">{pendingOrders.length}</h2>
+                        <div className="col-md-3">
+                            <div className="card text-white bg-danger mb-2 p-2">
+                                <div className="card-header py-1 px-2">Pending Orders</div>
+                                <div className="card-body py-2 px-2">
+                                    <h5 className="card-title mb-0">{pendingOrders.length}</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="container-fluid">
+                        <div className="row mb-4">
+                            {/* Orders by Supplier */}
+                            <div className="col-md-6">
+                                <div className="card h-100">
+                                    <div className="card-header bg-success text-white">
+                                        <h5 className="mb-0">Orders by Supplier</h5>
+                                    </div>
+                                    <div className="card-body">
+                                        <Bar data={getSupplierDistribution()} />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Order Status Distribution */}
+                            <div className="col-md-6">
+                                <div className="card h-100">
+                                    <div className="card-header bg-primary text-white">
+                                        <h5 className="mb-0">Order Status Distribution</h5>
+                                    </div>
+                                    <div className="card-body">
+                                        <Pie data={getStatusDistribution()} />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Monthly Order Trends */}
+                        <div className="row mb-4">
+                            <div className="col-md-12">
+                                <div className="card">
+                                    <div className="card-header bg-info text-white">
+                                        <h5 className="mb-0">Monthly Order Trends</h5>
+                                    </div>
+                                    <div className="card-body">
+                                        <Bar
+                                            data={getMonthlyOrderTrends()}
+                                            options={{
+                                                responsive: true,
+                                                maintainAspectRatio: false,
+                                                scales: {
+                                                    y: {
+                                                        beginAtZero: true,
+                                                        title: {
+                                                            display: true,
+                                                            text: 'Number of Orders',
+                                                        },
+                                                    },
+                                                    x: {
+                                                        title: {
+                                                            display: true,
+                                                            text: 'Month',
+                                                        },
+                                                    },
+                                                },
+                                            }}
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -324,6 +401,15 @@ const ViewAllOrders = () => {
                                                                 <p><strong>Color:</strong> {order.product?.color}</p>
                                                                 <p><strong>Re-order Quantity:</strong> {order.product?.reOrderquantity}</p>
                                                             </div>
+                                                            <div className="modal-footer">
+                                                                <button 
+                                                                    className="btn btn-primary"
+                                                                    onClick={() => generateOrderReport(order)}
+                                                                >
+                                                                    Download Report
+                                                                </button>
+                                                                <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -380,12 +466,22 @@ const ViewAllOrders = () => {
                                                                 <p><strong>Quantity:</strong> {order.quantity}</p>
                                                                 <p><strong>Total Price:</strong>Rs.{order.totalPrice ? order.totalPrice.toFixed(2) : 'N/A'}</p>
                                                                 <p><strong>Supplier Status:</strong> {order.status}</p>
+                                                                <p><strong>Admin Status:</strong> {order.adminStatus}</p>
                                                                 <hr />
                                                                 <p><strong>Product Gender:</strong> {order.product?.gender}</p>
                                                                 <p><strong>Size:</strong> {order.product?.size}</p>
                                                                 <p><strong>Material:</strong> {order.product?.material}</p>
                                                                 <p><strong>Color:</strong> {order.product?.color}</p>
                                                                 <p><strong>Re-order Quantity:</strong> {order.product?.reOrderquantity}</p>
+                                                            </div>
+                                                            <div className="modal-footer">
+                                                                <button 
+                                                                    className="btn btn-primary"
+                                                                    onClick={() => generateOrderReport(order)}
+                                                                >
+                                                                    Download Report
+                                                                </button>
+                                                                <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                                             </div>
                                                         </div>
                                                     </div>
