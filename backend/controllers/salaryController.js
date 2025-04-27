@@ -101,11 +101,19 @@ const getETFRecords = async (req, res) => {
         }
       });
       
-      const hiredDate = 0;
+      const hiredDate = await getFirstAttendDate(employee.empID);
+      console.log(`Hired Date:`, hiredDate);
       const type = "etf";
       // console.log('hi');
+      // if hiredDate is null or undefined, skip this employee
       const etfDetails = calculateSalary(basicSalary, otHoursWeekday, otHoursWeekendHoliday, type);
       // console.log(`ETF Details:`, etfDetails);
+      let finalEPF = etfDetails.epf;
+      let finalETF = etfDetails.etf;
+      if (!hiredDate) {
+        finalEPF = 0;
+        finalETF = 0;
+      }
 
       etfRecords.push({
         empID: employee.empID,
@@ -113,8 +121,8 @@ const getETFRecords = async (req, res) => {
         department: employee.department,
         role: employee.role,
         hiredDate: hiredDate,
-        epf: etfDetails.epf,
-        etf: etfDetails.etf
+        epf: finalEPF,
+        etf: finalETF
       });
 
     
@@ -126,6 +134,25 @@ const getETFRecords = async (req, res) => {
   }
 };
 
+const getFirstAttendDate = async (empID) => {
+  try {
+    // Find the employee's ObjectId using the empID
+    const employee = await Employee.findOne({ empID });
+    if (!employee) {
+      throw new Error(`Employee with empID "${empID}" not found`);
+    }
+
+    // Use the employee's ObjectId to query the Attendance collection
+    const attendanceRecord = await Attendance.findOne({ employee: employee._id }).sort({ date: 1 });
+    if (!attendanceRecord) {
+      return null; // Return null if no attendance records are found
+    }
+
+    return attendanceRecord.date; // Return the date as a string
+  } catch (error) {
+    throw new Error(error.message); // Throw an error if something goes wrong
+  }
+};
 module.exports = {
   getSalaryRecords,
   getETFRecords

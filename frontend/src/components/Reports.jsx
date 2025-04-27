@@ -13,12 +13,12 @@ function Reports() {
     e.preventDefault();
     try {
       const response = await axios.get(`http://localhost:8070/api/attendance/report/${date}`, {
-        responseType: 'blob',
+        responseType: 'blob', // Ensure the response is treated as a binary file
       });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `Attendance_Report_${date}.pdf`);
+      link.setAttribute('download', `Attendance_Report_${date}.pdf`); // Set the file name and extension
       document.body.appendChild(link);
       link.click();
     } catch (error) {
@@ -37,7 +37,14 @@ function Reports() {
       <form onSubmit={handleSubmit} className="reports-form">
         <div className="form-group">
           <label htmlFor="date">Select Date</label>
-          <input type="date" id="date" name="date" value={date} onChange={handleChange} required />
+          <input
+            type="date"
+            id="date"
+            name="date"
+            value={date}
+            onChange={handleChange}
+            required
+          />
         </div>
         <button type="submit">Generate Report</button>
       </form>

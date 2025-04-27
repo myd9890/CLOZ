@@ -531,7 +531,7 @@ const App = () => {
         <nav className="sidebar">
           <ul>
             <li>
-              <Link to="/HRdashboard/dashboard">Dashboard</Link>
+              <Link to="/HRdashboard">Dashboard</Link>
             </li>
             <li>
               <Link to="/HRdashboard/reports">Reports</Link>
@@ -549,7 +549,7 @@ const App = () => {
             <Route path="add" element={<AddEmployee />} />
             <Route path="attendance" element={<Attendance />} />
             <Route path="edit/:id" element={<EditEmployee />} />
-            <Route path="dashboard" element={<ControlPanel />} />
+            <Route path="/" element={<ControlPanel />} />
             <Route path="reports" element={<Reports />} />
             <Route path="salary" element={<Salary />} />
           </Routes>

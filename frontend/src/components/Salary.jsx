@@ -31,7 +31,7 @@ function Salary() {
     try {
       setFetchedSalary(false);
       setFetchedETF(false);
-      const response = await axios.get(`http://localhost:8070/api/salary/etf`);
+      const response = await axios.get(`http://localhost:8070/api/salary/etf`)  ;
       setETFRecords(response.data);
       setFetchedETF(true);
     } catch (error) {
