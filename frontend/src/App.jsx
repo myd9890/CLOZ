@@ -41,7 +41,7 @@ import FinanceDashboard from "./components/FinDash";
 
 
 import FinanceLayout from "./components/FinanceLayout";
-<<<<<<< HEAD
+
 import EmployeeList from "./components/EmployeeList";
 import AddEmployee from "./components/AddEmployee";
 import EditEmployee from "./components/EditEmployee";
@@ -62,11 +62,10 @@ import Customerogin from "./components/Customerogin";
 
 import "./App.css";
 import ProductListWithDiscounts from "./components/ProductListWithDiscounts";
-=======
-import "./App.css"; // 🟢 Make sure to import your CSS file
+
 import FinStatement from "./components/FinStatementComponent";
 //import FinAccount from "./components/FinAccountComponent";
->>>>>>> 658c626d550ae7d4000578d37960325bd3986769
+
 
 const App = () => {
   const [products, setProducts] = useState([]);
@@ -356,8 +355,7 @@ const App = () => {
             <li><Link to="/FinanceDashboard/expenses">Expenses</Link></li>
             <li><Link to="/FinanceDashboard/incomes">Incomes</Link></li>
             <li><Link to="/FinanceDashboard/pettycash">Petty Cash</Link></li>
-            <li><Link to="/FinanceDashboard/incomes">Petty Cash</Link></li>
-            <li><Link to="/FinanceDashboard/financial statement">Petty Cash</Link></li>
+            <li><Link to="/FinanceDashboard/finstatement">Financial statement</Link></li>
 
           </ul>
         </nav>
@@ -371,7 +369,6 @@ const App = () => {
             <Route path="expenses" element={<Exp />} />
             <Route path="incomes" element={<Income />} />
             <Route path="pettycash" element={<PettyCash />} />
-            <Route path="incomes" element={<Income />} />
             <Route path="finstatement" element={<FinStatement />} />
           </Routes>
         </div>
