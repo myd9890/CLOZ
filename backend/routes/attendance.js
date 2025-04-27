@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const {
   getTodayAttendance,
+  getMonthAttendance,
   addAttendanceRecord,
   checkInToday,
   checkOut,
@@ -11,6 +12,9 @@ const {
 
 // Get today's attendance records
 router.get('/today', getTodayAttendance);
+
+// Get months's attendance records
+router.get('/filter', getMonthAttendance);
 
 // Add a new attendance record
 router.post('/', addAttendanceRecord);

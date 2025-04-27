@@ -44,9 +44,13 @@ import EditEmployee from "./components/EditEmployee";
 import Login from "./components/Login";
 import ChangePassword from "./components/ChangePassword";
 import Attendance from "./components/Attendance";
-import LeaveRequests from "./components/LeaveRequests";
+import ControlPanel from "./components/ControlPanel";
 import Reports from "./components/Reports";
 import Salary from "./components/Salary";
+import LeaveRequests from "./components/LeaveRequests";
+import EmployeeProfile from "./components/EmployeeProfile";
+import LeaveRequestForm from "./components/LeaveRequestForm";
+import { LeaveRequestProvider } from './context/LeaveRequestContext';
 import Header from "./Header";
 import Footer from "./Footer";
 import Index from "./index";
@@ -173,7 +177,7 @@ const App = () => {
             path="/InventoryDashboard/*"
             element={
               <AccessControl requiredDept="Inventory">
-                <InventoryDashboard user={user}/>
+                <InventoryDashboard user={user} />
               </AccessControl>
             }
           />
@@ -182,7 +186,7 @@ const App = () => {
             path="/FinanceDashboard/*"
             element={
               <AccessControl requiredDept="Finance">
-                <FinanceDashboard user={user}/>
+                <FinanceDashboard user={user} />
               </AccessControl>
             }
           />
@@ -191,7 +195,7 @@ const App = () => {
             path="/SalesDashboard/*"
             element={
               <AccessControl requiredDept="Sales">
-                <SalesDashboard user={user}/>
+                <SalesDashboard user={user} />
               </AccessControl>
             }
           />
@@ -213,6 +217,36 @@ const App = () => {
               </AccessControl>
             }
           />
+          <Route path="/profile" element={isLoggedIn ? <EmployeeProfile /> : <Navigate to="/login" />} />
+          <Route path="/change-password" element={isLoggedIn ? <ChangePassword /> : <Navigate to="/login" />} />
+          <Route path="/InventoryDashboard/*" element={
+            <AccessControl requiredDept="Inventory">
+              <InventoryDashboard />
+            </AccessControl>
+          } />
+          <Route path="/FinanceDashboard/*" element={
+            <AccessControl requiredDept="Finance">
+              <FinanceDashboard />
+            </AccessControl>
+          } />
+          <Route path="/SalesDashboard/*" element={
+            <AccessControl requiredDept="Sales">
+              <SalesDashboard />
+            </AccessControl>
+          } />
+          <Route path="/CustomerDashboard/*" element={
+            <AccessControl requiredDept="CRM">
+              <CustomerDashboard />
+            </AccessControl>
+          } />
+          <Route path="/HRdashboard/*" element={
+            <AccessControl requiredDept="HR">
+              <HRDashboard user={user} />
+            </AccessControl>
+          } />
+          <Route path="/EmployeeProfile" element={<EmployeeProfile />} />
+          <Route path="/leave-requests" element={<LeaveRequests user={user} />} />
+          <Route path="/apply-request" element={<LeaveRequestForm user={user} />} />
         </Routes>
         <Footer />
         </>
@@ -229,17 +263,20 @@ const App = () => {
       return <Navigate to="/login" />;
     }
 
+
     // Role check (if needed)
     if (requiredRole && user.role !== requiredRole) {
       console.log(`Access denied: Role must be '${requiredRole}'`);
       return <div>Access Denied: Insufficient role permissions.</div>;
     }
 
+
     // Department check (if needed)
     if (requiredDept && user.department !== requiredDept) {
       console.log(`Access denied: Department must be '${requiredDept}'`);
       return <div>Access Denied: Insufficient department permissions.</div>;
     }
+
 
     // All checks passed
     return children;
@@ -262,11 +299,10 @@ const App = () => {
             </li>
           </ul>
         </nav>
+
         
         <div className="dashboard-content text-center">
         <h2 className="position-absolute top-1 start-1 m-3">Hello {user?.name}</h2>
-          
-          
           <Routes>
             <Route
               path="products"
@@ -296,7 +332,7 @@ const App = () => {
       </div>
     );
   }
-  
+
 
   function FinanceDashboard({ user }) {
     return (
@@ -311,7 +347,7 @@ const App = () => {
             <li><Link to="/FinanceDashboard/pettycash">Petty Cash</Link></li>
           </ul>
         </nav>
-  
+
         <div className="dashboard-content">
           <h1>Finance Dashboard</h1>
           <p>Hi {user?.name}</p>
@@ -326,7 +362,7 @@ const App = () => {
       </div>
     );
   }
-  
+
 
   function SalesDashboard({ user }) {
     return (
@@ -338,7 +374,7 @@ const App = () => {
             <li><Link to="/SalesDashboard/discount">Discount</Link></li>
           </ul>
         </nav>
-  
+
         <div className="dashboard-content">
           <h1>Sales Dashboard</h1>
           <p>Hi {user?.name}</p>
@@ -352,7 +388,7 @@ const App = () => {
       </div>
     );
   }
-  
+
 
   function CustomerDashboard({ user }) {
     return (
@@ -367,7 +403,7 @@ const App = () => {
             <li><Link to="/CustomerDashboard/sale/add">Add Sale</Link></li>
           </ul>
         </nav>
-  
+
         <div className="dashboard-content">
           <h1>Customer Dashboard</h1>
           <p>Hi {user?.name}</p>
@@ -384,32 +420,33 @@ const App = () => {
       </div>
     );
   }
-  
+  ReactDOM.render(
+    <LeaveRequestProvider>
+      <App />
+    </LeaveRequestProvider>,
+    document.getElementById('root')
+  );
+
 
   function HRDashboard({ user }) {
     return (
       <div className="dashboard-container">
         <nav className="sidebar">
-          <h2>HR</h2>
           <ul>
-            <li><Link to="/HRdashboard/list">Employee List</Link></li>
-            <li><Link to="/HRdashboard/add">Add Employee</Link></li>
-            <li><Link to="/HRdashboard/attendance">Attendance</Link></li>
-            <li><Link to="/HRdashboard/leave-requests">Leave Requests</Link></li>
+            <li><Link to="/HRdashboard/dashboard">Dashboard</Link></li>
             <li><Link to="/HRdashboard/reports">Reports</Link></li>
             <li><Link to="/HRdashboard/salary">Salary</Link></li>
           </ul>
         </nav>
-  
         <div className="dashboard-content">
           <h1>HR Dashboard</h1>
           <p>Hi {user?.name}</p>
           <Routes>
             <Route path="list" element={<EmployeeList />} />
             <Route path="add" element={<AddEmployee />} />
-            <Route path="edit/:id" element={<EditEmployee />} />
             <Route path="attendance" element={<Attendance />} />
-            <Route path="leave-requests" element={<LeaveRequests />} />
+            <Route path="edit/:id" element={<EditEmployee />} />
+            <Route path="dashboard" element={<ControlPanel />} />
             <Route path="reports" element={<Reports />} />
             <Route path="salary" element={<Salary />} />
           </Routes>
@@ -417,7 +454,7 @@ const App = () => {
       </div>
     );
   }
-  
+
 };
 
 export default App;
