@@ -31,6 +31,22 @@ function AddEmployee() {
     }
   };
 
+  const preventSpecialCharacters = (e) => {
+    const key = e.key;
+    // Allow letters, spaces, backspace, and delete
+    if (
+      !(
+        (key >= 'a' && key <= 'z') || // Lowercase letters
+        (key >= 'A' && key <= 'Z') || // Uppercase letters
+        key === ' ' || // Space
+        key === 'Backspace' || // Backspace
+        key === 'Delete' // Delete
+      )
+    ) {
+      e.preventDefault(); // Prevent invalid characters
+    }
+  };
+
   const validateForm = () => {
     const { workMobile, workEmail } = employee;
     const mobileRegex = /^[0-9]+$/;
@@ -55,7 +71,8 @@ function AddEmployee() {
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="name">Name</label>
-          <input type="text" id="name" name="name" placeholder="Name" value={employee.name} onChange={handleChange} required />
+          <input type="text" id="name" name="name" placeholder="Name" value={employee.name} onChange={handleChange} required 
+          onKeyDown={preventSpecialCharacters}/>
         </div>
         <div className="form-group">
           <label htmlFor="workMobile">Work Mobile</label>

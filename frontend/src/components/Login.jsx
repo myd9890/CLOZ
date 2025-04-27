@@ -56,7 +56,7 @@ function Login({ onLogin }) {
           navigate('/CustomerDashboard/customers');
           break;
         case 'hr':
-          navigate('/HRdashboard/list');
+          navigate('/HRdashboard');
           break;
         default:
           navigate('/'); // Fallback to home if department not matched

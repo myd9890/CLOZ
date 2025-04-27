@@ -125,24 +125,54 @@ const generateAttendanceReport = async (req, res) => {
       }).end(pdfData);
     });
 
-    doc.fontSize(25).text(`Attendance Report for ${date}`, { align: 'center' });
-    doc.moveDown();
+    // Title
+    doc.fontSize(20).text(`Attendance Report for ${date}`, { align: 'center' });
+    doc.moveDown(1);
 
-    attendanceRecords.forEach(record => {
-      if (record.employee) {
-        doc.text(`EmpID: ${record.employee.empID}`);
-        doc.text(`Role: ${record.employee.role}`);
-      } else {
-        doc.text(`EmpID: Not Available`);
-        doc.text(`Role: Not Available`);
-      }
-      doc.text(`Arrival Time: ${record.arrivalTime}`);
-      doc.text(`Departure Time: ${record.departureTime}`);
-      doc.text(`Status: ${record.status}`);
-      doc.text(`Overtime Hours: ${record.otHours}`);
-      doc.moveDown();
+    // Table Header
+    const tableTop = doc.y;
+    const columnWidths = [60, 120, 100, 100, 100, 100]; // Define column widths
+    const headers = ['EmpID', 'Name', 'Role', 'Arrival Time', 'Departure Time', 'Status'];
+
+    // Draw header row
+    let x = 50; // Starting x position
+    headers.forEach((header, i) => {
+      doc.fontSize(12).text(header, x, tableTop, { width: columnWidths[i], align: 'center' });
+      doc.rect(x, tableTop - 5, columnWidths[i], 20).stroke(); // Draw border for header cell
+      x += columnWidths[i];
     });
 
+    // Add a horizontal line below the header
+    doc.moveDown(1);
+
+    // Table Rows
+    let rowY = doc.y; // Starting y position for rows
+    attendanceRecords.forEach((record) => {
+      const empID = record.employee ? record.employee.empID : 'N/A';
+      const name = record.employee ? record.employee.name : 'N/A';
+      const role = record.employee ? record.employee.role : 'N/A';
+      const arrivalTime = record.arrivalTime || 'N/A';
+      const departureTime = record.departureTime || 'N/A';
+      const status = record.status || 'N/A';
+
+      const rowData = [empID, name, role, arrivalTime, departureTime, status];
+      let x = 50; // Reset x position for each row
+
+      rowData.forEach((data, i) => {
+        doc.fontSize(10).text(data, x, rowY, { width: columnWidths[i], align: 'center' });
+        doc.rect(x, rowY - 5, columnWidths[i], 20).stroke(); // Draw border for each cell
+        x += columnWidths[i];
+      });
+
+      rowY += 20; // Move to the next row
+      if (rowY > 750) {
+        // Check if the row exceeds the page height
+        doc.addPage(); // Add a new page
+        rowY = 50; // Reset y position for the new page
+      }
+    });
+
+    // Finalize the PDF
     doc.end();
   } catch (error) {
     console.error('Error generating report:', error);

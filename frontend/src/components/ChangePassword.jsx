@@ -39,17 +39,22 @@ function ChangePassword() {
       );
 
       // get employee ID from sessionStorage and output the password change
+      
+
 
       setSuccess('Password changed successfully!');
       setOldPassword('');
       setNewPassword('');
       setConfirmPassword('');
       navigate('/HRdashboard');
+      // show success dialog
+      alert('Password changed successfully!');
     } catch (error) {
       console.error('Error changing password:', error);
       setError(error.response?.data?.error || 'Failed to change password.');
     }
   };
+
 
   return (
     <div>
