@@ -7,12 +7,12 @@ const incomeSchema = new Schema({
         type : String,
         required : true
     },
-    Income : {
+    IncomeName : {
         type : String,
         required : true
     },
     
-    Date : {
+    IncomeDate : {
         type : Date,
         required : true
     },

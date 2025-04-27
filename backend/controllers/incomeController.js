@@ -1,12 +1,12 @@
 const Income = require('../models/Income');
 
 const addIncome = async (req, res) => {
-    const { ID, Income, Date, Amount } = req.body;
+    const { ID, IncomeName, IncomeDate, Amount } = req.body;
 
     const newIncome = new Income({
         ID,
-        Income,
-        Date: Date.parse(Date),
+        IncomeName,
+        IncomeDate: Date.parse(IncomeDate),
         Amount
     });
 
@@ -31,12 +31,12 @@ const getAllIncomes = async (req, res) => {
 
 const updateIncome = async (req, res) => {
     const incomeID = req.params.id;
-    const { ID, Income, Date, Amount } = req.body;
+    const { ID, IncomeName, IncomeDate, Amount } = req.body;
 
     const updateIncome = {
         ID,
-        Income,
-        Date,
+        IncomeName,
+        IncomeDate,
         Amount
     };
 

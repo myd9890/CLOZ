@@ -89,7 +89,15 @@ const pettyRouter = require("./routes/pettyCashexp.js");
 app.use("/pettycash", pettyRouter);
 
 const incomeRouter = require("./routes/Incomes.js");
-app.use("/incomes", incomeRouter);
+
+app.use("/incomes",incomeRouter);
+
+const balanceSheetRoutes = require("./routes/BalanceSheet.js");
+app.use("/api/balance-sheet", balanceSheetRoutes);
+
+const plStatementRouter = require("./routes/plStatement");
+app.use("/plstatement", plStatementRouter);
+
 
 app.use("/api/employees", employeeRoutes);
 app.use("/api/auth", authRoutes);

@@ -23,7 +23,6 @@ export const createSale = async (req, res) => {
     // Check if customer is provided
     let customerData = null;
     if (customer) {
-      // Verify customer exists if provided
       customerData = await Customer.findById(customer);
       if (!customerData) {
         return res.status(404).json({ message: "Customer not found" });
@@ -73,17 +72,20 @@ export const createSale = async (req, res) => {
     const tax = saleData.tax || 0;
     const pointsDiscount = pointsToRedeem * 0.1;
     const totalAmount = subtotal - discount - pointsDiscount + subtotal * (tax / 100);
+/* =======
+    const totalAmount = subtotal - saleData.discount + (subtotal * (saleData.tax / 100));
+>>>>>>> 658c626d550ae7d4000578d37960325bd3986769 */
 
-    // Create sale
     const sale = new Sale({
       ...saleData,
       products: saleProducts,
       totalAmount,
+
       pointsRedeemed: pointsToRedeem || 0,
       ...(customer && { customer }),
+
     });
 
-    // Update product stocks
     if (productUpdates.length > 0) {
       await Product.bulkWrite(productUpdates);
     }
@@ -111,7 +113,6 @@ export const createSale = async (req, res) => {
 
     await sale.save();
 
-    // Handle customer loyalty points if customer exists
     if (customerData) {
       const amountPaid = totalAmount + pointsDiscount;
       const pointsEarned = pointsToRedeem > 0 ? 0 : Math.floor(amountPaid / 10);
@@ -138,7 +139,9 @@ export const createSale = async (req, res) => {
       });
     }
 
+
     // Populate fields for response
+
     const populatedSale = await Sale.findById(sale._id)
       .populate("customer", "name phone")
       .populate("products.product", "name price");
@@ -171,10 +174,11 @@ export const updateSale = async (req, res) => {
       return res.status(404).json({ message: "Sale not found" });
     }
 
-    // Handle product updates if products array is provided
     if (products) {
+
       // First revert old product quantities
       const revertUpdates = sale.products.map((item) => ({
+ 
         updateOne: {
           filter: { _id: item.product },
           update: { $inc: { stock: item.quantity } },
@@ -183,7 +187,6 @@ export const updateSale = async (req, res) => {
 
       await Product.bulkWrite(revertUpdates);
 
-      // Then process new quantities
       const productUpdates = [];
       const saleProducts = [];
       let subtotal = 0;
@@ -227,6 +230,7 @@ export const updateSale = async (req, res) => {
       await Product.bulkWrite(productUpdates);
     }
 
+
     const updatedSale = await Sale.findByIdAndUpdate(id, updateData, {
       new: true,
     })
@@ -251,7 +255,13 @@ export const getSale = async (req, res) => {
       return res.status(404).json({ message: "Sale not found" });
     }
 
-    res.json(sale);
+    const subtotal = sale.products.reduce((acc, item) => acc + (item.priceAtSale * item.quantity), 0);
+    const taxAmount = (subtotal * (sale.tax || 0)) / 100;
+
+    res.json({
+      ...sale.toObject(),
+      taxAmount: taxAmount
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -268,7 +278,17 @@ export const getSales = async (req, res) => {
       .populate("products.product", "name price")
       .sort({ createdAt: -1 });
 
-    res.json(sales);
+    const salesWithTax = sales.map(sale => {
+      const subtotal = sale.products.reduce((acc, item) => acc + (item.priceAtSale * item.quantity), 0);
+      const taxAmount = (subtotal * (sale.tax || 0)) / 100;
+
+      return {
+        ...sale.toObject(),
+        taxAmount: taxAmount
+      };
+    });
+
+    res.json(salesWithTax);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -284,7 +304,6 @@ export const deleteSale = async (req, res) => {
       return res.status(404).json({ message: "Sale not found" });
     }
 
-    // Product stock will be reverted automatically by the post-remove hook
     res.json({ message: "Sale deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -308,7 +327,7 @@ export const initiateReturn = async (req, res) => {
 // Process return
 export const processReturn = async (req, res) => {
   try {
-    const { returnedItems } = req.body; // Array of {productId, quantity, reason}
+    const { returnedItems } = req.body;
     console.log("Returned items:", returnedItems);
     const sale = await Sale.findById(req.params.id);
 
@@ -316,7 +335,6 @@ export const processReturn = async (req, res) => {
       return res.status(404).json({ error: "Sale not found" });
     }
 
-    // Update product quantities
     for (const item of returnedItems) {
       const product = await Product.findById(item.productId);
       if (product) {
@@ -324,10 +342,12 @@ export const processReturn = async (req, res) => {
         await product.save();
       }
 
+
       // Update sale items - mark as returned
       const saleItem = sale.products.find(
         (p) => p.product.toString() === item.productId
       );
+
       if (saleItem) {
         saleItem.returnedQuantity =
           (saleItem.returnedQuantity || 0) + item.quantity;
@@ -335,11 +355,13 @@ export const processReturn = async (req, res) => {
       }
     }
 
+
     // Check if all items are returned
     const allReturned = sale.products.every(
       (p) => p.quantity === (p.returnedQuantity || 0)
     );
     sale.status = allReturned ? "returned" : "partial_return";
+
 
     await sale.save();
     res.json({ message: "Return processed successfully", sale });
