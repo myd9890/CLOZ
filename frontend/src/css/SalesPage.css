@@ -118,3 +118,9 @@ body {
       font-size: 0.9rem;
     }
   }
+  
+  .btn-primary:disabled {
+    pointer-events: all; /* Allow hover events */
+    cursor: not-allowed; /* Show a "not-allowed" cursor */
+    opacity: 0.65; /* Keep the disabled appearance */
+  }
