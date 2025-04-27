@@ -361,19 +361,22 @@ const ViewAllOrders = () => {
                                             <td>{order.quantity}</td>
                                             <td>Rs.{order.totalPrice ? order.totalPrice.toFixed(2) : 'N/A'}</td>
                                             <td>
+                                            <div className="d-flex">
                                                 <button
-                                                    className="btn btn-sm btn-success me-2"
-                                                    onClick={() => updateOrderStatus(order._id, 'Approved')}
+                                                className="btn btn-sm btn-success me-2"
+                                                onClick={() => updateOrderStatus(order._id, 'Approved')}
                                                 >
-                                                    Accept
+                                                Accept
                                                 </button>
                                                 <button
-                                                    className="btn btn-sm btn-danger"
-                                                    onClick={() => updateOrderStatus(order._id, 'Rejected')}
+                                                className="btn btn-sm btn-danger"
+                                                onClick={() => updateOrderStatus(order._id, 'Rejected')}
                                                 >
-                                                    Reject
+                                                Reject
                                                 </button>
+                                            </div>
                                             </td>
+
                                             <td>
                                                 <button className="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target={`#orderModal${order._id}`}>
                                                     View
@@ -436,7 +439,7 @@ const ViewAllOrders = () => {
                                         <th>Quantity</th>
                                         <th>Total Price</th>
                                         <th>Supplier Status</th>
-                                        <th>Reorder Status</th>
+                                        <th>Manager Status</th>
                                         <th>Details</th>
                                     </tr>
                                 </thead>

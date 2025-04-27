@@ -318,13 +318,7 @@ const AddProductForm = ({ fetchProducts }) => {
         </div>
         <div className="mb-3">
           <label className="form-label">Supplier:</label>
-          <input
-            type="text"
-            className="form-control mb-2"
-            placeholder="Search supplier..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+          
           <select
             name="supplier"
             value={product.supplier}
@@ -343,7 +337,7 @@ const AddProductForm = ({ fetchProducts }) => {
           )}
         </div>
         <div className="mb-3">
-          <label className="form-label">Price (before tax):</label>
+          <label className="form-label">Unit Price :</label>
           <input
             type="number"
             name="price"
@@ -385,7 +379,7 @@ const AddProductForm = ({ fetchProducts }) => {
           />
         </div>
         <div className="mb-3">
-          <label className="form-label">Total Price (including tax):</label>
+          <label className="form-label">Total Price :</label>
           <input
             type="number"
             name="totalPrice"
