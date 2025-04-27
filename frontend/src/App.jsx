@@ -30,8 +30,13 @@ import Liab from "./components/LiabilityComponent";
 import Exp from "./components/ExpenseComponent";
 import PettyCash from "./components/PettyComponent";
 import Income from "./components/IncomeComponent";
+import FinanceDashboard from "./components/FinDash";
+
+
 import FinanceLayout from "./components/FinanceLayout";
 import "./App.css"; // 🟢 Make sure to import your CSS file
+import FinStatement from "./components/FinStatementComponent";
+//import FinAccount from "./components/FinAccountComponent";
 
 const App = () => {
   const [products, setProducts] = useState([]);
@@ -116,6 +121,10 @@ const App = () => {
               <Route path="expenses" element={<Exp />} />
               <Route path="pettycash" element={<PettyCash />} />
               <Route path="incomes" element={<Income />} />
+              <Route path="finstatement" element={<FinStatement />} />
+
+
+              
             </Route>
             
           </Routes>
