@@ -2,12 +2,14 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
-
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 const SalesList = () => {
   const [sales, setSales] = useState([]);
   const [loading, setLoading] = useState(false);
   const [expandedSale, setExpandedSale] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     fetchSales();
@@ -47,30 +49,83 @@ const SalesList = () => {
   };
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'LKR'
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "LKR",
     }).format(amount);
   };
 
   const getProductStatus = (product) => {
     if (product.returnedQuantity >= product.quantity) {
-      return { text: 'Fully Returned', class: 'bg-danger', canReturn: false };
+      return { text: "Fully Returned", class: "bg-danger", canReturn: false };
     }
     if (product.returnedQuantity > 0) {
-      return { text: 'Partially Returned', class: 'bg-warning', canReturn: true };
+      return { text: "Partially Returned", class: "bg-warning", canReturn: true };
     }
-    return { text: 'Sold', class: 'bg-success', canReturn: true };
+    return { text: "Sold", class: "bg-success", canReturn: true };
+  };
+
+  const filteredSales = sales.filter((sale) =>
+    sale.status.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const generatePDF = async () => {
+    if (window.confirm("Do you want to download the sales table as a PDF?")) {
+      const table = document.getElementById("sales-table");
+
+      const canvas = await html2canvas(table, { scale: 2 });
+      const imgData = canvas.toDataURL("image/png");
+
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+
+      const imgWidth = pdfWidth;
+      const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pdfHeight;
+
+      while (heightLeft > 0) {
+        position -= pdfHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+        heightLeft -= pdfHeight;
+      }
+
+      pdf.save("sales_table.pdf");
+    }
   };
 
   return (
     <div className="container mt-4">
       <h2>Sales Records</h2>
-      
+
+      {/* Search Bar */}
+      <div className="mb-3">
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Search by status (e.g., completed, pending)"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
+
+      {/* Generate PDF Button */}
+      <div className="mb-3">
+        <button className="btn btn-primary" onClick={generatePDF}>
+          Download PDF
+        </button>
+      </div>
+
       {loading ? (
         <div className="text-center">Loading sales data...</div>
       ) : (
-        <table className="table table-bordered table-striped">
+        <table id="sales-table" className="table table-bordered table-striped">
           <thead className="table-dark">
             <tr>
               <th>Date</th>
@@ -83,29 +138,35 @@ const SalesList = () => {
             </tr>
           </thead>
           <tbody>
-            {sales.map((sale) => (
+            {filteredSales.map((sale) => (
               <React.Fragment key={sale._id}>
                 <tr>
                   <td>{formatDate(sale.date)}</td>
-                  <td>{sale.customer?.name || 'Walk-in Customer'}</td>
+                  <td>{sale.customer?.name || "Walk-in Customer"}</td>
                   <td>{sale.products.reduce((sum, p) => sum + p.quantity, 0)}</td>
                   <td>{formatCurrency(sale.totalAmount)}</td>
                   <td>{sale.paymentMethod}</td>
                   <td>
-                    <span className={`badge ${
-                      sale.status === 'completed' ? 'bg-success' : 
-                      sale.status === 'pending' ? 'bg-warning' : 
-                      sale.status === 'returned' ? 'bg-secondary' : 'bg-danger'
-                    }`}>
+                    <span
+                      className={`badge ${
+                        sale.status === "completed"
+                          ? "bg-success"
+                          : sale.status === "pending"
+                          ? "bg-warning"
+                          : sale.status === "returned"
+                          ? "bg-secondary"
+                          : "bg-danger"
+                      }`}
+                    >
                       {sale.status}
                     </span>
                   </td>
                   <td>
-                    <button 
+                    <button
                       className="btn btn-info btn-sm"
                       onClick={() => toggleSaleDetails(sale._id)}
                     >
-                      {expandedSale === sale._id ? 'Hide' : 'Show'} Details
+                      {expandedSale === sale._id ? "Hide" : "Show"} Details
                     </button>
                   </td>
                 </tr>
@@ -128,13 +189,18 @@ const SalesList = () => {
                           <tbody>
                             {sale.products.map((product, index) => {
                               const status = getProductStatus(product);
-                              const remainingQty = product.quantity - (product.returnedQuantity || 0);
-                              
+                              const remainingQty =
+                                product.quantity - (product.returnedQuantity || 0);
+
                               return (
                                 <tr key={index}>
-                                  <td>{product.product?.name || 'Unknown Product'}</td>
+                                  <td>{product.product?.name || "Unknown Product"}</td>
                                   <td>{product.quantity}</td>
-                                  <td>{formatCurrency(product.quantity * product.product.price)}</td>
+                                  <td>
+                                    {formatCurrency(
+                                      product.quantity * product.product.price
+                                    )}
+                                  </td>
                                   <td>{product.returnedQuantity || 0}</td>
                                   <td>
                                     <span className={`badge ${status.class}`}>
@@ -142,15 +208,19 @@ const SalesList = () => {
                                     </span>
                                   </td>
                                   <td>
-                                    {status.canReturn && remainingQty > 0 && sale.status === 'completed' && (
-                                      <button
-                                        className="btn btn-warning btn-sm"
-                                        onClick={() => handleReturn(sale._id, product.product._id)}
-                                        title={`Return up to ${remainingQty} items`}
-                                      >
-                                        Return
-                                      </button>
-                                    )}
+                                    {status.canReturn &&
+                                      remainingQty > 0 &&
+                                      sale.status === "completed" && (
+                                        <button
+                                          className="btn btn-warning btn-sm"
+                                          onClick={() =>
+                                            handleReturn(sale._id, product.product._id)
+                                          }
+                                          title={`Return up to ${remainingQty} items`}
+                                        >
+                                          Return
+                                        </button>
+                                      )}
                                   </td>
                                 </tr>
                               );

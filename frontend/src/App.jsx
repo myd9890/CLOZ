@@ -59,6 +59,10 @@ import Header from "./Header";
 import Footer from "./Footer";
 import Index from "./index";
 import Customerogin from "./components/Customerogin";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 import "./App.css";
 import ProductListWithDiscounts from "./components/ProductListWithDiscounts";
@@ -467,7 +471,7 @@ const App = () => {
       </div>
     );
   }
-
+  
 };
 
 export default App;
