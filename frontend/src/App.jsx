@@ -37,8 +37,9 @@ import Liab from "./components/LiabilityComponent";
 import Exp from "./components/ExpenseComponent";
 import PettyCash from "./components/PettyComponent";
 import Income from "./components/IncomeComponent";
+import FinAccount from "./components/FinAccountComponent";
 import FinanceDashboard from "./components/FinDash";
-
+import FinDash from "./components/FinDash";
 import FinanceLayout from "./components/FinanceLayout";
 
 import EmployeeList from "./components/EmployeeList";
@@ -406,6 +407,7 @@ const App = () => {
         <nav className="sidebar">
           <h2>Finance</h2>
           <ul>
+          <li><Link to="/FinanceDashboard/dashboard">Dashboard</Link></li>
             <li>
               <Link to="/FinanceDashboard/assets">Assets</Link>
             </li>
@@ -426,6 +428,7 @@ const App = () => {
                 Financial statement
               </Link>
             </li>
+            <li><Link to="/FinanceDashboard/account">Financial Accounts</Link></li>
           </ul>
         </nav>
 
@@ -433,12 +436,14 @@ const App = () => {
           <h1>Finance Dashboard</h1>
           <p>Hi {user?.name}</p>
           <Routes>
+          <Route path="dashboard" element={<FinDash />} />
             <Route path="assets" element={<Asset />} />
             <Route path="liabilities" element={<Liab />} />
             <Route path="expenses" element={<Exp />} />
             <Route path="incomes" element={<Income />} />
             <Route path="pettycash" element={<PettyCash />} />
             <Route path="finstatement" element={<FinStatement />} />
+            <Route path="account" element={<FinAccount />} />
           </Routes>
         </div>
       </div>
