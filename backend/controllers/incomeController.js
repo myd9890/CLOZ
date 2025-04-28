@@ -14,10 +14,14 @@ const addIncome = async (req, res) => {
         await newIncome.save();
         res.json("Income added!");
     } catch (err) {
+        if (err.code === 11000) {
+            return res.status(400).send({ status: "Duplicate ID error", error: "Income ID already exists." });
+        }
         console.log(err);
         res.status(500).send({ status: "Error with adding income", error: err.message });
     }
 };
+
 
 const getAllIncomes = async (req, res) => {
     try {

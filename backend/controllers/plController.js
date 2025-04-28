@@ -68,4 +68,3 @@ const generatePLStatement = async (req, res) => {
 
 module.exports = { generatePLStatement };
 
-

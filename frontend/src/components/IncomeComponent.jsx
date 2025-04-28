@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -134,7 +135,6 @@ function Income() {
     );
 
     const totalSales = sales.reduce((total, sale) => total + Number(sale.totalAmount || 0), 0);
-    
 
     return (
         <div className="container mt-4">
@@ -167,7 +167,7 @@ function Income() {
                     <div className="col-md-4">
                         <input
                             type="text"
-                            name="Income"
+                            name="IncomeName"
                             className={`form-control ${formErrors.IncomeName ? "is-invalid" : ""}`}
                             placeholder="Income"
                             value={form.IncomeName}
@@ -179,7 +179,7 @@ function Income() {
                     <div className="col-md-4">
                         <input
                             type="date"
-                            name="Date"
+                            name="IncomeDate"
                             className={`form-control ${formErrors.IncomeDate ? "is-invalid" : ""}`}
                             value={form.IncomeDate}
                             onChange={handleChange}
@@ -232,11 +232,6 @@ function Income() {
                     ))}
                 </tbody>
             </table>
-
-            {/* Total Sales Amount Display */}
-            <div className="mt-3 text-end">
-                <h5>Total Sales: Rs. {totalSales.toFixed(2)}</h5>
-            </div>
 
             {/* Toast */}
             <div id="toast" className="toast align-items-center text-white position-fixed bottom-0 end-0 p-3" role="alert">

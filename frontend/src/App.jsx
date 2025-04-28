@@ -404,39 +404,28 @@ const App = () => {
   function FinanceDashboard({ user }) {
     return (
       <div className="dashboard-container">
+        
         <nav className="sidebar">
           <h2>Finance</h2>
           <ul>
-          <li><Link to="/FinanceDashboard/dashboard">Dashboard</Link></li>
-            <li>
-              <Link to="/FinanceDashboard/assets">Assets</Link>
-            </li>
-            <li>
-              <Link to="/FinanceDashboard/liabilities">Liabilities</Link>
-            </li>
-            <li>
-              <Link to="/FinanceDashboard/expenses">Expenses</Link>
-            </li>
-            <li>
-              <Link to="/FinanceDashboard/incomes">Incomes</Link>
-            </li>
-            <li>
-              <Link to="/FinanceDashboard/pettycash">Petty Cash</Link>
-            </li>
-            <li>
-              <Link to="/FinanceDashboard/finstatement">
-                Financial statement
-              </Link>
-            </li>
+            <li><Link to="/FinanceDashboard/">Dashboard</Link></li>
+            <li><Link to="/FinanceDashboard/assets">Assets</Link></li>
+            <li><Link to="/FinanceDashboard/liabilities">Liabilities</Link></li>
+            <li><Link to="/FinanceDashboard/expenses">Expenses</Link></li>
+            <li><Link to="/FinanceDashboard/incomes">Incomes</Link></li>
+            <li><Link to="/FinanceDashboard/pettycash">Petty Cash</Link></li>
+            <li><Link to="/FinanceDashboard/finstatement">Financial statements</Link></li>
             <li><Link to="/FinanceDashboard/account">Financial Accounts</Link></li>
+
+
           </ul>
         </nav>
 
         <div className="dashboard-content">
           <h1>Finance Dashboard</h1>
-          <p>Hi {user?.name}</p>
+
           <Routes>
-          <Route path="dashboard" element={<FinDash />} />
+            <Route path="" element={<FinDash />} />
             <Route path="assets" element={<Asset />} />
             <Route path="liabilities" element={<Liab />} />
             <Route path="expenses" element={<Exp />} />
@@ -449,6 +438,7 @@ const App = () => {
       </div>
     );
   }
+
 
   function SalesDashboard({ user }) {
     return (

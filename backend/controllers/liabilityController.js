@@ -16,10 +16,14 @@ const addLiability = async (req, res) => {
         await newLiability.save();
         res.json("Liability added!");
     } catch (err) {
+        if (err.code === 11000) {
+            return res.status(400).send({ status: "Duplicate ID error", error: "Liability ID already exists." });
+        }
         console.log(err);
         res.status(500).send({ status: "Error with adding liability", error: err.message });
     }
 };
+
 
 // Get all liabilities
 const getLiabilities = async (req, res) => {

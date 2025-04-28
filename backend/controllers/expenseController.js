@@ -16,10 +16,14 @@ const addExpense = async (req, res) => {
         await newExpense.save();
         res.json("Expense added!");
     } catch (err) {
+        if (err.code === 11000) {
+            return res.status(400).send({ status: "Duplicate ID error", error: "Expense ID already exists." });
+        }
         console.log(err);
         res.status(500).send({ status: "Error with adding expense", error: err.message });
     }
 };
+
 
 // Get all expenses
 const getExpenses = async (req, res) => {

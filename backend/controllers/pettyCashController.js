@@ -16,10 +16,14 @@ const addPettyCash = async (req, res) => {
         await newPetty.save();
         res.json("Petty cash expense added!");
     } catch (err) {
+        if (err.code === 11000) {
+            return res.status(400).send({ status: "Duplicate ID error", error: "Petty cash ID already exists." });
+        }
         console.log(err);
         res.status(500).send({ status: "Error with adding data!", error: err.message });
     }
 };
+
 
 // Get all petty cash expenses
 const getAllPettyCash = async (req, res) => {
@@ -93,3 +97,4 @@ module.exports = {
     deletePettyCash,
     getPettyCashById
 };
+

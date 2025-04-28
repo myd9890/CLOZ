@@ -15,10 +15,14 @@ const addAsset = async (req, res) => {
         await newAsset.save();
         res.json("Asset added!");
     } catch (err) {
+        if (err.code === 11000) {
+            return res.status(400).send({ status: "Duplicate ID error", error: "Asset ID already exists." });
+        }
         console.log(err);
-        res.status(500).send({ status: "Error with adding asset", error: err.message });
+        res.status(500).send({ status: "Duplicate ID error", error: err.message });
     }
 };
+
 
 const getAllAssets = async (req, res) => {
     try {

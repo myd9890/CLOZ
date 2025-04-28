@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import jsPDF from 'jspdf';
 
@@ -8,19 +8,39 @@ const FinStatement = () => {
   const [bsStartDate, setBsStartDate] = useState('');
   const [bsEndDate, setBsEndDate] = useState('');
   const [plResult, setPlResult] = useState(null);
-  const [bsResult, setBsResult] = useState(null); // To hold the balance sheet data
+  const [bsResult, setBsResult] = useState(null);
+
+  const toastRef = useRef(null);
+  const showToast = (message) => {
+    if (toastRef.current) {
+      toastRef.current.querySelector('.toast-body').textContent = message;
+      const toast = new window.bootstrap.Toast(toastRef.current);
+      toast.show();
+    }
+  };
+
+  const isFutureDate = (date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const selectedDate = new Date(date);
+    return selectedDate > today;
+  };
 
   const handleGeneratePL = async () => {
     try {
       if (!plStartDate || !plEndDate) {
-        alert('Please select both start and end dates.');
+        showToast('Please select both start and end dates.');
+        return;
+      }
+
+      if (isFutureDate(plStartDate) || isFutureDate(plEndDate)) {
+        showToast('Future dates are not allowed for Profit and Loss Statement.');
         return;
       }
 
       const res = await axios.get(`http://localhost:8070/plstatement?start=${plStartDate}&end=${plEndDate}`);
       setPlResult(res.data);
 
-      // Creative PDF generation in income statement format
       const doc = new jsPDF();
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(18);
@@ -39,16 +59,16 @@ const FinStatement = () => {
       y += 8;
       doc.setFont('helvetica', 'normal');
       doc.text(`Total Sales`, 30, y);
-      doc.text(`$${res.data.totalSales.toFixed(2)}`, 160, y, null, null, 'right');
+      doc.text(`Rs.${res.data.totalSales.toFixed(2)}`, 160, y, null, null, 'right');
       y += 7;
       doc.text(`Other Income`, 30, y);
-      doc.text(`$${res.data.otherIncome.toFixed(2)}`, 160, y, null, null, 'right');
+      doc.text(`Rs.${res.data.otherIncome.toFixed(2)}`, 160, y, null, null, 'right');
       y += 7;
 
       doc.setFont('helvetica', 'bold');
       doc.text(`Total Revenue`, 30, y);
       const totalRevenue = res.data.totalSales + res.data.otherIncome;
-      doc.text(`$${totalRevenue.toFixed(2)}`, 160, y, null, null, 'right');
+      doc.text(`Rs.${totalRevenue.toFixed(2)}`, 160, y, null, null, 'right');
       y += 10;
 
       doc.setFont('helvetica', 'bold');
@@ -56,12 +76,12 @@ const FinStatement = () => {
       y += 8;
       doc.setFont('helvetica', 'normal');
       doc.text(`Total Purchases`, 30, y);
-      doc.text(`$${res.data.totalPurchases.toFixed(2)}`, 160, y, null, null, 'right');
+      doc.text(`Rs.${res.data.totalPurchases.toFixed(2)}`, 160, y, null, null, 'right');
       y += 10;
 
       doc.setFont('helvetica', 'bold');
       doc.text(`Gross Profit`, 30, y);
-      doc.text(`$${res.data.grossProfit.toFixed(2)}`, 160, y, null, null, 'right');
+      doc.text(`Rs.${res.data.grossProfit.toFixed(2)}`, 160, y, null, null, 'right');
       y += 10;
 
       doc.setFont('helvetica', 'bold');
@@ -69,7 +89,7 @@ const FinStatement = () => {
       y += 8;
       doc.setFont('helvetica', 'normal');
       doc.text(`Total Expenses`, 30, y);
-      doc.text(`$${res.data.totalExpenses.toFixed(2)}`, 160, y, null, null, 'right');
+      doc.text(`Rs.${res.data.totalExpenses.toFixed(2)}`, 160, y, null, null, 'right');
       y += 10;
 
       doc.setLineWidth(0.3);
@@ -79,26 +99,30 @@ const FinStatement = () => {
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(14);
       doc.text(`Net Profit`, 30, y);
-      doc.text(`$${res.data.netProfit.toFixed(2)}`, 160, y, null, null, 'right');
+      doc.text(`Rs.${res.data.netProfit.toFixed(2)}`, 160, y, null, null, 'right');
 
       doc.save(`Income_Statement_${plStartDate}_to_${plEndDate}.pdf`);
     } catch (error) {
       console.error('Error generating P/L statement:', error);
-      alert('Failed to generate P/L statement. Please check the console for more info.');
+      showToast('Failed to generate P/L statement. Check console for more info.');
     }
   };
 
   const handleGenerateBS = async () => {
     try {
       if (!bsStartDate || !bsEndDate) {
-        alert('Please select both start and end dates for the balance sheet.');
+        showToast('Please select both start and end dates for the balance sheet.');
+        return;
+      }
+
+      if (isFutureDate(bsStartDate) || isFutureDate(bsEndDate)) {
+        showToast('Future dates are not allowed for Balance Sheet.');
         return;
       }
 
       const res = await axios.get(`http://localhost:8070/api/balance-sheet/generate-balance-sheet?start=${bsStartDate}&end=${bsEndDate}`);
       setBsResult(res.data);
 
-      // Creative PDF generation for Balance Sheet
       const doc = new jsPDF();
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(18);
@@ -112,52 +136,49 @@ const FinStatement = () => {
 
       let y = 42;
 
-      // Assets Section
       doc.setFont('helvetica', 'bold');
       doc.text('Assets', 20, y);
       y += 8;
       doc.setFont('helvetica', 'normal');
       doc.text(`Current Assets`, 30, y);
-      doc.text(`$${res.data.currentAssets.toFixed(2)}`, 160, y, null, null, 'right');
+      doc.text(`Rs.${res.data.currentAssets.toFixed(2)}`, 160, y, null, null, 'right');
       y += 7;
       doc.text(`Non-current Assets`, 30, y);
-      doc.text(`$${res.data.nonCurrentAssets.toFixed(2)}`, 160, y, null, null, 'right');
+      doc.text(`Rs.${res.data.nonCurrentAssets.toFixed(2)}`, 160, y, null, null, 'right');
       y += 10;
 
       doc.setFont('helvetica', 'bold');
       doc.text(`Total Assets`, 30, y);
-      doc.text(`$${res.data.totalAssets.toFixed(2)}`, 160, y, null, null, 'right');
+      doc.text(`Rs.${res.data.totalAssets.toFixed(2)}`, 160, y, null, null, 'right');
       y += 10;
 
-      // Liabilities Section
       doc.setFont('helvetica', 'bold');
       doc.text('Liabilities', 20, y);
       y += 8;
       doc.setFont('helvetica', 'normal');
       doc.text(`Current Liabilities`, 30, y);
-      doc.text(`$${res.data.currentLiabilities.toFixed(2)}`, 160, y, null, null, 'right');
+      doc.text(`Rs.${res.data.currentLiabilities.toFixed(2)}`, 160, y, null, null, 'right');
       y += 7;
       doc.text(`Non-current Liabilities`, 30, y);
-      doc.text(`$${res.data.nonCurrentLiabilities.toFixed(2)}`, 160, y, null, null, 'right');
+      doc.text(`Rs.${res.data.nonCurrentLiabilities.toFixed(2)}`, 160, y, null, null, 'right');
       y += 10;
 
       doc.setFont('helvetica', 'bold');
       doc.text(`Total Liabilities`, 30, y);
-      doc.text(`$${res.data.totalLiabilities.toFixed(2)}`, 160, y, null, null, 'right');
+      doc.text(`Rs.${res.data.totalLiabilities.toFixed(2)}`, 160, y, null, null, 'right');
       y += 10;
 
-      // Equity Section
       doc.setFont('helvetica', 'bold');
       doc.text('Equity', 20, y);
       y += 8;
       doc.setFont('helvetica', 'normal');
       doc.text(`Equity`, 30, y);
-      doc.text(`$${res.data.equity.toFixed(2)}`, 160, y, null, null, 'right');
+      doc.text(`Rs.${res.data.equity.toFixed(2)}`, 160, y, null, null, 'right');
 
       doc.save(`Balance_Sheet_${bsStartDate}_to_${bsEndDate}.pdf`);
     } catch (error) {
       console.error('Error generating Balance Sheet:', error);
-      alert('Failed to generate Balance Sheet. Please check the console for more info.');
+      showToast('Failed to generate Balance Sheet. Check console for more info.');
     }
   };
 
@@ -165,6 +186,25 @@ const FinStatement = () => {
     <div className="container text-center mt-5">
       <h1 className="mb-4">Financial Statements</h1>
 
+
+      <div
+        ref={toastRef}
+        className="toast align-items-center text-white bg-danger border-0 position-fixed top-0 end-0 m-3"
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
+        style={{ zIndex: 9999 }}
+      >
+        <div className="d-flex">
+          <div className="toast-body"></div>
+          <button
+            type="button"
+            className="btn-close btn-close-white me-2 m-auto"
+            data-bs-dismiss="toast"
+            aria-label="Close"
+          ></button>
+        </div>
+      </div>
 
       <div className="mb-4">
         <h5>Profit and Loss Statement</h5>
@@ -189,16 +229,15 @@ const FinStatement = () => {
         {plResult && (
           <div className="mt-3 text-start">
             <h6>Results:</h6>
-            <p>Total Sales: ${plResult.totalSales.toFixed(2)}</p>
-            <p>Other Income: ${plResult.otherIncome.toFixed(2)}</p>
-            <p>Total Purchases: ${plResult.totalPurchases.toFixed(2)}</p>
-            <p>Total Expenses: ${plResult.totalExpenses.toFixed(2)}</p>
-            <p>Gross Profit: ${plResult.grossProfit.toFixed(2)}</p>
-            <h5>Net Profit: ${plResult.netProfit.toFixed(2)}</h5>
+            <p>Total Sales: Rs.{plResult.totalSales.toFixed(2)}</p>
+            <p>Other Income: Rs.{plResult.otherIncome.toFixed(2)}</p>
+            <p>Total Purchases: Rs.{plResult.totalPurchases.toFixed(2)}</p>
+            <p>Total Expenses: Rs.{plResult.totalExpenses.toFixed(2)}</p>
+            <p>Gross Profit: Rs.{plResult.grossProfit.toFixed(2)}</p>
+            <h5>Net Profit: Rs.{plResult.netProfit.toFixed(2)}</h5>
           </div>
         )}
       </div>
-
 
       <div>
         <h5>Balance Sheet</h5>
@@ -223,13 +262,13 @@ const FinStatement = () => {
         {bsResult && (
           <div className="mt-3 text-start">
             <h6>Balance Sheet:</h6>
-            <p>Current Assets: ${bsResult.currentAssets.toFixed(2)}</p>
-            <p>Non-current Assets: ${bsResult.nonCurrentAssets.toFixed(2)}</p>
-            <p>Total Assets: ${bsResult.totalAssets.toFixed(2)}</p>
-            <p>Current Liabilities: ${bsResult.currentLiabilities.toFixed(2)}</p>
-            <p>Non-current Liabilities: ${bsResult.nonCurrentLiabilities.toFixed(2)}</p>
-            <p>Total Liabilities: ${bsResult.totalLiabilities.toFixed(2)}</p>
-            <h5>Equity: ${bsResult.equity.toFixed(2)}</h5>
+            <p>Current Assets: Rs.{bsResult.currentAssets.toFixed(2)}</p>
+            <p>Non-current Assets: Rs.{bsResult.nonCurrentAssets.toFixed(2)}</p>
+            <p>Total Assets: Rs.{bsResult.totalAssets.toFixed(2)}</p>
+            <p>Current Liabilities: Rs.{bsResult.currentLiabilities.toFixed(2)}</p>
+            <p>Non-current Liabilities: Rs.{bsResult.nonCurrentLiabilities.toFixed(2)}</p>
+            <p>Total Liabilities: Rs.{bsResult.totalLiabilities.toFixed(2)}</p>
+            <h5>Equity: Rs.{bsResult.equity.toFixed(2)}</h5>
           </div>
         )}
       </div>
@@ -238,4 +277,3 @@ const FinStatement = () => {
 };
 
 export default FinStatement;
-
