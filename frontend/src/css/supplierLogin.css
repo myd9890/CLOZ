@@ -1,0 +1,74 @@
+/* Login Container */
+.login-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #5c99d1, #dfe7f6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  
+  /* Login Card */
+  .login-card {
+    background-color: #ffffff;
+    padding: 40px 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    width: 100%;
+    max-width: 400px;
+  }
+  
+  /* Title */
+  .login-title {
+    text-align: center;
+    margin-bottom: 30px;
+    font-weight: 700;
+    font-size: 28px;
+    color: #333;
+  }
+  
+  /* Form Group */
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  /* Input */
+  .form-control {
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+  
+  .form-control:focus {
+    border-color: #6a11cb;
+  }
+  
+  /* Button */
+  .login-button {
+    width: 100%;
+    padding: 12px;
+    background-color: #84b2ee;
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 18px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+    cursor: pointer;
+  }
+  
+  .login-button:hover {
+    background-color: #2575fc;
+  }
+  
+  /* Error Message */
+  .error-message {
+    color: #d9534f;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+  

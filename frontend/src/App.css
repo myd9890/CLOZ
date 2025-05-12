@@ -1,42 +1,66 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Sidebar base */
+.sidebar {
+  width: 220px;
+  background: linear-gradient(145deg, #2c3e50, #34495e);
+  color: white;
+  padding: 20px;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+  position: fixed;
+  height: 100vh;
+  transition: background 0.3s ease;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+/* Sidebar header */
+.sidebar h2 {
+  margin-top: 0;
+  color: #ecf0f1;
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #7f8c8d;
+  padding-bottom: 10px;
 }
 
-.card {
-  padding: 2em;
+/* Sidebar list */
+.sidebar ul {
+  list-style: none;
+  padding: 0;
 }
 
-.read-the-docs {
-  color: #888;
+/* Sidebar items */
+.sidebar li {
+  margin: 15px 0;
+}
+
+/* Sidebar links */
+.sidebar a {
+  color: #ecf0f1;
+  text-decoration: none;
+  padding: 10px 15px;
+  display: block;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+/* Hover effects */
+.sidebar a:hover {
+  background-color: #1abc9c;
+  transform: translateX(8px);
+  box-shadow: 2px 4px 8px rgba(26, 188, 156, 0.3);
+  color: #fff;
+}
+
+/* Dashboard main content */
+.dashboard-content {
+  flex-grow: 1;
+  padding: 30px;
+  background-color: #f9f9f9;
+  margin-left: 220px;
+  transition: all 0.3s ease;
 }
